@@ -1,0 +1,1343 @@
+/* ==========================================================================
+   CSE Class A — First-Year Live Timetable Planner Stylesheet
+   Institution: Saranathan College of Engineering (Autonomous)
+   Theme: Modern Glassmorphism, College Deep Slate / Sapphire & Amber Accents
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg-primary: #0a0f1d;
+  --bg-secondary: #0f172a;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-bright: rgba(255, 255, 255, 0.18);
+
+  /* Primary & Accents */
+  --accent-blue: #38bdf8;
+  --accent-blue-glow: rgba(56, 189, 248, 0.35);
+  --accent-indigo: #6366f1;
+  --accent-gold: #fbbf24;
+  --accent-gold-glow: rgba(251, 191, 36, 0.3);
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+
+  /* Text Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-highlight: #38bdf8;
+
+  /* Typography */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Radii & Shadows */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -3px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 35px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 25px var(--accent-blue-glow);
+
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.98);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --border-glass-bright: rgba(0, 0, 0, 0.15);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+/* App Container */
+.app-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 12px var(--accent-blue-glow);
+}
+
+.brand-info h1 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.brand-badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.brand-info p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
+}
+
+.btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-glass-bright);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.btn-active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  cursor: pointer;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* ==========================================================================
+   Hero Section - Today's Live Dashboard
+   ========================================================================== */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition-smooth);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4), transparent);
+}
+
+/* Live Header Card */
+.clock-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.date-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.day-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.day-order-badge {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #0284c7, #6366f1);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-blue-glow);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.working-status-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.holiday-status-badge {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.today-date-text {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.today-meta-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Live IST Clock */
+.clock-display {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.clock-digits {
+  font-family: var(--font-mono);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px var(--accent-blue-glow);
+}
+
+.clock-tz {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.hall-info {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-glass);
+  padding-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hall-tag {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Current Period Hero Card */
+.current-period-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-color: rgba(56, 189, 248, 0.3);
+  position: relative;
+  box-shadow: var(--shadow-glow);
+}
+
+.current-period-card.pulse-glow {
+  animation: glow-pulse 3s infinite ease-in-out;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-blue-glow); border-color: rgba(56, 189, 248, 0.35); }
+  50% { box-shadow: 0 0 35px rgba(56, 189, 248, 0.6); border-color: rgba(56, 189, 248, 0.65); }
+}
+
+.period-hero-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.period-timing-tag {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.hero-subject-area {
+  margin: 1rem 0;
+}
+
+.hero-period-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.hero-subject-title {
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.hero-faculty-name {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Countdown & Progress Area */
+.countdown-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.countdown-flex {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.countdown-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.countdown-digits {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  text-shadow: 0 0 15px var(--accent-gold-glow);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #fbbf24);
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease-out;
+}
+
+.next-period-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+}
+
+.next-period-hint strong {
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Navigation Tabs & Day Order Selector
+   ========================================================================== */
+.view-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tabs-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+
+.tab-btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab-btn.active {
+  background: var(--bg-card-hover);
+  color: var(--accent-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.day-orders-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.do-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.do-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.do-btn.active {
+  background: linear-gradient(135deg, #0284c7, #6366f1);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px var(--accent-blue-glow);
+}
+
+/* ==========================================================================
+   Full Timetable Schedule List (Today / Selected Day)
+   ========================================================================== */
+.schedule-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.periods-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Single Period Card */
+.period-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.4rem;
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  transition: all var(--transition-smooth);
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .period-card {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* Period States */
+/* 1. Completed State */
+.period-card.state-completed {
+  opacity: 0.55;
+  background: rgba(15, 23, 42, 0.45);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.period-card.state-completed .period-subject-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.period-card.state-completed:hover {
+  opacity: 0.85;
+}
+
+/* 2. Current Active State */
+.period-card.state-current {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1.5px solid var(--accent-blue);
+  box-shadow: 0 0 25px var(--accent-blue-glow);
+  transform: scale(1.01);
+}
+
+.period-card.state-current::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-blue);
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+/* 3. Upcoming State */
+.period-card.state-upcoming {
+  border-color: var(--border-glass);
+}
+
+.period-card.state-upcoming:hover {
+  border-color: var(--border-glass-bright);
+  background: var(--bg-card-hover);
+  transform: translateX(3px);
+}
+
+/* 4. Break & Lunch */
+.period-card.type-break,
+.period-card.type-lunch {
+  background: rgba(245, 158, 11, 0.04);
+  border: 1px dashed rgba(245, 158, 11, 0.25);
+  grid-template-columns: 140px 1fr auto;
+}
+
+@media (max-width: 768px) {
+  .period-card.type-break,
+  .period-card.type-lunch {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Period Inner Elements */
+.period-time-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.period-badge {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-blue);
+}
+
+.period-time-text {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.period-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.period-subject-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.subject-code-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+
+.period-sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.period-status-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.status-badge.completed {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-muted);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.status-badge.current {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue);
+  animation: pulse-border 2s infinite;
+}
+
+.status-badge.upcoming {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glass);
+}
+
+/* ==========================================================================
+   Academic Calendar View (Sheet & Grid Orientations)
+   ========================================================================== */
+.calendar-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.calendar-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--bg-card);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
+}
+
+.cal-view-modes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+
+.mode-toggle-btn {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mode-toggle-btn.active {
+  background: linear-gradient(135deg, #0284c7, #6366f1);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--accent-blue-glow);
+}
+
+.month-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.month-pill-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.month-pill-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.month-pill-btn.active {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* --------------------------------------------------------------------------
+   Orientation 1: College Academic Planner Sheet (Matches PDF Layout)
+   -------------------------------------------------------------------------- */
+.planner-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .planner-sheet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .planner-sheet-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.planner-month-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.planner-month-header {
+  background: linear-gradient(135deg, #0c1e38, #162a4d);
+  border-bottom: 2px solid var(--accent-blue);
+  padding: 0.75rem 0.85rem 0.5rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.planner-month-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-align: center;
+}
+
+.planner-col-headers {
+  display: grid;
+  grid-template-columns: 55px 1fr 42px 42px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent-blue);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.35rem;
+  text-align: center;
+}
+
+.planner-rows-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.planner-row {
+  display: grid;
+  grid-template-columns: 55px 1fr 42px 42px;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.planner-row:hover {
+  background: var(--bg-card-hover);
+  filter: brightness(1.15);
+}
+
+/* Highlight Types Matching College PDF */
+.planner-row.row-holiday {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fecdd3;
+}
+
+.planner-row.row-holiday .p-event-text {
+  color: var(--accent-rose);
+  font-weight: 600;
+}
+
+.planner-row.row-special {
+  background: rgba(245, 158, 11, 0.18);
+}
+
+.planner-row.row-special .p-event-text {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.planner-row.row-cia {
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.planner-row.row-cia .p-event-text {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.planner-row.row-today {
+  outline: 2px solid var(--accent-blue);
+  box-shadow: inset 0 0 10px var(--accent-blue-glow);
+  background: rgba(56, 189, 248, 0.25);
+}
+
+.p-date-col {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.p-date-num {
+  width: 20px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.p-day-dow {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.p-event-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.p-do-badge {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.p-wd-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.planner-month-footer {
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid var(--border-glass);
+  padding: 0.5rem 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+/* --------------------------------------------------------------------------
+   Orientation 2: Fixed Monthly Calendar Grid (Strict 7 equal columns)
+   -------------------------------------------------------------------------- */
+.calendar-grid-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.month-label {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  min-width: 170px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.calendar-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-glass);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.cal-day-cell {
+  min-height: 80px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+@media (max-width: 600px) {
+  .cal-day-cell {
+    min-height: 60px;
+    padding: 0.35rem;
+  }
+}
+
+.cal-day-cell:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-glass-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.cal-day-cell.empty {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.cal-day-cell.today {
+  border: 2px solid var(--accent-blue);
+  box-shadow: 0 0 15px var(--accent-blue-glow);
+}
+
+.cal-day-cell.selected {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--accent-blue);
+}
+
+.cal-day-cell.holiday {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.cal-day-cell.exam {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.cal-date-number {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cal-day-order-badge {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--accent-blue);
+  width: fit-content;
+}
+
+.cal-event-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: var(--accent-gold);
+}
+
+/* Calendar Legend */
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-glass);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   Supabase Config Modal
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-smooth);
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-lg);
+  max-width: 540px;
+  width: 100%;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-control {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.9rem;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Footer Section */
+.app-footer {
+  text-align: center;
+  padding: 2rem 0 1rem 0;
+  border-top: 1px solid var(--border-glass);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.app-footer strong {
+  color: var(--text-secondary);
+}
