@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSE Class A — First-Year Live Timetable Planner</title>
-  <meta name="description" content="Real-time live timetable and Day Order indicator for First-Year Computer Science and Engineering (Class A), Saranathan College of Engineering.">
-  
+  <meta name="description"
+    content="Real-time live timetable and Day Order indicator for First-Year Computer Science and Engineering (Class A), Saranathan College of Engineering.">
+
   <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/jpeg" href="/cse.jpeg" />
 </head>
+
 <body>
   <div class="app-container">
     <!-- Top Navigation Header -->
@@ -159,7 +165,8 @@
       <!-- Calendar Control Bar -->
       <div class="calendar-top-bar">
         <div>
-          <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+          <h2
+            style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
             Academic Planner 2026 - 27 (ODD Semester)
           </h2>
           <p style="font-size: 0.8rem; color: var(--text-secondary);">
@@ -220,15 +227,18 @@
         <!-- Legend -->
         <div class="calendar-legend">
           <div class="legend-item">
-            <span class="legend-box" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-blue);"></span>
+            <span class="legend-box"
+              style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-blue);"></span>
             <span>Working Day Order (I - V)</span>
           </div>
           <div class="legend-item">
-            <span class="legend-box" style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose);"></span>
+            <span class="legend-box"
+              style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose);"></span>
             <span>Holiday / Sunday</span>
           </div>
           <div class="legend-item">
-            <span class="legend-box" style="background: rgba(251, 191, 36, 0.15); border: 1px solid var(--accent-gold);"></span>
+            <span class="legend-box"
+              style="background: rgba(251, 191, 36, 0.15); border: 1px solid var(--accent-gold);"></span>
             <span>Internal Assessment / Exam</span>
           </div>
           <div class="legend-item">
@@ -255,7 +265,8 @@
         <button id="closeModalBtn" class="btn" style="padding: 0.25rem 0.6rem;">✕</button>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-secondary);">
-        Connect your Supabase project to fetch live timetable and academic calendar updates remotely. Public users have read-only access.
+        Connect your Supabase project to fetch live timetable and academic calendar updates remotely. Public users have
+        read-only access.
       </p>
 
       <div class="form-group">
@@ -280,4 +291,5 @@
   <!-- Main Application Script (ES Module) -->
   <script type="module" src="app.js"></script>
 </body>
+
 </html>
