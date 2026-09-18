@@ -6,6 +6,7 @@ import { DayOrderEngine } from './js/dayOrderEngine.js';
 import { SupabaseSyncService } from './js/supabaseClient.js';
 import { appSettingsData, subjectsData, dayOrderTimetables } from './data/timetableData.js';
 import { academicCalendarData, calendarDictionary } from './data/calendarData.js';
+import { initIntro } from './js/introManager.js';
 
 class CollegeTimetableApp {
   constructor() {
@@ -862,6 +863,7 @@ class CollegeTimetableApp {
 
 // Instantiate and start app on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+  initIntro();
   const app = new CollegeTimetableApp();
   app.init();
 });

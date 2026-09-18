@@ -24,6 +24,28 @@
 </head>
 
 <body>
+  <!-- Opening Intro Video Overlay (Sub-Second Opener) -->
+  <div id="introOverlay" class="intro-overlay" aria-hidden="true">
+    <div class="intro-video-container">
+      <video id="introVideo" class="intro-video" autoplay muted playsinline webkit-playsinline preload="auto">
+        <source src="INTRO/VN20260918_202604.mp4" type="video/mp4">
+        <source src="intro/VN20260918_202604.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <script>
+    // Immediate pre-render guard: If user prefers reduced motion or already saw intro in this session, hide overlay before first paint
+    (function() {
+      try {
+        if (sessionStorage.getItem('college_intro_seen') === 'true' ||
+            (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+          var ov = document.getElementById('introOverlay');
+          if (ov) ov.style.display = 'none';
+        }
+      } catch (_) {}
+    })();
+  </script>
+
   <div class="app-container">
     <!-- Top Navigation Header -->
     <header class="top-nav">
@@ -291,7 +313,8 @@
     </div>
   </div>
 
-  <!-- Main Application Script (ES Module) -->
+  <!-- Intro Controller & Main Application Script (ES Modules) -->
+  <script type="module" src="js/introManager.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 
