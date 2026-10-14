@@ -1,0 +1,44 @@
+{
+  "name": "cse-class-a-timetable",
+  "version": "1.0.0",
+  "description": "CSE Class A First-Year Live Timetable Planner for Saranathan College of Engineering",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node build-web.js",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:build": "npm run build && npx cap sync android && cd android && ./gradlew.bat assembleDebug",
+    "test": "node test/engine.test.js && node test/learning_platform.test.js && node test/telegram_poc.test.js && node test/security_policies.test.js && node test/lifecycle_and_recovery.test.js && node test/caption_and_metadata.test.js && node test/in_app_preview.test.js && node test/google_drive_telegram_audit.test.js && node test/admin_auth.test.js && node test/profile_and_ban_hierarchy.test.js",
+    "test:timetable": "node test/engine.test.js",
+    "test:learning": "node test/learning_platform.test.js",
+    "test:poc": "node test/telegram_poc.test.js",
+    "test:security": "node test/security_policies.test.js",
+    "test:lifecycle": "node test/lifecycle_and_recovery.test.js",
+    "test:caption": "node test/caption_and_metadata.test.js",
+    "test:preview": "node test/in_app_preview.test.js",
+    "test:drive": "node test/google_drive_telegram_audit.test.js",
+    "test:admin": "node test/admin_auth.test.js",
+    "test:profile": "node test/profile_and_ban_hierarchy.test.js"
+  },
+  "keywords": [
+    "saranathan",
+    "cse",
+    "timetable",
+    "planner",
+    "offline",
+    "capacitor",
+    "android"
+  ],
+  "author": "Saranathan College of Engineering",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^7.0.1",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/cli": "^7.0.1",
+    "@capacitor/core": "^7.0.1",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  }
+}

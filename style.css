@@ -94,7 +94,7 @@ body {
 .app-container {
   max-width: 1380px;
   margin: 0 auto;
-  padding: 1.25rem 1.5rem 3rem 1.5rem;
+  padding: max(1.25rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -658,13 +658,6 @@ body {
   position: relative;
 }
 
-@media (max-width: 768px) {
-  .period-card {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-}
-
 /* Period States */
 /* 1. Completed State */
 .period-card.state-completed {
@@ -719,13 +712,6 @@ body {
   background: rgba(245, 158, 11, 0.04);
   border: 1px dashed rgba(245, 158, 11, 0.25);
   grid-template-columns: 140px 1fr auto;
-}
-
-@media (max-width: 768px) {
-  .period-card.type-break,
-  .period-card.type-lunch {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Period Inner Elements */
@@ -1403,4 +1389,578 @@ body {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   Mobile-Only Responsive UI/UX Refinements (<= 768px, <= 480px, <= 380px)
+   Preserves all desktop styles while making the mobile/Android view compact,
+   balanced, and readable without unnecessary vertical scrolling.
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* --- 1. Container & Global Mobile Spacing --- */
+  .app-container {
+    padding: max(0.65rem, env(safe-area-inset-top)) max(0.65rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(0.65rem, env(safe-area-inset-left));
+    gap: 0.75rem;
+  }
+
+  /* --- 2. Top Navigation Header --- */
+  .top-nav {
+    padding: 0.65rem 0.85rem;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+  }
+
+  .brand-section {
+    gap: 0.65rem;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+  }
+
+  .brand-info h1 {
+    font-size: 0.95rem;
+    gap: 0.35rem;
+    line-height: 1.25;
+  }
+
+  .brand-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .brand-info p {
+    font-size: 0.72rem;
+    line-height: 1.25;
+    margin-top: 0.1rem;
+  }
+
+  .nav-actions {
+    gap: 0.35rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-actions .btn,
+  .status-pill {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    gap: 0.35rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* --- 3. Hero Section (Clock & Live Current Period) --- */
+  .hero-grid {
+    gap: 0.75rem;
+  }
+
+  .glass-card {
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .clock-card {
+    gap: 0.65rem;
+  }
+
+  .date-header {
+    gap: 0.4rem;
+  }
+
+  .day-badge-wrap {
+    gap: 0.4rem;
+  }
+
+  .day-order-badge {
+    font-size: 0.95rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .working-status-badge,
+  .holiday-status-badge {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .today-date-text {
+    font-size: 1.2rem;
+    margin-top: 0.15rem;
+    line-height: 1.25;
+  }
+
+  .today-meta-text {
+    font-size: 0.75rem;
+  }
+
+  /* Live IST Clock */
+  .clock-display {
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-sm);
+    gap: 0.35rem;
+  }
+
+  .clock-digits {
+    font-size: 1.65rem;
+    line-height: 1.15;
+  }
+
+  .clock-tz {
+    font-size: 0.7rem;
+  }
+
+  .hall-info {
+    font-size: 0.75rem;
+    gap: 0.4rem 0.85rem;
+    padding-top: 0.5rem;
+  }
+
+  /* Live Current Period Card */
+  .current-period-card {
+    gap: 0.5rem;
+  }
+
+  .period-hero-header {
+    gap: 0.5rem;
+  }
+
+  .live-indicator {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+  }
+
+  .period-timing-tag {
+    font-size: 0.78rem;
+  }
+
+  .hero-subject-area {
+    margin: 0.35rem 0;
+  }
+
+  .hero-period-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .hero-subject-title {
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+
+  .hero-faculty-name {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    gap: 0.3rem;
+  }
+
+  .countdown-box {
+    padding: 0.65rem 0.75rem;
+    gap: 0.35rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .countdown-label {
+    font-size: 0.7rem;
+  }
+
+  .countdown-digits {
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+
+  .progress-bar-container {
+    height: 6px;
+  }
+
+  .next-period-hint {
+    font-size: 0.72rem;
+    margin-top: 0.1rem;
+  }
+
+  /* --- 4. Navigation Tabs & Day Order Quick Selector --- */
+  .view-tabs-bar {
+    padding: 0.45rem 0.65rem;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+  }
+
+  .tabs-group {
+    width: 100%;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.78rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .day-orders-selector {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.3rem;
+  }
+
+  .day-orders-selector span {
+    display: none; /* Hide preview text label on narrow viewports to save vertical space */
+  }
+
+  .do-btn {
+    flex: 1;
+    min-width: 44px;
+    padding: 0.3rem 0.25rem;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  /* --- 5. Schedule View & Period Cards --- */
+  .schedule-section {
+    gap: 0.65rem;
+  }
+
+  .section-header {
+    gap: 0.35rem;
+  }
+
+  .section-title {
+    font-size: 1.05rem;
+    gap: 0.4rem;
+  }
+
+  .periods-grid {
+    gap: 0.5rem;
+  }
+
+  /* Compact Multi-Column Responsive Period Card */
+  .period-card {
+    padding: 0.75rem 0.85rem;
+    border-radius: var(--radius-sm);
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 0.5rem;
+    align-items: center;
+  }
+
+  .period-card .period-time-col {
+    grid-column: 1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.45rem;
+  }
+
+  .period-badge {
+    font-size: 0.75rem;
+  }
+
+  .period-time-text {
+    font-size: 0.75rem;
+  }
+
+  .period-card .period-status-col {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .status-badge {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+  }
+
+  .period-card .period-details-col {
+    grid-column: 1 / -1;
+    gap: 0.15rem;
+  }
+
+  .period-subject-title {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    gap: 0.35rem;
+  }
+
+  .subject-code-tag {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.35rem;
+  }
+
+  .period-sub-meta {
+    font-size: 0.75rem;
+    gap: 0.6rem;
+  }
+
+  /* Break & Lunch Cards */
+  .period-card.type-break,
+  .period-card.type-lunch {
+    padding: 0.55rem 0.85rem;
+    grid-template-columns: 1fr auto;
+    gap: 0.25rem 0.5rem;
+    align-items: center;
+  }
+
+  .period-card.type-break .period-time-col,
+  .period-card.type-lunch .period-time-col {
+    grid-column: 1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.45rem;
+  }
+
+  .period-card.type-break .period-status-col,
+  .period-card.type-lunch .period-status-col {
+    grid-column: 2;
+  }
+
+  .period-card.type-break .period-details-col,
+  .period-card.type-lunch .period-details-col {
+    grid-column: 1 / -1;
+  }
+
+  /* --- 6. Academic Calendar (Top Bar & Planner Sheet & Grid) --- */
+  .calendar-view-container {
+    gap: 0.75rem;
+  }
+
+  .calendar-top-bar {
+    padding: 0.65rem 0.85rem;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+  }
+
+  .calendar-top-bar h2 {
+    font-size: 1.05rem !important;
+  }
+
+  .calendar-top-bar p {
+    font-size: 0.72rem !important;
+  }
+
+  .cal-view-modes {
+    width: 100%;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .mode-toggle-btn {
+    flex: 1;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .month-filter-pills {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
+  }
+
+  .month-pill-btn {
+    flex: 1;
+    padding: 0.3rem 0.25rem;
+    font-size: 0.72rem;
+    text-align: center;
+  }
+
+  /* Planner Sheet Layout */
+  .planner-sheet-grid {
+    gap: 0.65rem;
+    grid-template-columns: 1fr;
+  }
+
+  .planner-month-card {
+    border-radius: var(--radius-sm);
+  }
+
+  .planner-month-header {
+    padding: 0.5rem 0.65rem 0.35rem 0.65rem;
+  }
+
+  .planner-month-title {
+    font-size: 1.05rem;
+  }
+
+  .planner-col-headers {
+    grid-template-columns: 46px 1fr 34px 34px;
+    font-size: 0.62rem;
+    padding-top: 0.25rem;
+  }
+
+  .planner-row {
+    grid-template-columns: 46px 1fr 34px 34px;
+    padding: 0.28rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .p-date-col {
+    gap: 0.2rem;
+  }
+
+  .p-date-num {
+    width: 18px;
+    font-size: 0.75rem;
+  }
+
+  .p-day-dow {
+    font-size: 0.62rem;
+  }
+
+  .p-event-text {
+    font-size: 0.68rem;
+    padding: 0 0.25rem;
+  }
+
+  .p-do-badge {
+    font-size: 0.7rem;
+  }
+
+  .p-wd-badge {
+    font-size: 0.65rem;
+  }
+
+  .planner-month-footer {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.7rem;
+  }
+
+  /* Monthly Calendar Grid */
+  .calendar-grid-card {
+    padding: 0.75rem 0.65rem;
+    border-radius: var(--radius-md);
+  }
+
+  .calendar-month-header {
+    margin-bottom: 0.5rem;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: stretch;
+  }
+
+  .month-nav {
+    justify-content: space-between;
+  }
+
+  .month-label {
+    font-size: 1.05rem;
+    min-width: 120px;
+  }
+
+  .month-nav .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .calendar-weekdays-row {
+    gap: 0.2rem;
+    font-size: 0.68rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .calendar-days-grid {
+    gap: 0.25rem;
+    margin-top: 0.35rem;
+  }
+
+  .cal-day-cell {
+    min-height: 52px;
+    padding: 0.25rem;
+    border-radius: 6px;
+  }
+
+  .cal-date-number {
+    font-size: 0.78rem;
+  }
+
+  .cal-day-order-badge {
+    font-size: 0.6rem;
+    padding: 0.05rem 0.2rem;
+  }
+
+  .cal-event-tag {
+    font-size: 0.58rem;
+  }
+
+  .calendar-legend {
+    gap: 0.35rem 0.75rem;
+    font-size: 0.68rem;
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+  }
+
+  /* --- 7. Footer & Modal --- */
+  .app-footer {
+    padding: 1.25rem 0.5rem;
+    font-size: 0.72rem;
+    gap: 0.25rem;
+  }
+
+  .modal-content {
+    padding: 1.15rem;
+    gap: 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header h3 {
+    font-size: 1.05rem;
+  }
+}
+
+/* Extra Compact Optimizations for Narrow Handsets (<= 380px, e.g., 360px phones) */
+@media (max-width: 380px) {
+  .app-container {
+    padding: max(0.5rem, env(safe-area-inset-top)) max(0.45rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(0.45rem, env(safe-area-inset-left));
+    gap: 0.6rem;
+  }
+
+  .top-nav {
+    padding: 0.5rem 0.65rem;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-info h1 {
+    font-size: 0.88rem;
+  }
+
+  .brand-info p {
+    font-size: 0.68rem;
+  }
+
+  .nav-actions .btn,
+  .status-pill {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .clock-digits {
+    font-size: 1.45rem;
+  }
+
+  .countdown-digits {
+    font-size: 1.25rem;
+  }
+
+  .hero-subject-title {
+    font-size: 1.05rem;
+  }
+
+  .planner-col-headers,
+  .planner-row {
+    grid-template-columns: 40px 1fr 28px 28px;
+  }
+}
+
 

@@ -106,8 +106,10 @@ export class DayOrderEngine {
     const step = isForward ? 1 : -1;
     let curr = new Date(anchor);
 
+    const getDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
     // If counting from anchor
-    while (curr.toISOString().slice(0, 10) !== targetDateStr) {
+    while (getDateStr(curr) !== targetDateStr) {
       curr.setDate(curr.getDate() + step);
       const dow = curr.getDay();
       if (dow !== 0 && dow !== 6) { // Mon-Fri assumed working in fallback

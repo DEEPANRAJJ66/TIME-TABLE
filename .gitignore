@@ -20,3 +20,11 @@ yarn-error.log*
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Environment Secrets
+.env
+.env.local
+.env.*
+
+# Temporary Scratch Files
+scratch/
