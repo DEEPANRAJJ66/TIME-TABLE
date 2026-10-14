@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>CSE Class A — First-Year Live Timetable Planner</title>
+  <meta name="description"
+    content="Real-time live timetable and Day Order indicator for First-Year Computer Science and Engineering (Class A), Saranathan College of Engineering.">
+  <meta name="theme-color" content="#0b1120">
+
+  <!-- Modern Typography (With system fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/jpeg" href="assets/cse.jpeg">
+  <link rel="apple-touch-icon" href="assets/cse.jpeg">
+</head>
+
+<body>
+  <!-- Opening Intro Video Overlay (Sub-Second Opener) -->
+  <div id="introOverlay" class="intro-overlay" aria-hidden="true">
+    <div class="intro-video-container">
+      <video id="introVideo" class="intro-video" autoplay muted playsinline webkit-playsinline preload="auto">
+        <source src="INTRO/VN20260918_202604.mp4" type="video/mp4">
+        <source src="intro/VN20260918_202604.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <script>
+    // Immediate pre-render guard: If user prefers reduced motion or already saw intro in this session, hide overlay before first paint
+    (function() {
+      try {
+        if (sessionStorage.getItem('college_intro_seen') === 'true' ||
+            (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+          var ov = document.getElementById('introOverlay');
+          if (ov) ov.style.display = 'none';
+        }
+      } catch (_) {}
+    })();
+  </script>
+
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="top-nav">
+      <div class="brand-section">
+        <div class="brand-logo" aria-label="College Logo">
+          <img src="assets/cse.jpeg" alt="CSE Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-info">
+          <h1>
+            Saranathan College of Engineering
+            <span class="brand-badge">Autonomous</span>
+          </h1>
+          <p>Dept. of Computer Science and Engineering • First-Year Class A • Room RV 402</p>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Supabase Cloud Sync Status Badge -->
+        <button id="dbStatusBtn" class="status-pill" title="Click to view database connection settings">
+          <span class="status-dot"></span>
+          <span id="dbStatusLabel">Offline Verified</span>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" class="btn" aria-label="Toggle Dark/Light Mode">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Dark</span>
+        </button>
+
+        <!-- College Learning Resource Platform Bridge Button -->
+        <a href="learning.html" id="navLearningHubBtn" class="btn" style="text-decoration: none; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.1);" title="Open College Learning Resource Platform">
+          <span>📚</span>
+          <span>Learning Hub</span>
+        </a>
+
+        <!-- Audio Chime Toggle -->
+        <button id="soundToggleBtn" class="btn" title="Subtle chime at period transitions">
+          <span id="soundIcon">🔔</span>
+          <span id="soundLabel">Bell On</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section: Real-time IST Clock & Current Period Status -->
+    <section class="hero-grid" id="todayHeroSection">
+      <!-- Date & IST Clock Card -->
+      <div class="glass-card clock-card">
+        <div class="date-header">
+          <div>
+            <div class="day-badge-wrap">
+              <span class="day-order-badge" id="heroDayOrderBadge">Day Order I</span>
+              <span class="working-status-badge" id="heroWorkingBadge">Working Day</span>
+            </div>
+            <h2 class="today-date-text" id="heroDateText">Wednesday, 16 September 2026</h2>
+            <p class="today-meta-text" id="heroEventText">Odd Semester 2026-27 • Day 1 Confirmed Anchor</p>
+          </div>
+        </div>
+
+        <!-- Live Clock Display -->
+        <div class="clock-display">
+          <div>
+            <div class="clock-digits" id="heroClockDigits">--:--:--</div>
+            <div class="clock-tz">Indian Standard Time (IST) • Asia/Kolkata</div>
+          </div>
+          <button id="jumpTodayBtn" class="btn btn-primary" style="display: none;">Jump to Today</button>
+        </div>
+
+        <div class="hall-info">
+          <div>Classroom: <span class="hall-tag" id="heroHallTag">Hall RV 402</span></div>
+          <div>Co-ordinator: <span class="hall-tag">Dr. R. Buvaneswari (Maths)</span></div>
+        </div>
+      </div>
+
+      <!-- Live Current Period Card -->
+      <div class="glass-card current-period-card pulse-glow" id="heroCurrentPeriodCard">
+        <div class="period-hero-header">
+          <span class="live-indicator" id="heroLiveIndicator">
+            <span class="status-dot"></span>
+            <span id="heroLiveTag">LIVE NOW</span>
+          </span>
+          <span class="period-timing-tag" id="heroPeriodTiming">09:10 AM - 10:00 AM</span>
+        </div>
+
+        <div class="hero-subject-area">
+          <div class="hero-period-label" id="heroPeriodLabel">Period 1</div>
+          <div class="hero-subject-title" id="heroSubjectTitle">Problem Solving and Python Programming</div>
+          <div class="hero-faculty-name" id="heroFacultyName">
+            <span>👤</span>
+            <span id="heroFacultyText">Ms. P. Rohini (CSE)</span>
+          </div>
+        </div>
+
+        <!-- Countdown and Animated Progress Bar -->
+        <div class="countdown-box">
+          <div class="countdown-flex">
+            <span class="countdown-label" id="heroCountdownLabel">Time Remaining</span>
+            <span class="countdown-digits" id="heroCountdownDigits">--:--</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="heroProgressFill" style="width: 0%;"></div>
+          </div>
+          <div class="next-period-hint">
+            <span>Up Next:</span>
+            <strong id="heroNextPeriodHint">Engineering Physics I (10:00 AM)</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Bar: Tabs & Day Order Quick Switcher -->
+    <nav class="view-tabs-bar">
+      <div class="tabs-group">
+        <button class="tab-btn active" id="tabScheduleBtn">Today's Timetable</button>
+        <button class="tab-btn" id="tabCalendarBtn">Academic Calendar (Sep - Dec)</button>
+      </div>
+
+      <!-- Quick Day Order Selector -->
+      <div class="day-orders-selector">
+        <span style="font-size: 0.8rem; color: var(--text-secondary); margin-right: 0.25rem;">Preview Day:</span>
+        <button class="do-btn" data-day="1">Day 1</button>
+        <button class="do-btn" data-day="2">Day 2</button>
+        <button class="do-btn" data-day="3">Day 3</button>
+        <button class="do-btn" data-day="4">Day 4</button>
+        <button class="do-btn" data-day="5">Day 5</button>
+      </div>
+    </nav>
+
+    <!-- Main View 1: Timetable Schedule Timeline -->
+    <main id="scheduleView" class="schedule-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span id="scheduleHeaderTitle">Today's Class Schedule</span>
+          <span class="brand-badge" id="scheduleHeaderBadge">Day Order I</span>
+        </h2>
+        <div id="scheduleSubText" style="font-size: 0.85rem; color: var(--text-secondary);">
+          College Hours: 09:10 AM to 04:45 PM
+        </div>
+      </div>
+
+      <!-- Period Cards Container -->
+      <div class="periods-grid" id="periodsList">
+        <!-- Period cards will be dynamically rendered here -->
+      </div>
+    </main>
+
+    <!-- Main View 2: Academic Calendar View -->
+    <section id="calendarView" class="calendar-view-container" style="display: none;">
+      <!-- Calendar Control Bar -->
+      <div class="calendar-top-bar">
+        <div>
+          <h2
+            style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+            Academic Planner 2026 - 27 (ODD Semester)
+          </h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            First Year • Saranathan College of Engineering • Total 70 Working Days
+          </p>
+        </div>
+
+        <!-- View Mode Switcher -->
+        <div class="cal-view-modes">
+          <button id="btnPlannerSheetView" class="mode-toggle-btn active">📋 College Planner Sheet</button>
+          <button id="btnMonthlyGridView" class="mode-toggle-btn">📅 Monthly Grid</button>
+        </div>
+
+        <!-- Month Filter Pills -->
+        <div class="month-filter-pills" id="monthFilterContainer">
+          <button class="month-pill-btn active" data-filter="all">All 4 Months</button>
+          <button class="month-pill-btn" data-filter="8">SEP'26</button>
+          <button class="month-pill-btn" data-filter="9">OCT'26</button>
+          <button class="month-pill-btn" data-filter="10">NOV'26</button>
+          <button class="month-pill-btn" data-filter="11">DEC'26</button>
+        </div>
+      </div>
+
+      <!-- Orientation 1: College Academic Planner Sheet (Default) -->
+      <div id="plannerSheetContainer" class="planner-sheet-grid">
+        <!-- 4 Month Columns generated dynamically -->
+      </div>
+
+      <!-- Orientation 2: Monthly Calendar Grid View -->
+      <div id="monthlyGridContainer" class="calendar-grid-card" style="display: none;">
+        <div class="calendar-month-header">
+          <div class="month-nav">
+            <button id="prevMonthBtn" class="btn">◀ Prev</button>
+            <div class="month-label" id="currentMonthLabel">September 2026</div>
+            <button id="nextMonthBtn" class="btn">Next ▶</button>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            Click any date cell to view its timetable
+          </div>
+        </div>
+
+        <!-- Weekday Headers (7 Equal Columns with matching gap) -->
+        <div class="calendar-weekdays-row">
+          <div>Sun</div>
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+        </div>
+
+        <!-- Dynamic Day Grid (7 Equal Columns) -->
+        <div class="calendar-days-grid" id="calendarDaysGrid">
+          <!-- Calendar cells rendered here -->
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-box"
+              style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-blue);"></span>
+            <span>Working Day Order (I - V)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-box"
+              style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose);"></span>
+            <span>Holiday / Sunday</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-box"
+              style="background: rgba(251, 191, 36, 0.15); border: 1px solid var(--accent-gold);"></span>
+            <span>Internal Assessment / Exam</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-box" style="border: 2px solid var(--accent-blue);"></span>
+            <span>Today's Date</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div><strong>Saranathan College of Engineering (Autonomous)</strong> • Accredited by NAAC with 'A+' Grade</div>
+      <div>First-Year CSE Class A • Mentors: Mr. L. Parthipan, Ms. A. Rachel Roselin Arul, Ms. G. Sathya</div>
+      <div>Continuous Day Order Loop: Day 1 → Day 2 → Day 3 → Day 4 → Day 5 • Anchor: 17 September 2026 = Day 1</div>
+    </footer>
+  </div>
+
+  <!-- Supabase Settings Modal -->
+  <div class="modal-overlay" id="supabaseModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Supabase Database Configuration</h3>
+        <button id="closeModalBtn" class="btn" style="padding: 0.25rem 0.6rem;">✕</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">
+        Connect your Supabase project to fetch live timetable and academic calendar updates remotely. Public users have
+        read-only access.
+      </p>
+
+      <div class="form-group">
+        <label for="sbUrlInput">Project URL</label>
+        <input type="text" id="sbUrlInput" class="form-control" placeholder="https://xyzcompany.supabase.co">
+      </div>
+
+      <div class="form-group">
+        <label for="sbKeyInput">Anon Public Key</label>
+        <input type="password" id="sbKeyInput" class="form-control" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI...">
+      </div>
+
+      <div id="modalStatusMsg" style="font-size: 0.8rem; font-weight: 600; display: none;"></div>
+
+      <div class="modal-actions">
+        <button id="resetDbBtn" class="btn">Use Verified Local Data</button>
+        <button id="saveDbBtn" class="btn btn-primary">Connect & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Intro Controller & Main Application Script (ES Modules) -->
+  <script type="module" src="js/introManager.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>CSE Class A — College Learning Resource Platform | Saranathan College of Engineering</title>
+  <meta name="description" content="Central Learning Resource Platform for First-Year CSE Class A at Saranathan College of Engineering (Autonomous). Lecture notes, handwritten classroom notes, question banks, lab materials, and Drive links.">
+  <meta name="theme-color" content="#070d17">
+
+  <!-- Google Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="learning.css">
+  <link rel="icon" type="image/jpeg" href="assets/cse.jpeg">
+  <link rel="apple-touch-icon" href="assets/cse.jpeg">
+</head>
+<body class="lr-app-wrapper">
+
+  <!-- Top Navigation Header -->
+  <header class="lr-header">
+    <div class="lr-header-inner">
+      <div class="lr-brand-group">
+        <img src="assets/cse.jpeg" alt="CSE Logo" class="lr-brand-img" />
+        <div class="lr-brand-text">
+          <h1>Saranathan College of Engineering <span class="lr-badge lr-badge-student">Autonomous</span></h1>
+          <p>Dept. of CSE • First-Year Class A • Learning Hub (Hall RV 402)</p>
+        </div>
+      </div>
+
+      <div class="lr-header-actions">
+        <!-- Direct Return Link to Timetable Planner -->
+        <a href="index.html" class="lr-back-timetable-btn" title="Back to Live Timetable & Day Order Planner">
+          <span>⏱️</span>
+          <span>Live Timetable</span>
+        </a>
+
+        <!-- Role Badge & Switcher Button -->
+        <button id="lrRoleSwitchBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Switch between Student, Manager, and Admin views">
+          <span id="lrRoleBadge" class="lr-badge lr-badge-student">Student Portal</span>
+          <span>⇄ Switch Role</span>
+        </button>
+
+        <!-- User Menu Trigger -->
+        <div class="lr-user-pill" style="display: flex; align-items: center; gap: 0.5rem;">
+          <span id="lrUserAvatar" style="font-size: 1.25rem;">🎓</span>
+          <span id="lrUserEmail" style="font-size: 0.775rem; color: var(--lr-text-secondary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Guest Student</span>
+          <button id="lrSignOutBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Sign out" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">Exit</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <div class="lr-main-container">
+    <!-- Collapsible Sidebar (Desktop) -->
+    <aside class="lr-sidebar" id="lrDesktopNav">
+      <!-- Nav items populated dynamically based on role -->
+    </aside>
+
+    <!-- Content Workspace Area -->
+    <main class="lr-content-area" id="lrViewContainer">
+      <div class="lr-empty-box">
+        <div class="lr-spinner"></div>
+        <p>Loading Learning Resource Platform...</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation (Phones & Tablets) -->
+  <nav class="lr-mobile-bottom-nav" id="lrMobileNav">
+    <!-- Populated dynamically -->
+  </nav>
+
+  <!-- Role Switcher Modal -->
+  <div id="lrRoleModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box">
+      <header class="lr-modal-header">
+        <h3>Select Learning Platform Workspace</h3>
+        <button class="lr-btn-close lr-modal-close">✕</button>
+      </header>
+      <div class="lr-modal-body">
+        <p class="lr-text-muted" style="margin: 0;">Choose the workspace matching your authorized role:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <button class="lr-radio-card" data-select-role="student" style="text-align: left;">
+            <span style="font-size: 1.75rem;">🎓</span>
+            <div>
+              <strong>Student Learning Portal</strong>
+              <p class="lr-text-muted">Browse all published notes, PDFs, lectures, question papers, and lab materials. Open to any Google account.</p>
+            </div>
+          </button>
+
+          <button class="lr-radio-card" data-select-role="manager" style="text-align: left;">
+            <span style="font-size: 1.75rem;">👨‍🏫</span>
+            <div>
+              <strong>Manager Dashboard</strong>
+              <p class="lr-text-muted">Upload materials to Telegram channel, add Google Drive links, save private drafts, and publish verified resources. Requires authorized Google account.</p>
+            </div>
+          </button>
+
+          <button class="lr-radio-card" data-select-role="admin" style="text-align: left;">
+            <span style="font-size: 1.75rem;">🛡️</span>
+            <div>
+              <strong>Administrator Dashboard</strong>
+              <p class="lr-text-muted">Full administrative control. Manage managers, categories, subjects, all resources, audit logs, and Telegram bot settings. Requires admin password.</p>
+            </div>
+          </button>
+        </div>
+      </div>
+      <footer class="lr-modal-footer">
+        <button class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="lrLoginModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box" style="max-width: 440px;">
+      <header class="lr-modal-header">
+        <h3>🛡️ Administrator Authentication</h3>
+        <button class="lr-btn-close lr-modal-close">✕</button>
+      </header>
+      <form id="lrAdminLoginForm">
+        <div class="lr-modal-body">
+          <p class="lr-text-muted" style="margin: 0; font-size: 0.85rem;">
+            Enter your college administrative credentials. Public admin registration is strictly disabled.
+          </p>
+
+          <div id="lrAdminLoginErr" class="lr-badge lr-badge-danger" style="display: none; padding: 0.5rem; border-radius: var(--lr-radius-sm);"></div>
+
+          <div class="lr-form-group">
+            <label for="lrAdminEmail">Admin Email:</label>
+            <input type="email" id="lrAdminEmail" class="lr-form-control" value="jeyaramandeeban@gmail.com" placeholder="jeyaramandeeban@gmail.com" required />
+          </div>
+
+          <div class="lr-form-group">
+            <label for="lrAdminPass">Admin Password:</label>
+            <input type="password" id="lrAdminPass" class="lr-form-control" placeholder="Enter your confidential password" required />
+            <small class="lr-form-hint">Type your confidential admin password to sign in</small>
+          </div>
+        </div>
+        <footer class="lr-modal-footer">
+          <button type="button" class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
+          <button type="submit" class="lr-btn lr-btn-primary">Sign In as Admin</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Student First-Login Profile Setup Modal -->
+  <div id="lrProfileModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box" style="max-width: 460px;">
+      <header class="lr-modal-header">
+        <h3>🎓 Complete Student Profile</h3>
+      </header>
+      <form id="lrStudentProfileForm">
+        <div class="lr-modal-body">
+          <p class="lr-text-muted" style="margin: 0; font-size: 0.85rem;">
+            Please complete your profile to access the First-Year CSE Class A Learning Portal.
+          </p>
+
+          <div id="lrProfileErr" class="lr-badge lr-badge-danger" style="display: none; padding: 0.5rem; border-radius: var(--lr-radius-sm); margin-top: 0.5rem;"></div>
+
+          <div class="lr-form-group">
+            <label for="lrProfileFirstName">First Name <span style="color: #ef4444;">*</span></label>
+            <input type="text" id="lrProfileFirstName" class="lr-form-control" placeholder="e.g. Deepan" required minlength="2" maxlength="50" />
+          </div>
+
+          <div class="lr-form-group">
+            <label for="lrProfileSecondaryName">Secondary / Last Name <span class="lr-text-muted">(Optional)</span></label>
+            <input type="text" id="lrProfileSecondaryName" class="lr-form-control" placeholder="e.g. Raj" maxlength="50" />
+          </div>
+
+          <div class="lr-form-group">
+            <label for="lrProfileRollNumber">Roll Number (Exactly 6 Digits) <span style="color: #ef4444;">*</span></label>
+            <input type="text" id="lrProfileRollNumber" class="lr-form-control" placeholder="e.g. 260101" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required />
+            <small class="lr-form-hint">Must be exactly six digits (e.g. 012345). Leading zeroes are preserved.</small>
+          </div>
+        </div>
+        <footer class="lr-modal-footer">
+          <button type="submit" class="lr-btn lr-btn-primary" style="width: 100%;">Save Profile & Enter Portal</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="lrToastContainer" class="lr-toast-container"></div>
+
+  <!-- Supabase JS CDN (If client is active) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Learning Platform Controller -->
+  <script type="module" src="js/learning/learningApp.js"></script>
+</body>
+</html>

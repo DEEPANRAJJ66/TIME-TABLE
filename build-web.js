@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 const srcDir = path.resolve('.');
-const outDir = path.resolve('./www');
+const targets = [
+  path.resolve('./www'),
+  path.resolve('./public')
+];
 
 function copyRecursive(src, dest) {
   const exists = fs.existsSync(src);
@@ -24,13 +27,6 @@ function copyRecursive(src, dest) {
   }
 }
 
-console.log('Building web directory for Capacitor at:', outDir);
-
-if (fs.existsSync(outDir)) {
-  fs.rmSync(outDir, { recursive: true, force: true });
-}
-fs.mkdirSync(outDir, { recursive: true });
-
 const filesToCopy = [
   'index.html',
   'style.css',
@@ -44,13 +40,21 @@ const filesToCopy = [
   'cse.jpeg'
 ];
 
-filesToCopy.forEach((item) => {
-  const srcPath = path.join(srcDir, item);
-  const destPath = path.join(outDir, item);
-  if (fs.existsSync(srcPath)) {
-    copyRecursive(srcPath, destPath);
-    console.log(`✓ Copied ${item}`);
+targets.forEach((outDir) => {
+  console.log('Building web directory at:', outDir);
+  if (fs.existsSync(outDir)) {
+    fs.rmSync(outDir, { recursive: true, force: true });
   }
+  fs.mkdirSync(outDir, { recursive: true });
+
+  filesToCopy.forEach((item) => {
+    const srcPath = path.join(srcDir, item);
+    const destPath = path.join(outDir, item);
+    if (fs.existsSync(srcPath)) {
+      copyRecursive(srcPath, destPath);
+      console.log(`✓ Copied ${item} to ${path.basename(outDir)}`);
+    }
+  });
 });
 
 console.log('Build completed successfully!');
