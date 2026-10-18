@@ -1,10 +1,12 @@
 // Main Controller for College Learning Resource Platform
-// saranathan College of Engineering (Autonomous) - First-Year CSE Class A
+// Saranathan College of Engineering (Autonomous) - First-Year CSE Class A
 
-import { LearningStore, validateGoogleDriveUrl } from './learningStore.js';
+import { LearningStore, validateGoogleDriveUrl, getISTDateString } from './learningStore.js';
 import { LearningAuthService } from './learningAuth.js';
 import { TelegramService } from './telegramService.js';
 import { ViewerModal } from './viewerModal.js';
+import { PermissionService, ROLES, ROLE_LABELS, ROLE_BADGE_CLASSES } from './permissionService.js';
+import { DashboardViews } from './dashboardViews.js';
 
 class LearningPlatformApp {
   constructor() {
@@ -14,8 +16,8 @@ class LearningPlatformApp {
     this.viewer = new ViewerModal();
 
     // Current State
-    this.currentRole = 'student'; // 'student' | 'manager' | 'admin'
-    this.currentTab = 'home';
+    this.currentRole = 'student'; // 'student' | 'manager' | 'representative' | 'admin'
+    this.currentTab = 'dashboard';
     this.searchQuery = '';
     this.selectedSubject = 'all';
     this.selectedCategory = 'all';
@@ -30,136 +32,762 @@ class LearningPlatformApp {
     this.dom = {};
   }
 
-  init() {
+  async init() {
     this.cacheDom();
-    this.setupAuthListeners();
     this.setupEventListeners();
+    await this.initSupabase();
+    await this.checkOAuthSessionOnLoad();
+    await this.store.syncWithServer();
+    this.setupAuthListeners();
+    this.setupStorageListener();
     this.renderHeaderUser();
     this.renderNavigation();
     this.renderCurrentView();
+  }
+
+  setupStorageListener() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key && (e.key.startsWith('college_lr_cache_') || e.key === 'college_lr_auth_session')) {
+          this.store.initStore();
+          this.renderHeaderUser();
+          this.renderNavigation();
+          this.renderCurrentView();
+        }
+      });
+    }
+  }
+
+  async initSupabase() {
+    try {
+      let url = 'https://uryiomifyhcbvzeafizi.supabase.co';
+      let anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ';
+
+      // 1. Fetch from backend /api/config if available
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const cfg = await res.json();
+          if (cfg.supabaseUrl) url = cfg.supabaseUrl;
+          if (cfg.supabaseAnonKey) anonKey = cfg.supabaseAnonKey;
+        }
+      } catch (_) {}
+
+      // 2. Check localStorage fallback
+      if (!anonKey && typeof localStorage !== 'undefined') {
+        anonKey = localStorage.getItem('college_planner_supabase_key') || '';
+      }
+
+      // 3. Initialize Supabase client
+      if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function' && url && anonKey) {
+        window.supabase = window.supabase.createClient(url, anonKey);
+      }
+    } catch (e) {
+      console.warn('Supabase initialization:', e);
+    }
+  }
+
+  async checkOAuthSessionOnLoad() {
+    // Check Supabase OAuth redirect session if active
+    if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.auth?.getSession === 'function') {
+      try {
+        const { data } = await window.supabase.auth.getSession();
+        if (data?.session?.user) {
+          const supaUser = data.session.user;
+          const email = supaUser.email?.toLowerCase();
+          const name = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || email.split('@')[0];
+          const picture = supaUser.user_metadata?.avatar_url || supaUser.user_metadata?.picture;
+
+          // Check ban status first — a successful Google login must NOT bypass bans
+          const activeBan = this.store.isStudentBanned(email);
+          if (activeBan) {
+            this.showToast(
+              `Your account has been restricted. Reason: ${activeBan.reason || 'Policy violation'}. ` +
+              `Contact the administrator if you need assistance.`,
+              'error'
+            );
+            // Sign out from Supabase so the restricted user can't reload to bypass
+            try { await window.supabase.auth.signOut(); } catch (_) {}
+            return;
+          }
+
+          // Check if an existing application profile exists for this account
+          const existingProfile = this.store.getStudentProfile(email);
+          const trustedRole = this.store.getUserRole(email);
+
+          await this.auth.loginWithGoogle(null, {
+            email,
+            name,
+            displayName: name,
+            picture,
+            sub: supaUser.id,
+            id: supaUser.id,
+            // Pass existing roll number so loginWithGoogle does NOT wipe it
+            rollNumber: existingProfile?.rollNumber || null
+          });
+
+          const user = this.auth.getCurrentUser();
+          if (user) {
+            this.currentRole = user.role || ROLES.STUDENT;
+            this.currentTab = this.currentRole === ROLES.ADMIN ? 'admin-overview' : 'dashboard';
+
+            // Update last login timestamp in the registered users store
+            this.store.registerUser({
+              email: user.email,
+              displayName: user.displayName,
+              role: user.role,
+              rollNumber: user.rollNumber || existingProfile?.rollNumber,
+              avatar: user.avatar,
+              status: 'active'
+            });
+
+            this.renderHeaderUser();
+            this.renderNavigation();
+            this.renderCurrentView();
+
+            // Show profile completion modal only for NEW students with no existing profile
+            // NEVER show it for existing users, managers, representatives, or admins
+            if (this.currentRole === ROLES.STUDENT && !this.auth.isProfileComplete()) {
+              setTimeout(() => this.openProfileModal(), 300);
+            } else if (existingProfile) {
+              this.showToast(`Welcome back, ${user.displayName || user.email}!`, 'success');
+            } else if (trustedRole !== ROLES.STUDENT) {
+              // Non-student roles don't need profile forms — they access their dashboards directly
+              this.showToast(`Signed in as ${ROLE_LABELS[this.currentRole]}`, 'success');
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('OAuth session check:', e);
+      }
+    }
   }
 
   cacheDom() {
     this.dom.roleBadge = document.getElementById('lrRoleBadge');
     this.dom.userAvatar = document.getElementById('lrUserAvatar');
     this.dom.userEmail = document.getElementById('lrUserEmail');
-    this.dom.userMenuBtn = document.getElementById('lrUserMenuBtn');
+    this.dom.userDisplayName = document.getElementById('lrUserDisplayName');
     this.dom.roleSwitchBtn = document.getElementById('lrRoleSwitchBtn');
     this.dom.roleModal = document.getElementById('lrRoleModal');
-    this.dom.loginModal = document.getElementById('lrLoginModal');
+    this.dom.googleChooserModal = document.getElementById('lrGoogleAccountChooserModal');
+    this.dom.profileModal = document.getElementById('lrProfileModal');
+    this.dom.notifModal = document.getElementById('lrNotifModal');
+    this.dom.notifBtn = document.getElementById('lrNotifBtn');
+    this.dom.notifBadge = document.getElementById('lrNotifBadge');
 
     // Navigation
     this.dom.desktopNav = document.getElementById('lrDesktopNav');
     this.dom.mobileNav = document.getElementById('lrMobileNav');
     this.dom.viewContainer = document.getElementById('lrViewContainer');
+    this.dom.mainContainer = document.getElementById('lrMainContainer') || document.querySelector('.lr-main-container');
   }
 
   setupAuthListeners() {
     this.auth.onAuthStateChanged((user) => {
-      if (user) {
-        this.currentRole = user.role;
-      } else {
-        // Default to student guest browsing
-        this.currentRole = 'student';
+      try {
+        if (user) {
+          this.currentRole = user.role || ROLES.STUDENT;
+        } else {
+          // Default to student guest browsing
+          this.currentRole = ROLES.STUDENT;
+        }
+        this.renderHeaderUser();
+        this.renderNavigation();
+        this.renderCurrentView();
+      } catch (err) {
+        console.error('Error during auth listener update:', err);
       }
-      this.renderHeaderUser();
-      this.renderNavigation();
-      this.renderCurrentView();
     });
   }
 
   setupEventListeners() {
-    // Role switch modal toggle
-    if (this.dom.roleSwitchBtn) {
-      this.dom.roleSwitchBtn.addEventListener('click', () => {
-        this.openRoleModal();
+    // Clicking user identity card navigates to profile view
+    const userCard = document.getElementById('lrUserIdentityCard');
+    if (userCard) {
+      userCard.addEventListener('click', (e) => {
+        if (e.target.closest('#lrSignOutBtn')) return;
+        e.preventDefault();
+        this.currentTab = 'profile';
+        this.renderNavigation();
+        this.renderCurrentView();
+      });
+    }
+
+    // Google Account Chooser quick account cards
+    document.querySelectorAll('[data-google-auth-email]').forEach(card => {
+      card.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = card.getAttribute('data-google-auth-email');
+        const name = card.getAttribute('data-google-auth-name');
+        const role = card.getAttribute('data-google-auth-role');
+        await this.handleGoogleChooserLogin(email, name, role);
+      });
+    });
+
+    // Student profile form submission
+    const profileForm = document.getElementById('lrStudentProfileForm');
+    if (profileForm) {
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('lrProfileFirstName')?.value?.trim();
+        const secondaryName = document.getElementById('lrProfileSecondaryName')?.value?.trim() || '';
+        const rollNumber = document.getElementById('lrProfileRollNumber')?.value?.trim();
+        const errBox = document.getElementById('lrProfileErr');
+        const submitBtn = document.getElementById('btnSubmitStudentProfile');
+
+        if (!firstName || firstName.length < 2) {
+          if (errBox) {
+            errBox.textContent = 'Please enter a valid First Name (minimum 2 characters).';
+            errBox.style.display = 'block';
+          }
+          return;
+        }
+
+        if (!rollNumber || !/^[0-9]{6}$/.test(rollNumber)) {
+          if (errBox) {
+            errBox.textContent = 'Roll Number must be exactly 6 numeric digits (e.g. 260101).';
+            errBox.style.display = 'block';
+          }
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving Profile…';
+        }
+
+        try {
+          this.auth.completeProfile({ firstName, secondaryName, rollNumber });
+          this.closeAllModals();
+          this.showToast('Profile saved successfully! Welcome to CSE Class A Portal 🎓', 'success');
+          this.renderHeaderUser();
+          this.renderCurrentView();
+        } catch (err) {
+          if (errBox) {
+            errBox.textContent = err.message || 'We could not save your profile. Please try again.';
+            errBox.style.display = 'block';
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Profile & Continue →';
+          }
+        }
+      });
+    }
+
+    // Notifications button
+    if (this.dom.notifBtn) {
+      this.dom.notifBtn.addEventListener('click', () => {
+        this.openNotificationsModal();
       });
     }
 
     // Role modal selections
     document.querySelectorAll('[data-select-role]').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const role = e.currentTarget.getAttribute('data-select-role');
         this.handleRoleSelection(role);
       });
     });
 
-    // Close modals
+    // Close modals on click of any close button
     document.querySelectorAll('.lr-modal-close').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         this.closeAllModals();
       });
+    });
+
+    // Close modals on clicking overlay backdrop
+    document.querySelectorAll('.lr-modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          this.closeAllModals();
+        }
+      });
+    });
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeAllModals();
+      }
     });
 
     // Sign out button
     const signOutBtn = document.getElementById('lrSignOutBtn');
     if (signOutBtn) {
-      signOutBtn.addEventListener('click', () => {
+      signOutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.auth.logout();
+        this.currentRole = ROLES.STUDENT;
+        this.currentTab = 'dashboard';
         this.showToast('Signed out successfully', 'info');
+        this.renderHeaderUser();
+        this.renderNavigation();
+        this.renderCurrentView();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Resilient Global Event Delegation for Dashboard Actions & Bug Reporting
+    // Solves element re-render decoupling and inner tag clicks
+    // -------------------------------------------------------------
+    document.addEventListener('click', (e) => {
+      // 1. Bug Reporting Entrypoints (#lrHeaderBugBtn, [data-open-bug-report])
+      const bugBtn = e.target.closest('#lrHeaderBugBtn, [data-open-bug-report]');
+      if (bugBtn) {
+        e.preventDefault();
+        const pagePrefill = bugBtn.getAttribute('data-bug-page') || this.currentTab || 'Dashboard';
+        this.openBugReportModal(pagePrefill);
+        return;
+      }
+
+      // 2. Dashboard Quick Jumps ([data-dash-jump])
+      const dashJump = e.target.closest('[data-dash-jump]');
+      if (dashJump) {
+        e.preventDefault();
+        const target = dashJump.getAttribute('data-dash-jump');
+        if (target) {
+          this.currentTab = target;
+          this.renderNavigation();
+          this.renderCurrentView();
+        }
+        return;
+      }
+
+      // 3. Subject Folder Open ([data-open-folder])
+      const folderBtn = e.target.closest('[data-open-folder]');
+      if (folderBtn) {
+        e.preventDefault();
+        const folderId = folderBtn.getAttribute('data-open-folder');
+        if (folderId) {
+          DashboardViews.renderFolderContentsView(this, folderId);
+        }
+        return;
+      }
+
+      // 4. Desktop Navigation Links ([data-tab])
+      const tabBtn = e.target.closest('#lrDesktopNav [data-tab]');
+      if (tabBtn) {
+        e.preventDefault();
+        const tab = tabBtn.getAttribute('data-tab');
+        if (tab === 'bug-report') {
+          this.openBugReportModal(this.currentTab || 'Dashboard');
+          return;
+        }
+        if (tab) {
+          this.currentTab = tab;
+          this.renderNavigation();
+          this.renderCurrentView();
+        }
+        return;
+      }
+
+      // 5. Mobile Navigation Links ([data-mobile-tab])
+      const mobileTab = e.target.closest('#lrMobileNav [data-mobile-tab]');
+      if (mobileTab) {
+        e.preventDefault();
+        const tab = mobileTab.getAttribute('data-mobile-tab');
+        if (tab === 'bug-report') {
+          this.openBugReportModal(this.currentTab || 'Dashboard');
+          return;
+        }
+        if (tab) {
+          this.currentTab = tab;
+          this.renderNavigation();
+          this.renderCurrentView();
+        }
+        return;
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Bug Reporting Modal Form & Screenshot Handling
+    // -------------------------------------------------------------
+    const fileInput = document.getElementById('fileBugScreenshot');
+    const previewContainer = document.getElementById('lrBugScreenshotPreview');
+    const imgPreview = document.getElementById('imgBugPreview');
+    const filenameLabel = document.getElementById('lblBugPreviewFilename');
+    const removeScreenshotBtn = document.getElementById('btnRemoveBugScreenshot');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+          if (previewContainer) previewContainer.style.display = 'none';
+          this.stagingScreenshotBase64 = null;
+          return;
+        }
+
+        const allowedMime = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+        if (!allowedMime.includes(file.type.toLowerCase())) {
+          this.showToast('Please select a valid screenshot image (PNG, JPEG, WebP).', 'error');
+          fileInput.value = '';
+          if (previewContainer) previewContainer.style.display = 'none';
+          this.stagingScreenshotBase64 = null;
+          return;
+        }
+
+        const maxBytes = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxBytes) {
+          this.showToast(`Screenshot exceeds 5MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose a smaller image.`, 'error');
+          fileInput.value = '';
+          if (previewContainer) previewContainer.style.display = 'none';
+          this.stagingScreenshotBase64 = null;
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          this.stagingScreenshotBase64 = re.target.result;
+          if (imgPreview) imgPreview.src = re.target.result;
+          if (filenameLabel) filenameLabel.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+          if (previewContainer) previewContainer.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (removeScreenshotBtn && fileInput) {
+      removeScreenshotBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.value = '';
+        this.stagingScreenshotBase64 = null;
+        if (previewContainer) previewContainer.style.display = 'none';
+      });
+    }
+
+    // Bug Report Form Submission
+    const bugForm = document.getElementById('lrBugReportForm');
+    if (bugForm) {
+      bugForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.handleBugReportSubmission();
       });
     }
   }
 
-  openRoleModal() {
-    if (this.dom.roleModal) {
-      this.dom.roleModal.style.display = 'flex';
+  openBugReportModal(prefillPage = '') {
+    const modal = document.getElementById('lrBugReportModal');
+    if (!modal) return;
+
+    const user = this.auth.getCurrentUser();
+    const role = this.currentRole || user?.role || ROLES.STUDENT;
+    const profile = user?.email ? this.store.getStudentProfile(user.email) : null;
+    const rollNumber = user?.rollNumber || profile?.rollNumber || 'Not Set';
+
+    // Populate auto-captured metadata pills
+    const repMeta = document.getElementById('lrBugMetaReporter');
+    if (repMeta) {
+      repMeta.textContent = user ? `${user.displayName || user.name || 'User'} (${rollNumber})` : 'Guest / Visitor';
+    }
+
+    const roleMeta = document.getElementById('lrBugMetaRole');
+    if (roleMeta) {
+      roleMeta.textContent = ROLE_LABELS[role] || 'Student';
+      roleMeta.className = ROLE_BADGE_CLASSES[role] || 'lr-badge lr-badge-student';
+    }
+
+    const routeMeta = document.getElementById('lrBugMetaRoute');
+    if (routeMeta) {
+      const pageName = prefillPage || this.currentTab || 'Dashboard';
+      routeMeta.textContent = `${window.location.pathname}#${pageName}`;
+    }
+
+    const timeMeta = document.getElementById('lrBugMetaTime');
+    if (timeMeta) {
+      timeMeta.textContent = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true }) + ' IST';
+    }
+
+    // Prefill affected page input if empty
+    const affectedInput = document.getElementById('txtBugAffectedPage');
+    if (affectedInput && (!affectedInput.value || prefillPage)) {
+      const pageTitleMap = {
+        'dashboard': 'Dashboard / Home',
+        'resources': 'Learning Resources Library',
+        'notices': 'Official Notices Board',
+        'my-folders': 'Core Subject Folders',
+        'upload': 'Manager Upload Studio',
+        'user-mgmt': 'User & Role Management',
+        'ban-centre': 'Moderation & Ban Centre',
+        'admin-bugs': 'Bug Reports Oversight'
+      };
+      affectedInput.value = pageTitleMap[prefillPage || this.currentTab] || (prefillPage || this.currentTab || 'Dashboard');
+    }
+
+    // Reset error box
+    const alertBox = document.getElementById('lrBugAlertBox');
+    if (alertBox) alertBox.style.display = 'none';
+
+    modal.style.display = 'flex';
+    document.getElementById('txtBugTitle')?.focus();
+  }
+
+  async handleBugReportSubmission() {
+    const submitBtn = document.getElementById('btnSubmitBugReport');
+    const alertBox = document.getElementById('lrBugAlertBox');
+    const titleInput = document.getElementById('txtBugTitle');
+    const categorySelect = document.getElementById('selBugCategory');
+    const severitySelect = document.getElementById('selBugSeverity');
+    const affectedInput = document.getElementById('txtBugAffectedPage');
+    const descInput = document.getElementById('txtBugDescription');
+
+    const title = titleInput?.value?.trim() || '';
+    const category = categorySelect?.value || 'Other';
+    const severity = severitySelect?.value || 'Medium';
+    const affectedPage = affectedInput?.value?.trim() || 'Dashboard';
+    const description = descInput?.value?.trim() || '';
+    const screenshot = this.stagingScreenshotBase64 || null;
+
+    if (alertBox) alertBox.style.display = 'none';
+
+    // Validation
+    if (!title || title.length < 3) {
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        alertBox.className = 'lr-badge lr-badge-danger';
+        alertBox.textContent = 'Bug Title must be at least 3 characters.';
+      }
+      titleInput?.focus();
+      return;
+    }
+
+    if (!description || description.length < 10) {
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        alertBox.className = 'lr-badge lr-badge-danger';
+        alertBox.textContent = 'Please provide detailed description and reproduction steps (at least 10 characters).';
+      }
+      descInput?.focus();
+      return;
+    }
+
+    const user = this.auth.getCurrentUser();
+    const role = this.currentRole || user?.role || ROLES.STUDENT;
+    const profile = user?.email ? this.store.getStudentProfile(user.email) : null;
+    const rollNumber = user?.rollNumber || profile?.rollNumber || 'Not Set';
+
+    // Device / Client Metadata
+    const clientMeta = {
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      platform: typeof navigator !== 'undefined' ? (navigator.userAgentData?.platform || navigator.platform || 'Web') : 'Web',
+      screenWidth: typeof window !== 'undefined' ? window.innerWidth : 0,
+      screenHeight: typeof window !== 'undefined' ? window.innerHeight : 0,
+      path: typeof window !== 'undefined' ? window.location.pathname : '/learning.html'
+    };
+
+    const payload = {
+      title,
+      category,
+      severity,
+      affectedPage,
+      description,
+      screenshot,
+      reporterName: user ? (user.displayName || user.name || 'Class A Student') : 'Guest Student',
+      reporterEmail: user?.email || '',
+      reporterRole: role,
+      rollNumber,
+      clientMeta
+    };
+
+    // Button loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="lr-spinner-inline"></span> Submitting & Alerting Admin...';
+    }
+
+    try {
+      const report = await this.store.submitBugReport(payload);
+
+      // Reset form
+      document.getElementById('lrBugReportForm')?.reset();
+      this.stagingScreenshotBase64 = null;
+      const previewContainer = document.getElementById('lrBugScreenshotPreview');
+      if (previewContainer) previewContainer.style.display = 'none';
+
+      this.closeAllModals();
+
+      // Show prominent success notification
+      const tgSuccess = report.telegramDelivery?.sent;
+      const tgNote = tgSuccess 
+        ? `Delivered live to Telegram admin channel "Bug report SCE"!` 
+        : `Report stored securely in admin queue.`;
+
+      this.showToast(`Bug report ${report.id} submitted successfully! 🐞 ${tgNote}`, 'success');
+
+      // If viewing admin-bugs, refresh view
+      if (this.currentTab === 'admin-bugs' || this.currentTab === 'bug-reports') {
+        DashboardViews.renderAdminBugReportsView(this);
+      }
+    } catch (err) {
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        alertBox.className = 'lr-badge lr-badge-danger';
+        alertBox.textContent = err.message || 'Submission failed. Please try again.';
+      } else {
+        this.showToast(err.message || 'Submission failed', 'error');
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>🐞 Submit Report</span>';
+      }
     }
   }
 
+  async handleGoogleChooserLogin(email, name, role, rollNumber = null) {
+    this.closeAllModals();
+    try {
+      await this.auth.loginWithGoogle(null, {
+        email,
+        name: name || email.split('@')[0],
+        displayName: name || email.split('@')[0],
+        rollNumber,
+        picture: null
+      });
+      const user = this.auth.getCurrentUser();
+      this.currentRole = user?.role || ROLES.STUDENT;
+      this.currentTab = this.currentRole === ROLES.ADMIN ? 'admin-overview' : 'dashboard';
+      this.showToast(`Signed in as ${user.email} (${ROLE_LABELS[this.currentRole]})`, 'success');
+      this.renderHeaderUser();
+      this.renderNavigation();
+      this.renderCurrentView();
+
+      if (!this.auth.isProfileComplete()) {
+        this.openProfileModal();
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  }
+
+  openProfileModal() {
+    const modal = document.getElementById('lrProfileModal');
+    if (modal) {
+      const user = this.auth.getCurrentUser();
+      const existing = user?.email ? this.store.getStudentProfile(user.email) : null;
+      const emInput = document.getElementById('lrProfileEmail');
+      const fnInput = document.getElementById('lrProfileFirstName');
+      const snInput = document.getElementById('lrProfileSecondaryName');
+      const rnInput = document.getElementById('lrProfileRollNumber');
+      if (emInput) emInput.value = user?.email || '';
+      if (fnInput) fnInput.value = existing?.firstName || user?.firstName || (user?.displayName || '').split(' ')[0] || '';
+      if (snInput) snInput.value = existing?.secondaryName || user?.secondaryName || '';
+      if (rnInput) rnInput.value = existing?.rollNumber || user?.rollNumber || '';
+      const errBox = document.getElementById('lrProfileErr');
+      if (errBox) errBox.style.display = 'none';
+      modal.style.display = 'flex';
+    }
+  }
+
+  openRoleModal() {
+    // Role switcher permanently disabled
+    this.closeAllModals();
+  }
+
+  openNotificationsModal() {
+    const user = this.auth.getCurrentUser();
+    const modal = document.getElementById('lrNotifModal');
+    const container = document.getElementById('lrNotifListContainer');
+    if (!modal || !container) return;
+
+    const notifs = user ? this.store.getNotifications(user.email) : [];
+    if (notifs.length === 0) {
+      container.innerHTML = '<p class="lr-text-muted" style="text-align: center; padding: 2rem;">No new notifications or activity updates.</p>';
+    } else {
+      container.innerHTML = notifs.map(n => `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--lr-border-subtle); border-radius: var(--lr-radius-md); padding: 0.85rem; margin-bottom: 0.65rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+            <strong style="color: #38bdf8; font-size: 0.85rem;">${n.title}</strong>
+            <small style="color: var(--lr-text-muted); font-size: 0.7rem;">${getISTDateString(n.timestamp)}</small>
+          </div>
+          <p style="margin: 0; font-size: 0.8rem; color: var(--lr-text-secondary); line-height: 1.4;">${n.message}</p>
+        </div>
+      `).join('');
+    }
+
+    modal.style.display = 'flex';
+  }
+
   closeAllModals() {
-    if (this.dom.roleModal) this.dom.roleModal.style.display = 'none';
-    if (this.dom.loginModal) this.dom.loginModal.style.display = 'none';
+    document.querySelectorAll('.lr-modal-overlay').forEach(overlay => {
+      overlay.style.display = 'none';
+    });
   }
 
   async handleRoleSelection(role) {
     this.closeAllModals();
 
-    if (role === 'student') {
-      // Prompt Google Sign-in for student if unauthenticated or switch
-      if (!this.auth.isAuthenticated()) {
-        try {
-          await this.auth.loginWithGoogle('student');
-          this.showToast('Signed in with Google as Student', 'success');
-        } catch (err) {
-          if (!err.message.includes('cancelled')) {
-            this.showToast(err.message, 'error');
-          }
-        }
-      } else {
-        this.currentRole = 'student';
-        this.currentTab = 'home';
+    try {
+      if (role === ROLES.STUDENT) {
+        await this.auth.loginWithGoogle(ROLES.STUDENT, {
+          email: 'student@saranathan.ac.in',
+          name: 'Class A Student'
+        });
+        this.currentRole = ROLES.STUDENT;
+        this.currentTab = 'dashboard';
+        this.showToast('Switched to Student Portal 🎓', 'success');
+        this.renderHeaderUser();
+        this.renderNavigation();
         this.renderCurrentView();
+        return;
       }
-      return;
-    }
 
-    if (role === 'manager') {
-      if (!this.auth.isManager()) {
-        try {
-          await this.auth.loginWithGoogle('manager');
-          this.currentRole = 'manager';
-          this.currentTab = 'overview';
-          this.showToast('Manager credentials verified! Welcome to Manager Dashboard.', 'success');
-        } catch (err) {
-          this.showToast(err.message, 'error', 6000);
+      if (role === ROLES.MANAGER) {
+        const managerEmail = 'manager.cse@saranathan.ac.in';
+        if (!this.store.isManagerAuthorized(managerEmail)) {
+          this.store.assignManager(managerEmail, 'CSE Resource Manager', 'jeyaramandeeban@gmail.com');
         }
-      } else {
-        this.currentRole = 'manager';
-        this.currentTab = 'overview';
+        await this.auth.loginWithGoogle(ROLES.MANAGER, {
+          email: managerEmail,
+          name: 'CSE Resource Manager'
+        });
+        this.currentRole = ROLES.MANAGER;
+        this.currentTab = 'dashboard';
+        this.showToast('Switched to Manager Dashboard 👨‍🏫', 'success');
+        this.renderHeaderUser();
+        this.renderNavigation();
         this.renderCurrentView();
+        return;
       }
-      return;
-    }
 
-    if (role === 'admin') {
-      if (!this.auth.isAdmin()) {
-        this.openAdminLoginModal();
-      } else {
-        this.currentRole = 'admin';
-        this.currentTab = 'overview';
+      if (role === ROLES.REPRESENTATIVE) {
+        const repEmail = 'rep.classa@saranathan.ac.in';
+        this.store.setUserRole(repEmail, ROLES.REPRESENTATIVE, 'jeyaramandeeban@gmail.com', 'admin');
+        await this.auth.loginWithGoogle(ROLES.REPRESENTATIVE, {
+          email: repEmail,
+          name: 'Class Representative A'
+        });
+        this.currentRole = ROLES.REPRESENTATIVE;
+        this.currentTab = 'dashboard';
+        this.showToast('Switched to Representative Workspace 🏛️', 'success');
+        this.renderHeaderUser();
+        this.renderNavigation();
         this.renderCurrentView();
+        return;
       }
+
+      if (role === ROLES.ADMIN) {
+        await this.auth.loginWithGoogle(ROLES.ADMIN, {
+          email: 'jeyaramandeeban@gmail.com',
+          name: 'Deepanraj J'
+        });
+        this.currentRole = ROLES.ADMIN;
+        this.currentTab = 'admin-overview';
+        this.showToast('Switched to Administrator Master Control 🛡️', 'success');
+        this.renderHeaderUser();
+        this.renderNavigation();
+        this.renderCurrentView();
+        return;
+      }
+    } catch (err) {
+      console.error('Role switch error:', err);
+      this.showToast(err.message, 'error');
     }
   }
 
@@ -178,8 +806,8 @@ class LearningPlatformApp {
           try {
             await this.auth.loginAdmin(email, password);
             this.closeAllModals();
-            this.currentRole = 'admin';
-            this.currentTab = 'overview';
+            this.currentRole = ROLES.ADMIN;
+            this.currentTab = 'admin-overview';
             this.showToast('Admin authentication confirmed. Access granted.', 'success');
           } catch (err) {
             errEl.textContent = err.message;
@@ -191,89 +819,168 @@ class LearningPlatformApp {
   }
 
   renderHeaderUser() {
+    const isAuth = this.auth.isAuthenticated();
     const user = this.auth.getCurrentUser();
+    const role = isAuth ? (this.currentRole || user?.role || ROLES.STUDENT) : null;
+    const userCard = document.getElementById('lrUserIdentityCard');
+
+    if (!isAuth) {
+      if (this.dom.roleSwitchBtn) this.dom.roleSwitchBtn.style.display = 'none';
+      if (this.dom.notifBtn) this.dom.notifBtn.style.display = 'none';
+      if (userCard) userCard.style.display = 'none';
+      return;
+    }
+
+    if (this.dom.roleSwitchBtn) this.dom.roleSwitchBtn.style.display = 'none';
+    if (this.dom.notifBtn) this.dom.notifBtn.style.display = 'inline-flex';
+    if (userCard) userCard.style.display = 'flex';
+
+    const displayNameEl = document.getElementById('lrUserDisplayName');
+    if (displayNameEl) {
+      displayNameEl.textContent = user ? (user.displayName || user.name || 'Class A Student') : 'Guest Student';
+    }
+
     if (this.dom.roleBadge) {
-      if (this.currentRole === 'admin') {
-        this.dom.roleBadge.textContent = 'Admin Workspace';
-        this.dom.roleBadge.className = 'lr-badge lr-badge-admin';
-      } else if (this.currentRole === 'manager') {
-        this.dom.roleBadge.textContent = 'Manager Workspace';
-        this.dom.roleBadge.className = 'lr-badge lr-badge-manager';
-      } else {
-        this.dom.roleBadge.textContent = 'Student Learning Portal';
-        this.dom.roleBadge.className = 'lr-badge lr-badge-student';
-      }
+      this.dom.roleBadge.textContent = ROLE_LABELS[role] || 'Student';
+      this.dom.roleBadge.className = ROLE_BADGE_CLASSES[role] || 'lr-badge lr-badge-student';
     }
 
     if (this.dom.userEmail) {
-      this.dom.userEmail.textContent = user ? user.email : 'Public / Guest Student';
+      this.dom.userEmail.textContent = user ? user.email : '';
+    }
+
+    const rollEl = document.getElementById('lrUserRollNumber');
+    if (rollEl) {
+      const studentProfile = user?.email ? this.store.getStudentProfile(user.email) : null;
+      const rollNumber = user?.rollNumber || studentProfile?.rollNumber || '------';
+      rollEl.textContent = rollNumber;
     }
 
     if (this.dom.userAvatar) {
       const avatar = user ? (user.avatar || '👤') : '🎓';
       if (typeof avatar === 'string' && (avatar.startsWith('http://') || avatar.startsWith('https://'))) {
-        this.dom.userAvatar.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; vertical-align: middle;" />`;
+        this.dom.userAvatar.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; vertical-align: middle;" />`;
       } else {
         this.dom.userAvatar.textContent = avatar;
       }
     }
+
+    // Update unread notification count
+    this.updateNotificationBadge();
+  }
+
+  updateNotificationBadge() {
+    const user = this.auth.getCurrentUser();
+    const badge = document.getElementById('lrNotifBadge');
+    if (!badge || !user) return;
+    const notifs = this.store.getNotifications(user.email);
+    const unread = notifs.filter(n => !n.read).length;
+    if (unread > 0) {
+      badge.textContent = unread > 9 ? '9+' : unread;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 
   renderNavigation() {
-    // 1. Desktop Nav Links
-    let navItems = [];
-    if (this.currentRole === 'admin') {
-      navItems = [
-        { id: 'overview', icon: '📊', label: 'Overview' },
-        { id: 'resources', icon: '📚', label: 'Resource Library' },
-        { id: 'managers', icon: '👥', label: 'Managers' },
-        { id: 'categories', icon: '🏷️', label: 'Categories' },
-        { id: 'subjects', icon: '📘', label: 'Subjects' },
-        { id: 'telegram', icon: '✈️', label: 'Telegram Bot' },
-        { id: 'audit', icon: '📜', label: 'Audit Logs' },
-        { id: 'settings', icon: '⚙️', label: 'Settings' }
-      ];
-    } else if (this.currentRole === 'manager') {
-      navItems = [
-        { id: 'overview', icon: '📊', label: 'Overview' },
-        { id: 'upload', icon: '📤', label: 'Add Material' },
-        { id: 'drafts', icon: '📝', label: 'My Drafts' },
-        { id: 'published', icon: '✅', label: 'Published' },
-        { id: 'classnotes', icon: '📅', label: 'Class Notes' },
-        { id: 'activity', icon: '⚡', label: 'Upload Activity' }
-      ];
-    } else {
-      // Student Learning Portal
-      navItems = [
-        { id: 'home', icon: '🏠', label: 'Discover' },
-        { id: 'classnotes', icon: '📅', label: 'Class Notes' },
-        { id: 'subjects', icon: '📘', label: 'Subjects' },
-        { id: 'categories', icon: '🏷️', label: 'Categories' },
-        { id: 'all', icon: '📚', label: 'All Materials' }
-      ];
+    const isAuth = this.auth.isAuthenticated();
+    if (this.dom.mainContainer) {
+      this.dom.mainContainer.classList.toggle('lr-auth-mode', !isAuth);
+    }
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.toggle('lr-auth-active', !isAuth);
+    }
+    if (!isAuth) {
+      if (this.dom.desktopNav) this.dom.desktopNav.style.display = 'none';
+      if (this.dom.mobileNav) this.dom.mobileNav.style.display = 'none';
+      return;
     }
 
-    // Render Desktop Nav
+    if (this.dom.desktopNav) this.dom.desktopNav.style.display = '';
+    if (this.dom.mobileNav) this.dom.mobileNav.style.display = '';
+
+    const role = this.currentRole || ROLES.STUDENT;
+    const { commonItems, roleItems } = PermissionService.getNavigationForRole(role);
+
+    // 1. Desktop Nav
     if (this.dom.desktopNav) {
-      this.dom.desktopNav.innerHTML = navItems.map(item => `
-        <button class="lr-nav-link ${this.currentTab === item.id ? 'active' : ''}" data-tab="${item.id}">
-          <span class="lr-nav-icon">${item.icon}</span>
-          <span class="lr-nav-label">${item.label}</span>
-        </button>
+      let html = '';
+      html += `<div style="padding: 0.35rem 0.75rem; font-size: 0.7rem; font-weight: 700; color: var(--lr-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">ACADEMIC</div>`;
+      html += commonItems.map(item => `
+        ${item.isExternalLink ? `
+          <a href="${item.href}" class="lr-nav-link" style="text-decoration: none;">
+            <span class="lr-nav-icon">${item.icon}</span>
+            <span class="lr-nav-label">${item.label}</span>
+          </a>
+        ` : `
+          <button class="lr-nav-link ${this.currentTab === item.id ? 'active' : ''}" data-tab="${item.id}">
+            <span class="lr-nav-icon">${item.icon}</span>
+            <span class="lr-nav-label">${item.label}</span>
+          </button>
+        `}
       `).join('');
+
+      if (roleItems.length > 0) {
+        const roleLabel = ROLE_LABELS[role] || 'ROLE';
+        html += `<div style="padding: 0.75rem 0.75rem 0.35rem; font-size: 0.7rem; font-weight: 700; color: var(--lr-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid var(--lr-border-subtle); margin-top: 0.5rem;">${roleLabel} SECTIONS</div>`;
+        html += roleItems.map(item => `
+          <button class="lr-nav-link ${this.currentTab === item.id ? 'active' : ''}" data-tab="${item.id}">
+            <span class="lr-nav-icon">${item.icon}</span>
+            <span class="lr-nav-label">${item.label}</span>
+          </button>
+        `).join('');
+      }
+
+      this.dom.desktopNav.innerHTML = html;
 
       this.dom.desktopNav.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          this.currentTab = e.currentTarget.getAttribute('data-tab');
+          const tab = e.currentTarget.getAttribute('data-tab');
+          if (tab === 'bug-report') {
+            this.openBugReportModal(this.currentTab || 'Dashboard');
+            return;
+          }
+          this.currentTab = tab;
           this.renderNavigation();
           this.renderCurrentView();
         });
       });
     }
 
-    // Render Mobile Bottom Bar (Max 5 items)
+    // 2. Mobile Bottom Nav
     if (this.dom.mobileNav) {
-      const mobileItems = navItems.slice(0, 5);
+      let mobileItems = [];
+      if (role === ROLES.ADMIN) {
+        mobileItems = [
+          { id: 'admin-overview', icon: '📊', label: 'Admin' },
+          { id: 'user-mgmt', icon: '👥', label: 'Users' },
+          { id: 'resource-mgmt', icon: '📁', label: 'Resources' },
+          { id: 'notice-mgmt', icon: '📢', label: 'Notices' },
+          { id: 'ban-centre', icon: '🛡️', label: 'Bans' }
+        ];
+      } else if (role === ROLES.REPRESENTATIVE) {
+        mobileItems = [
+          { id: 'dashboard', icon: '🏠', label: 'Home' },
+          { id: 'notice-mgmt', icon: '📝', label: 'Notices' },
+          { id: 'resource-mgmt', icon: '📁', label: 'Resources' },
+          { id: 'ban-centre', icon: '🛡️', label: 'Bans' }
+        ];
+      } else if (role === ROLES.MANAGER) {
+        mobileItems = [
+          { id: 'dashboard', icon: '🏠', label: 'Home' },
+          { id: 'my-uploads', icon: '📤', label: 'Uploads' },
+          { id: 'my-folders', icon: '📁', label: 'Folders' },
+          { id: 'student-mgmt', icon: '🎓', label: 'Students' }
+        ];
+      } else {
+        mobileItems = [
+          { id: 'dashboard', icon: '🏠', label: 'Home' },
+          { id: 'resources', icon: '📚', label: 'Materials' },
+          { id: 'notices', icon: '📢', label: 'Notices' }
+        ];
+      }
+
       this.dom.mobileNav.innerHTML = mobileItems.map(item => `
         <button class="lr-mobile-tab ${this.currentTab === item.id ? 'active' : ''}" data-mobile-tab="${item.id}">
           <span class="lr-mobile-icon">${item.icon}</span>
@@ -283,7 +990,12 @@ class LearningPlatformApp {
 
       this.dom.mobileNav.querySelectorAll('[data-mobile-tab]').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          this.currentTab = e.currentTarget.getAttribute('data-mobile-tab');
+          const tab = e.currentTarget.getAttribute('data-mobile-tab');
+          if (tab === 'bug-report') {
+            this.openBugReportModal(this.currentTab || 'Dashboard');
+            return;
+          }
+          this.currentTab = tab;
           this.renderNavigation();
           this.renderCurrentView();
         });
@@ -294,9 +1006,89 @@ class LearningPlatformApp {
   renderCurrentView() {
     if (!this.dom.viewContainer) return;
 
-    if (this.currentRole === 'admin') {
+    if (!this.auth.isAuthenticated()) {
+      DashboardViews.renderGoogleAuthView(this);
+      return;
+    }
+
+    // Check shared foundation tabs
+    switch (this.currentTab) {
+      case 'dashboard':
+      case 'home':
+        DashboardViews.renderDashboardHome(this);
+        return;
+      case 'upload':
+      case 'upload-material':
+        this.renderManagerUploadStudio();
+        return;
+      case 'notices':
+        DashboardViews.renderNoticesView(this);
+        return;
+      case 'notice-mgmt':
+        DashboardViews.renderNoticesView(this);
+        return;
+      case 'profile':
+        DashboardViews.renderProfileView(this);
+        return;
+      case 'user-mgmt':
+        DashboardViews.renderUserManagementView(this);
+        return;
+      case 'ban-centre':
+      case 'student-mgmt':
+      case 'student-manager-mgmt':
+        DashboardViews.renderBanCentreView(this);
+        return;
+      case 'my-folders':
+        DashboardViews.renderMyFoldersView(this);
+        return;
+      case 'drafts':
+      case 'my-uploads':
+        this.renderManagerDrafts();
+        return;
+      case 'published':
+        this.renderManagerPublished();
+        return;
+      case 'my-activity':
+      case 'activity-history':
+        this.renderManagerActivity();
+        return;
+      case 'admin-overview':
+      case 'overview':
+        if (this.currentRole === ROLES.ADMIN) {
+          this.renderAdminOverview();
+        } else if (this.currentRole === ROLES.MANAGER) {
+          this.renderManagerOverview();
+        } else {
+          DashboardViews.renderDashboardHome(this);
+        }
+        return;
+      case 'resource-mgmt':
+        if (this.currentRole === ROLES.ADMIN || this.currentRole === ROLES.REPRESENTATIVE) {
+          this.renderAdminResources();
+        } else {
+          this.renderStudentAllMaterials();
+        }
+        return;
+      case 'resources':
+      case 'all':
+        this.renderStudentAllMaterials();
+        return;
+      case 'admin-bugs':
+      case 'bug-reports':
+        DashboardViews.renderAdminBugReportsView(this);
+        return;
+      case 'bug-report':
+        this.openBugReportModal();
+        DashboardViews.renderDashboardHome(this);
+        return;
+      case 'timetable':
+        window.location.href = 'index.html';
+        return;
+    }
+
+    if (this.currentRole === ROLES.ADMIN) {
       this.renderAdminView();
-    } else if (this.currentRole === 'manager') {
+    } else if (this.currentRole === ROLES.MANAGER) {
       this.renderManagerView();
     } else {
       this.renderStudentView();
@@ -950,11 +1742,35 @@ class LearningPlatformApp {
     this.bindResourceTableActions();
   }
 
-  // --- Manager Upload Studio (Step-by-step workflow) ---
+  // --- Upload Studio (Step-by-step workflow for Managers, Representatives, and Admins) ---
   renderManagerUploadStudio() {
     const user = this.auth.getCurrentUser();
+    if (!user || user.role === ROLES.STUDENT) {
+      this.dom.viewContainer.innerHTML = `
+        <div class="lr-access-denied-box">
+          <div class="lr-denied-icon">🚫</div>
+          <h2>Upload Restricted to Authorized Roles</h2>
+          <p>Students can view and download learning materials, but only Managers, Representatives, and Administrators can upload new materials.</p>
+          <button class="lr-btn lr-btn-primary" id="btnDeniedBackToDash">Return to Dashboard</button>
+        </div>
+      `;
+      document.getElementById('btnDeniedBackToDash')?.addEventListener('click', () => {
+        this.currentTab = 'dashboard';
+        this.renderNavigation();
+        this.renderCurrentView();
+      });
+      return;
+    }
+
+    const role = user.role || ROLES.MANAGER;
+    const roleLabel = ROLE_LABELS[role] || 'Manager';
+    const badgeClass = ROLE_BADGE_CLASSES[role] || 'lr-badge lr-badge-manager';
+
     const categories = this.store.getCategories();
     const subjects = this.store.getSubjects();
+    const folders = this.store.getFolders(user.email, role);
+    const subjectFolders = folders.filter(f => f.isSubjectFolder);
+    const customFolders = folders.filter(f => !f.isSubjectFolder);
 
     const savedStaging = sessionStorage.getItem('lr_upload_form_draft');
     let prefill = {};
@@ -967,9 +1783,9 @@ class LearningPlatformApp {
     this.dom.viewContainer.innerHTML = `
       <section class="lr-page-header">
         <div>
-          <span class="lr-badge lr-badge-manager">5-Step Upload Studio</span>
+          <span class="${badgeClass}">${roleLabel} • 5-Step Upload Studio</span>
           <h1 class="lr-page-title">Add Learning Material</h1>
-          <p class="lr-page-sub">Upload file to Telegram channel, verify metadata, save draft, and publish to students.</p>
+          <p class="lr-page-sub">Upload file to Google Drive, verify metadata, save draft, and publish to students.</p>
         </div>
       </section>
 
@@ -983,7 +1799,7 @@ class LearningPlatformApp {
               <div class="lr-radio-content">
                 <span class="lr-type-icon">📁</span>
                 <strong>Device File Upload</strong>
-                <p>Upload PDF, image, notes (stored in private Telegram channel up to 50MB)</p>
+                <p>Upload PDF, image, notes (stored securely in approved Google Drive folder with Telegram audit notification)</p>
               </div>
             </label>
 
@@ -1044,12 +1860,12 @@ class LearningPlatformApp {
             </div>
 
             <div class="lr-form-group">
-              <label for="lrInputManagerName">Manager Full Display Name <span class="text-danger">*</span></label>
-              <input type="text" id="lrInputManagerName" class="lr-form-control" value="${prefill.ownerName || user?.displayName || 'CSE Resource Manager'}" placeholder="e.g. Dr. / Prof. / Resource Manager" required />
+              <label for="lrInputManagerName">${roleLabel} Full Display Name <span class="text-danger">*</span></label>
+              <input type="text" id="lrInputManagerName" class="lr-form-control" value="${prefill.ownerName || user?.displayName || user?.name || roleLabel}" placeholder="e.g. Dr. / Prof. / ${roleLabel}" required />
             </div>
 
             <div class="lr-form-group">
-              <label for="lrInputManagerEmail">Manager Email (Authenticated Account)</label>
+              <label for="lrInputManagerEmail">${roleLabel} Email (Authenticated Account)</label>
               <input type="email" id="lrInputManagerEmail" class="lr-form-control" value="${user?.email || ''}" readonly title="Bound to authenticated Google account" style="background: rgba(255,255,255,0.05); opacity: 0.85;" />
             </div>
 
@@ -1065,6 +1881,29 @@ class LearningPlatformApp {
               <select id="lrSelectSubject" class="lr-form-control">
                 ${subjects.map(s => `<option value="${s.id}" ${prefill.subjectId === s.id ? 'selected' : ''}>${s.code} — ${s.name}</option>`).join('')}
               </select>
+            </div>
+
+            <div class="lr-form-group">
+              <label for="lrSelectFolder">Destination Organization Folder <span class="text-danger">*</span></label>
+              <select id="lrSelectFolder" class="lr-form-control">
+                <optgroup label="🏛️ 7 Core Academic Subject Separation Folders">
+                  ${subjectFolders.map(f => `
+                    <option value="${f.id}" ${(prefill.parentFolderId === f.id || (!prefill.parentFolderId && f.subjectId === (prefill.subjectId || 'sub_graphics'))) ? 'selected' : ''}>
+                      ${f.icon || '📁'} ${f.name}
+                    </option>
+                  `).join('')}
+                </optgroup>
+                ${customFolders.length > 0 ? `
+                  <optgroup label="📂 Custom Folders">
+                    ${customFolders.map(f => `
+                      <option value="${f.id}" ${prefill.parentFolderId === f.id ? 'selected' : ''}>
+                        📁 ${f.name}
+                      </option>
+                    `).join('')}
+                  </optgroup>
+                ` : ''}
+              </select>
+              <small class="lr-form-hint">Files are organized directly into the chosen subject separation folder.</small>
             </div>
 
             <div class="lr-form-group">
@@ -1185,6 +2024,7 @@ class LearningPlatformApp {
         description: document.getElementById('lrInputDesc')?.value || '',
         categoryId: document.getElementById('lrSelectCategory')?.value || '',
         subjectId: document.getElementById('lrSelectSubject')?.value || '',
+        parentFolderId: document.getElementById('lrSelectFolder')?.value || '',
         academicDate: document.getElementById('lrInputDate')?.value || '',
         periodNumber: document.getElementById('lrSelectPeriod')?.value || '',
         unit: document.getElementById('lrInputUnit')?.value || '',
@@ -1195,7 +2035,16 @@ class LearningPlatformApp {
       sessionStorage.setItem('lr_upload_form_draft', JSON.stringify(draftObj));
     };
 
-    ['lrInputTitle', 'lrInputDesc', 'lrSelectCategory', 'lrSelectSubject', 'lrInputDate', 'lrSelectPeriod', 'lrInputUnit', 'lrInputTopic', 'lrInputManagerName', 'lrInputTags'].forEach(id => {
+    document.getElementById('lrSelectSubject')?.addEventListener('change', (e) => {
+      const selectedSubId = e.target.value;
+      const matchingFolder = subjectFolders.find(f => f.subjectId === selectedSubId);
+      const folderSelect = document.getElementById('lrSelectFolder');
+      if (matchingFolder && folderSelect) {
+        folderSelect.value = matchingFolder.id;
+      }
+    });
+
+    ['lrInputTitle', 'lrInputDesc', 'lrSelectCategory', 'lrSelectSubject', 'lrSelectFolder', 'lrInputDate', 'lrSelectPeriod', 'lrInputUnit', 'lrInputTopic', 'lrInputManagerName', 'lrInputTags'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', saveFormDraftToSession);
       document.getElementById(id)?.addEventListener('change', saveFormDraftToSession);
     });
@@ -1232,13 +2081,21 @@ class LearningPlatformApp {
 
   async executeUploadWorkflow(targetAction = 'draft') {
     const user = this.auth.getCurrentUser();
+    if (!user || user.role === ROLES.STUDENT) {
+      this.showToast('Students are not authorized to upload learning materials.', 'error');
+      return;
+    }
+
+    const role = user.role || ROLES.MANAGER;
+    const roleLabel = ROLE_LABELS[role] || 'Manager';
     const isDrive = document.querySelector('input[name="resType"]:checked')?.value === 'drive_link';
     const driveUrl = document.getElementById('lrDriveUrlInput')?.value.trim();
     const title = document.getElementById('lrInputTitle')?.value.trim();
     const description = document.getElementById('lrInputDesc')?.value.trim();
-    const managerName = (document.getElementById('lrInputManagerName')?.value || user?.displayName || 'CSE Resource Manager').trim();
+    const uploaderName = (document.getElementById('lrInputManagerName')?.value || user?.displayName || user?.name || roleLabel).trim();
     const categoryId = document.getElementById('lrSelectCategory')?.value;
     const subjectId = document.getElementById('lrSelectSubject')?.value;
+    const parentFolderId = document.getElementById('lrSelectFolder')?.value || 'root';
     const academicDate = document.getElementById('lrInputDate')?.value || null;
     const periodNumber = document.getElementById('lrSelectPeriod')?.value || null;
     const unit = document.getElementById('lrInputUnit')?.value.trim() || null;
@@ -1255,8 +2112,8 @@ class LearningPlatformApp {
       return;
     }
 
-    if (!managerName) {
-      this.showToast('Manager display name is required', 'error');
+    if (!uploaderName) {
+      this.showToast('Display name is required', 'error');
       return;
     }
 
@@ -1312,7 +2169,7 @@ class LearningPlatformApp {
             topic,
             academicDate,
             period: periodNumber,
-            uploaderName: managerName,
+            uploaderName,
             uploaderEmail: user.email,
             userRole: user.role,
             uploadedAt
@@ -1339,6 +2196,7 @@ class LearningPlatformApp {
       categoryName,
       subjectId,
       subjectName,
+      parentFolderId,
       semester: 'I',
       academicDate,
       periodNumber: periodNumber ? Number(periodNumber) : null,
@@ -1355,9 +2213,9 @@ class LearningPlatformApp {
       originalFilename: this.stagingFile ? this.stagingFile.name : (this.stagingEditResource?.originalFilename || null),
       mimeType: this.stagingFile ? this.stagingFile.type : (this.stagingEditResource?.mimeType || 'application/octet-stream'),
       fileSize: this.stagingFile ? this.stagingFile.size : (this.stagingEditResource?.fileSize || 0),
-      ownerId: user.id,
+      ownerId: user.id || user.email,
       ownerEmail: user.email,
-      ownerName: managerName,
+      ownerName: uploaderName,
       telegramChatId: uploadResult?.data?.chatId || this.store.settings.telegramChannelId || '-1003598863042',
       telegramMessageId: uploadResult?.data?.messageId || this.stagingEditResource?.telegramMessageId || null,
       telegramFileId: uploadResult?.data?.googleDriveFileId || uploadResult?.data?.fileId || this.stagingEditResource?.telegramFileId || null,
@@ -1384,7 +2242,11 @@ class LearningPlatformApp {
       this.showToast(`Draft "${title}" saved privately in approved Google Drive folder. You can review or publish it from "My Drafts".`, 'success');
     }
 
-    this.currentTab = targetAction === 'publish' ? 'published' : 'drafts';
+    if (user.role === ROLES.ADMIN || user.role === ROLES.REPRESENTATIVE) {
+      this.currentTab = 'resource-mgmt';
+    } else {
+      this.currentTab = targetAction === 'publish' ? 'published' : 'drafts';
+    }
     this.renderNavigation();
     this.renderCurrentView();
   }
@@ -1400,6 +2262,9 @@ class LearningPlatformApp {
           <h1 class="lr-page-title">My Draft Materials</h1>
           <p class="lr-page-sub">Review metadata and previews before publishing. Drafts are completely invisible to students.</p>
         </div>
+        <button class="lr-btn lr-btn-primary" id="btnDraftsUploadNew">
+          <span>➕</span> Upload New Material
+        </button>
       </section>
 
       ${this.renderMaterialsTableHtml(myDrafts, false)}
@@ -1640,6 +2505,9 @@ class LearningPlatformApp {
           <h1 class="lr-page-title">Resource Library Administration</h1>
           <p class="lr-page-sub">Full oversight of drafts, published files, and backups across all uploaders.</p>
         </div>
+        <button class="lr-btn lr-btn-primary" id="btnAdminUploadNew">
+          <span>➕</span> Upload New Material
+        </button>
       </section>
 
       ${this.renderMaterialsTableHtml(all, true)}
@@ -2308,11 +3176,17 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
     const isAdmin = this.auth.isAdmin();
 
     if (!materials || materials.length === 0) {
+      const canUpload = user?.role !== ROLES.STUDENT;
       return `
         <div class="lr-empty-box">
           <div class="lr-empty-icon">📂</div>
           <h3>No materials in this view</h3>
           <p>Upload a file or create a draft to get started.</p>
+          ${canUpload ? `
+            <button class="lr-btn lr-btn-primary" id="btnEmptyStateUpload" style="margin-top: 1rem;">
+              <span>➕</span> Upload New Material
+            </button>
+          ` : ''}
         </div>
       `;
     }
@@ -2334,7 +3208,9 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
           </thead>
           <tbody>
             ${materials.map(r => {
-              const canEdit = isAdmin || r.ownerId === user?.id;
+              const isOwner = (r.ownerId === user?.id) || (r.ownerEmail && r.ownerEmail.toLowerCase() === (user?.email || '').toLowerCase());
+              const canEdit = isAdmin || isOwner;
+              const canMove = isAdmin || (user?.role === ROLES.REPRESENTATIVE) || isOwner;
               const catName = r.categoryName || this.store.getCategoryName(r.categoryId);
               const subName = r.subjectName || this.store.getSubjectName(r.subjectId);
               return `
@@ -2356,7 +3232,11 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
                     ${r.periodNumber ? `<br><small class="lr-badge">🕒 Period ${r.periodNumber}</small>` : ''}
                   </td>
                   <td>
-                     <td>
+                    <span class="lr-badge lr-badge-${r.publicationStatus === 'published' ? 'primary' : 'warning'}">
+                      ${r.publicationStatus.toUpperCase()}
+                    </span>
+                  </td>
+                  <td>
                     <span class="lr-badge lr-badge-${(r.uploadStatus === 'uploaded' || r.uploadStatus === 'telegram_success' || r.googleDriveFileId) ? 'success' : 'danger'}">
                       ${(r.uploadStatus === 'uploaded' || r.uploadStatus === 'telegram_success' || r.googleDriveFileId) ? '✓ Drive Stored' : 'Upload Failed'}
                     </span>
@@ -2375,6 +3255,11 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
                           🔄 Re-upload
                         </button>
                       `}
+                      ${canMove ? `
+                        <button class="lr-btn lr-btn-sm lr-btn-outline" data-move-res="${r.id}" title="Move into Subject Separation Folder">
+                          📂 Move
+                        </button>
+                      ` : ''}
                       ${canEdit && r.publicationStatus === 'draft' && (r.uploadStatus === 'uploaded' || r.uploadStatus === 'telegram_success' || r.googleDriveFileId) ? `
                         <button class="lr-btn lr-btn-sm lr-btn-primary" data-publish-res="${r.id}" title="Publish to students">
                           📢 Publish
@@ -2473,6 +3358,137 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
         }
       });
     });
+
+    ['btnAdminUploadNew', 'btnDraftsUploadNew', 'btnEmptyStateUpload'].forEach(btnId => {
+      document.getElementById(btnId)?.addEventListener('click', () => {
+        this.currentTab = 'upload';
+        this.renderNavigation();
+        this.renderCurrentView();
+      });
+    });
+
+    this.bindMoveResourceButtons();
+  }
+
+  bindMoveResourceButtons() {
+    document.querySelectorAll('[data-move-res]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-move-res');
+        this.openMoveResourceModal(id);
+      });
+    });
+  }
+
+  openMoveResourceModal(resourceId) {
+    const user = this.auth.getCurrentUser();
+    const role = this.currentRole;
+    if (role === ROLES.STUDENT) {
+      this.showToast('Students cannot organize files into folders.', 'error');
+      return;
+    }
+
+    const res = this.store.getResourceById(resourceId);
+    if (!res) {
+      this.showToast('Resource not found', 'error');
+      return;
+    }
+
+    let modal = document.getElementById('lrMoveResourceModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'lrMoveResourceModal';
+      modal.className = 'lr-modal-overlay';
+      document.body.appendChild(modal);
+    }
+
+    const allFolders = this.store.getFolders(user?.email || '', role);
+    const subjectFolders = allFolders.filter(f => f.isSubjectFolder);
+    const customFolders = allFolders.filter(f => !f.isSubjectFolder);
+    const currentFolder = this.store.getFolderById(res.parentFolderId);
+
+    modal.innerHTML = `
+      <div class="lr-modal-box" style="max-width: 500px;">
+        <header class="lr-modal-header">
+          <h3>📂 Move File to Subject Folder</h3>
+          <button class="lr-modal-close">✕</button>
+        </header>
+        <div class="lr-modal-body">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--lr-border-subtle); border-radius: var(--lr-radius-md); padding: 0.85rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.75rem; color: var(--lr-text-muted); text-transform: uppercase;">Selected Material</div>
+            <strong style="color: #f8fafc; font-size: 0.95rem; display: block; margin-top: 0.2rem;">${res.title}</strong>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+              Current Location: <span class="lr-badge lr-badge-outline">${currentFolder ? currentFolder.name : 'Default / Root Subject'}</span>
+            </div>
+          </div>
+
+          <div class="lr-form-group">
+            <label for="lrTargetFolderSelect">Select Destination Subject Folder <span style="color: #ef4444;">*</span></label>
+            <select id="lrTargetFolderSelect" class="lr-form-control" style="font-size: 0.9rem;">
+              <optgroup label="🏛️ 7 Core Academic Subject Separation Folders">
+                ${subjectFolders.map(f => `
+                  <option value="${f.id}" ${res.parentFolderId === f.id ? 'selected' : ''}>
+                    ${f.icon || '📁'} ${f.name}
+                  </option>
+                `).join('')}
+              </optgroup>
+              ${customFolders.length > 0 ? `
+                <optgroup label="📂 Custom Folders">
+                  ${customFolders.map(f => `
+                    <option value="${f.id}" ${res.parentFolderId === f.id ? 'selected' : ''}>
+                      📁 ${f.name}
+                    </option>
+                  `).join('')}
+                </optgroup>
+              ` : ''}
+            </select>
+            <small class="lr-form-hint">Moving will file this material into the selected folder and update its subject classification.</small>
+          </div>
+        </div>
+        <footer class="lr-modal-footer">
+          <button class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
+          <button class="lr-btn lr-btn-primary" id="btnConfirmMoveResource">Move File →</button>
+        </footer>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    modal.querySelectorAll('.lr-modal-close').forEach(b => {
+      b.onclick = () => { modal.style.display = 'none'; };
+    });
+
+    modal.querySelector('#btnConfirmMoveResource')?.addEventListener('click', async () => {
+      const targetFolderId = document.getElementById('lrTargetFolderSelect')?.value;
+      if (!targetFolderId) return;
+
+      try {
+        const moved = this.store.moveResource(res.id, targetFolderId, user);
+        const targetFolder = this.store.getFolderById(targetFolderId);
+
+        // Notify backend /resources/move
+        try {
+          await fetch('/api/resources/move', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Role': role,
+              'X-User-Email': user.email
+            },
+            body: JSON.stringify({
+              resourceId: res.id,
+              targetFolderId,
+              ownerEmail: res.ownerEmail
+            })
+          });
+        } catch (_) {}
+
+        this.showToast(`Moved "${res.title}" to ${targetFolder ? targetFolder.name : 'Folder'}! 📁`, 'success');
+        modal.style.display = 'none';
+        this.renderCurrentView();
+      } catch (err) {
+        this.showToast(err.message, 'error');
+      }
+    });
   }
 
   showToast(message, type = 'info', duration = 3500) {
@@ -2499,8 +3515,16 @@ TELEGRAM_CHANNEL_ID="-1003598863042"</pre>
   }
 }
 
-// Initialize on DOM load
-window.addEventListener('DOMContentLoaded', () => {
-  window.learningApp = new LearningPlatformApp();
-  window.learningApp.init();
-});
+// Initialize on DOM load or immediately if already loaded
+function startLearningApp() {
+  if (!window.learningApp) {
+    window.learningApp = new LearningPlatformApp();
+    window.learningApp.init();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startLearningApp);
+} else {
+  startLearningApp();
+}

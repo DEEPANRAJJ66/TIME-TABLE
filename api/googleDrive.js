@@ -102,6 +102,7 @@ export async function initiateResumableUpload({ filename, mimeType, fileSize, me
   const sessionData = {
     sessionId,
     fileId,
+    initialFileId: fileId,
     filename,
     mimeType: mimeType || 'application/octet-stream',
     totalBytes: fileSize,
@@ -288,7 +289,10 @@ export async function handleResumableChunk(sessionId, chunkBuffer, contentRangeH
     };
 
     driveFileStorage.set(realFileId, driveEntry);
-    if (realFileId !== session.fileId) {
+    if (session.initialFileId && session.initialFileId !== realFileId) {
+      driveFileStorage.set(session.initialFileId, driveEntry);
+    }
+    if (session.fileId && session.fileId !== realFileId) {
       driveFileStorage.set(session.fileId, driveEntry);
     }
 
@@ -382,6 +386,25 @@ export async function verifyDriveFile(fileId, targetFolderId = null) {
       };
     } catch (err) {
       console.warn('Live Drive verification failed:', err.message);
+      for (const [storedId, entry] of driveFileStorage.entries()) {
+        if (entry.fileId === fileId || storedId === fileId) {
+          if (entry.parentFolderId !== boundaryFolder) {
+            throw new Error(
+              `SECURITY VIOLATION: File ${fileId} is located in folder "${entry.parentFolderId}", which does not match approved folder "${boundaryFolder}". Access rejected.`
+            );
+          }
+          return {
+            verified: true,
+            fileId: entry.fileId,
+            filename: entry.filename,
+            fileSize: entry.fileSize,
+            mimeType: entry.mimeType,
+            parentFolderId: entry.parentFolderId,
+            driveStatus: 'VERIFIED',
+            driveLink: `https://drive.google.com/file/d/${entry.fileId}/view`
+          };
+        }
+      }
       throw err;
     }
   }

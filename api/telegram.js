@@ -7,6 +7,7 @@ import crypto from 'crypto';
 
 const getBotToken = () => process.env.TELEGRAM_BOT_TOKEN || '';
 const getChannelId = () => process.env.TELEGRAM_CHANNEL_ID || '';
+export const getBugChannelId = () => process.env.TELEGRAM_BUG_CHANNEL_ID || '-1004484073817';
 
 // In-memory idempotency cache for active session recovery
 export const idempotencyStore = new Map();
@@ -694,4 +695,167 @@ export async function getTelegramFileStream(fileId) {
   }
 
   throw new Error(`File ${fileId} not found in buffer cache`);
+}
+
+/**
+ * Builds formatted text for Bug Report notifications sent to Telegram Admin Channel
+ * Conforms to the required format:
+ * 🐞 NEW BUG REPORT
+ * Report ID: ...
+ * Title: ...
+ * Reporter: ...
+ * Role: ...
+ * Category: ...
+ * Severity: ...
+ * Affected page: ...
+ * Description: ...
+ * Submitted at: ...
+ * App version: ...
+ * #BugReport #CollegeApp
+ */
+export function buildBugReportMessage(report = {}) {
+  const reportId = report.id || ('BUG-2026-' + Math.floor(100 + Math.random() * 900));
+  const title = (report.title || 'Untitled Bug Report').trim();
+  const reporterName = (report.reporterName || report.displayName || 'Anonymous Student').trim();
+  const reporterRole = (report.reporterRole || report.role || 'Student').trim();
+  const reporterEmail = (report.reporterEmail || report.email || 'N/A').trim();
+  const reporterRoll = (report.reporterRollNumber || report.rollNumber || '').trim();
+  const category = (report.category || 'Other').trim();
+  const severity = (report.severity || 'Medium').trim();
+  const affectedPage = (report.affectedPage || 'Dashboard').trim();
+  const description = (report.description || 'No description provided').trim();
+  const submittedAt = report.submittedAt || formatKolkataTime(report.createdAt || new Date());
+  const appVersion = report.appVersion || 'v1.2.0-cse';
+  const route = report.route || '/learning.html';
+  const userAgent = report.userAgent || 'Web Client';
+
+  const lines = [
+    '🐞 <b>NEW BUG REPORT</b>\n',
+    `<b>Report ID:</b> <code>${escapeHtml(reportId)}</code>`,
+    `<b>Title:</b> ${escapeHtml(title)}`,
+    `<b>Reporter:</b> ${escapeHtml(reporterName)}`,
+    `<b>Role:</b> ${escapeHtml(reporterRole)}`,
+    `<b>Gmail:</b> <code>${escapeHtml(reporterEmail)}</code>`
+  ];
+
+  if (reporterRoll) {
+    lines.push(`<b>Roll Number:</b> <code>${escapeHtml(reporterRoll)}</code>`);
+  }
+
+  lines.push(
+    `<b>Category:</b> ${escapeHtml(category)}`,
+    `<b>Severity:</b> ${escapeHtml(severity)}`,
+    `<b>Affected page:</b> ${escapeHtml(affectedPage)}`,
+    `\n<b>Description:</b>\n${escapeHtml(description)}`,
+    `\n<b>Submitted at:</b> ${escapeHtml(submittedAt)}`,
+    `<b>App version:</b> <code>${escapeHtml(appVersion)}</code>`,
+    `<b>Route:</b> <code>${escapeHtml(route)}</code>`,
+    `<b>Environment:</b> <code>${escapeHtml(userAgent)}</code>`,
+    `\n#BugReport #CollegeApp`
+  );
+
+  return lines.join('\n');
+}
+
+/**
+ * Dispatches Bug Report to the dedicated Telegram Admin Channel (https://t.me/+DUb_bXrp_x03OGZl)
+ * Reuses the SAME Telegram Bot token safely from server environment variables.
+ * If a screenshot buffer is provided, sends via sendPhoto; otherwise sends via sendMessage.
+ */
+export async function sendTelegramBugReport(report = {}, screenshot = null) {
+  const token = getBotToken();
+  const channelId = getBugChannelId();
+
+  if (!token) {
+    throw new Error('Telegram Bot Token not configured in backend environment variables.');
+  }
+  if (!channelId) {
+    throw new Error('Telegram Bug Channel ID not configured in backend environment variables.');
+  }
+
+  const messageText = buildBugReportMessage(report);
+
+  // If screenshot is present, attempt sendPhoto
+  if (screenshot && (screenshot.buffer || Buffer.isBuffer(screenshot))) {
+    const buf = Buffer.isBuffer(screenshot) ? screenshot : screenshot.buffer;
+    const filename = screenshot.filename || screenshot.name || 'screenshot.png';
+    const mimeType = screenshot.mimeType || screenshot.type || 'image/png';
+
+    // Caption limit on Telegram is 1024 characters
+    let caption = messageText;
+    let extraMessage = null;
+    if (caption.length > 1024) {
+      caption = messageText.substring(0, 980) + '...\n\n#BugReport #CollegeApp';
+      extraMessage = messageText;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('chat_id', channelId);
+      const blob = new Blob([buf], { type: mimeType });
+      formData.append('photo', blob, filename);
+      formData.append('caption', caption);
+      formData.append('parse_mode', 'HTML');
+
+      const photoRes = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: 'POST',
+        body: formData
+      });
+      const photoData = await photoRes.json();
+      if (!photoRes.ok || !photoData.ok) {
+        throw new Error(photoData.description || `Telegram sendPhoto failed with status ${photoRes.status}`);
+      }
+
+      if (extraMessage) {
+        try {
+          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: channelId,
+              text: extraMessage,
+              parse_mode: 'HTML',
+              reply_to_message_id: photoData.result.message_id
+            })
+          });
+        } catch (_) {}
+      }
+
+      return {
+        success: true,
+        delivered: true,
+        messageId: photoData.result.message_id,
+        chatId: String(photoData.result.chat.id),
+        hasScreenshot: true
+      };
+    } catch (photoErr) {
+      console.warn('sendPhoto failed, falling back to sendMessage:', photoErr.message);
+      // Fallback to text sendMessage if sendPhoto encounters an issue
+    }
+  }
+
+  // Regular HTML text message
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: channelId,
+      text: messageText,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true
+    })
+  });
+
+  const result = await response.json();
+  if (!response.ok || !result.ok) {
+    throw new Error(result.description || `Telegram sendMessage failed with status ${response.status}`);
+  }
+
+  return {
+    success: true,
+    delivered: true,
+    messageId: result.result.message_id,
+    chatId: String(result.result.chat.id),
+    hasScreenshot: false
+  };
 }

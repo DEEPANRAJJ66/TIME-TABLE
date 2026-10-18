@@ -30,30 +30,48 @@
       </div>
 
       <div class="lr-header-actions">
-        <!-- Direct Return Link to Timetable Planner -->
+        <!-- Direct Return Link to Timetable Planner (Single Protected Button) -->
         <a href="index.html" class="lr-back-timetable-btn" title="Back to Live Timetable & Day Order Planner">
           <span>⏱️</span>
           <span>Live Timetable</span>
         </a>
 
-        <!-- Role Badge & Switcher Button -->
-        <button id="lrRoleSwitchBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Switch between Student, Manager, and Admin views">
-          <span id="lrRoleBadge" class="lr-badge lr-badge-student">Student Portal</span>
-          <span>⇄ Switch Role</span>
+        <!-- In-App Bug Reporting Entry -->
+        <button id="lrHeaderBugBtn" class="lr-header-bug-btn" data-open-bug-report title="Report a Bug or Issue directly to Administrators">
+          <span>🐞</span>
+          <span>Report a Bug</span>
         </button>
 
-        <!-- User Menu Trigger -->
-        <div class="lr-user-pill" style="display: flex; align-items: center; gap: 0.5rem;">
-          <span id="lrUserAvatar" style="font-size: 1.25rem;">🎓</span>
-          <span id="lrUserEmail" style="font-size: 0.775rem; color: var(--lr-text-secondary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Guest Student</span>
-          <button id="lrSignOutBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Sign out" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">Exit</button>
+        <!-- Notifications Bell -->
+        <button id="lrNotifBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Notifications" style="position: relative; padding: 0.4rem 0.65rem;">
+          <span>🔔</span>
+          <span id="lrNotifBadge" class="lr-badge lr-badge-danger" style="display: none; position: absolute; top: -4px; right: -4px; font-size: 0.65rem; padding: 0.1rem 0.35rem;">0</span>
+        </button>
+
+        <!-- User Identity Block: Displays Name, Role, Roll Number, and Gmail -->
+        <div class="lr-user-identity-card" id="lrUserIdentityCard" style="display: flex; align-items: center; gap: 0.65rem; background: rgba(15, 23, 42, 0.85); border: 1px solid var(--lr-border-subtle); padding: 0.3rem 0.75rem; border-radius: var(--lr-radius-full); cursor: pointer;" title="Click to view profile">
+          <div id="lrUserAvatar" style="font-size: 1.35rem; display: flex; align-items: center; justify-content: center;">🎓</div>
+          <div class="lr-user-details" style="display: flex; flex-direction: column; text-align: left; line-height: 1.2;">
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <span id="lrUserDisplayName" style="font-size: 0.825rem; font-weight: 700; color: var(--lr-text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Guest Student</span>
+              <span id="lrRoleBadge" class="lr-badge lr-badge-student">Student</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem;">
+              <span style="color: #38bdf8; font-weight: 600;">Roll: <span id="lrUserRollNumber">------</span></span>
+              <span style="color: var(--lr-text-muted);">•</span>
+              <span id="lrUserEmail" style="color: var(--lr-text-secondary); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">guest@student</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.3rem; margin-left: 0.25rem;">
+            <button id="lrSignOutBtn" class="lr-btn lr-btn-sm lr-btn-outline" title="Sign out" style="padding: 0.2rem 0.45rem; font-size: 0.7rem;">Exit</button>
+          </div>
         </div>
       </div>
     </div>
   </header>
 
   <!-- Main Application Body -->
-  <div class="lr-main-container">
+  <div class="lr-main-container" id="lrMainContainer">
     <!-- Collapsible Sidebar (Desktop) -->
     <aside class="lr-sidebar" id="lrDesktopNav">
       <!-- Nav items populated dynamically based on role -->
@@ -73,114 +91,255 @@
     <!-- Populated dynamically -->
   </nav>
 
-  <!-- Role Switcher Modal -->
-  <div id="lrRoleModal" class="lr-modal-overlay" style="display: none;">
-    <div class="lr-modal-box">
+  <!-- Role Switcher Permanently Removed -->
+  <div id="lrRoleModal" style="display: none;" aria-hidden="true"></div>
+
+  <!-- Notifications Modal -->
+  <div id="lrNotifModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box" style="max-width: 480px;">
       <header class="lr-modal-header">
-        <h3>Select Learning Platform Workspace</h3>
+        <h3>🔔 Notifications & Activity Updates</h3>
         <button class="lr-btn-close lr-modal-close">✕</button>
       </header>
-      <div class="lr-modal-body">
-        <p class="lr-text-muted" style="margin: 0;">Choose the workspace matching your authorized role:</p>
-        
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <button class="lr-radio-card" data-select-role="student" style="text-align: left;">
-            <span style="font-size: 1.75rem;">🎓</span>
-            <div>
-              <strong>Student Learning Portal</strong>
-              <p class="lr-text-muted">Browse all published notes, PDFs, lectures, question papers, and lab materials. Open to any Google account.</p>
-            </div>
-          </button>
-
-          <button class="lr-radio-card" data-select-role="manager" style="text-align: left;">
-            <span style="font-size: 1.75rem;">👨‍🏫</span>
-            <div>
-              <strong>Manager Dashboard</strong>
-              <p class="lr-text-muted">Upload materials to Telegram channel, add Google Drive links, save private drafts, and publish verified resources. Requires authorized Google account.</p>
-            </div>
-          </button>
-
-          <button class="lr-radio-card" data-select-role="admin" style="text-align: left;">
-            <span style="font-size: 1.75rem;">🛡️</span>
-            <div>
-              <strong>Administrator Dashboard</strong>
-              <p class="lr-text-muted">Full administrative control. Manage managers, categories, subjects, all resources, audit logs, and Telegram bot settings. Requires admin password.</p>
-            </div>
-          </button>
-        </div>
+      <div class="lr-modal-body" id="lrNotifListContainer" style="max-height: 380px; overflow-y: auto;">
+        <p class="lr-text-muted">No new notifications.</p>
       </div>
       <footer class="lr-modal-footer">
-        <button class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
+        <button class="lr-btn lr-btn-outline lr-modal-close">Close</button>
       </footer>
     </div>
   </div>
 
-  <!-- Admin Login Modal -->
-  <div id="lrLoginModal" class="lr-modal-overlay" style="display: none;">
-    <div class="lr-modal-box" style="max-width: 440px;">
-      <header class="lr-modal-header">
-        <h3>🛡️ Administrator Authentication</h3>
-        <button class="lr-btn-close lr-modal-close">✕</button>
-      </header>
-      <form id="lrAdminLoginForm">
-        <div class="lr-modal-body">
-          <p class="lr-text-muted" style="margin: 0; font-size: 0.85rem;">
-            Enter your college administrative credentials. Public admin registration is strictly disabled.
-          </p>
-
-          <div id="lrAdminLoginErr" class="lr-badge lr-badge-danger" style="display: none; padding: 0.5rem; border-radius: var(--lr-radius-sm);"></div>
-
-          <div class="lr-form-group">
-            <label for="lrAdminEmail">Admin Email:</label>
-            <input type="email" id="lrAdminEmail" class="lr-form-control" value="jeyaramandeeban@gmail.com" placeholder="jeyaramandeeban@gmail.com" required />
+  <!-- Google Account Chooser Modal (Explicit Gmail and Roll Number Entry) -->
+  <!-- Google Account Chooser Modal (Quick Development / Demo Accounts) -->
+  <div id="lrGoogleAccountChooserModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box lr-google-chooser-box" style="max-width: 480px;">
+      <header class="lr-modal-header" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Sign in with Google</h3>
           </div>
+          <button class="lr-btn-close lr-modal-close" aria-label="Close">✕</button>
+        </div>
+        <p style="margin: 0.35rem 0 0 0; font-size: 0.8rem; color: var(--lr-text-secondary);">
+          Select an authenticated account to proceed directly into your campus workspace.
+        </p>
+      </header>
 
-          <div class="lr-form-group">
-            <label for="lrAdminPass">Admin Password:</label>
-            <input type="password" id="lrAdminPass" class="lr-form-control" placeholder="Enter your confidential password" required />
-            <small class="lr-form-hint">Type your confidential admin password to sign in</small>
+      <div class="lr-modal-body" style="padding: 1.1rem 1.25rem;">
+        <!-- Quick One-Click Options with verified campus accounts -->
+        <div>
+          <span style="font-size: 0.72rem; color: var(--lr-text-muted); display: block; margin-bottom: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">
+            Verified Campus Accounts:
+          </span>
+          <div class="lr-google-accounts-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <!-- Administrator Account -->
+            <button class="lr-google-acc-card" data-google-auth-email="jeyaramandeeban@gmail.com" data-google-auth-name="Deepanraj J" data-google-auth-role="admin">
+              <div class="lr-acc-avatar" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">🛡️</div>
+              <div class="lr-acc-info">
+                <div class="lr-acc-name">Deepanraj J <span class="lr-badge lr-badge-admin" style="font-size: 0.65rem;">Administrator</span></div>
+                <div class="lr-acc-email">jeyaramandeeban@gmail.com</div>
+              </div>
+            </button>
+
+            <!-- Representative Account -->
+            <button class="lr-google-acc-card" data-google-auth-email="rep@saranathan.ac.in" data-google-auth-name="Class Representative" data-google-auth-role="representative">
+              <div class="lr-acc-avatar" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">📢</div>
+              <div class="lr-acc-info">
+                <div class="lr-acc-name">Class Representative <span class="lr-badge lr-badge-rep" style="font-size: 0.65rem;">Representative</span></div>
+                <div class="lr-acc-email">rep@saranathan.ac.in</div>
+              </div>
+            </button>
+
+            <!-- Resource Manager Account -->
+            <button class="lr-google-acc-card" data-google-auth-email="manager.cse@saranathan.ac.in" data-google-auth-name="CSE Resource Manager" data-google-auth-role="manager">
+              <div class="lr-acc-avatar" style="background: linear-gradient(135deg, #10b981, #14b8a6);">👨‍🏫</div>
+              <div class="lr-acc-info">
+                <div class="lr-acc-name">CSE Resource Manager <span class="lr-badge lr-badge-manager" style="font-size: 0.65rem;">Manager</span></div>
+                <div class="lr-acc-email">manager.cse@saranathan.ac.in</div>
+              </div>
+            </button>
           </div>
         </div>
-        <footer class="lr-modal-footer">
-          <button type="button" class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
-          <button type="submit" class="lr-btn lr-btn-primary">Sign In as Admin</button>
+      </div>
+      <footer class="lr-modal-footer">
+        <button class="lr-btn lr-btn-outline lr-modal-close" style="width: 100%;">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Student First-Time Profile Setup Modal (Appears ONLY after successful Google Authentication) -->
+  <div id="lrProfileModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box" style="max-width: 480px;">
+      <header class="lr-modal-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.5rem;">🎓</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: #f8fafc;">Complete Your Profile</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.78rem; color: var(--lr-text-muted);">
+              First-time setup for First-Year CSE Class A Learning Portal
+            </p>
+          </div>
+        </div>
+      </header>
+      <form id="lrStudentProfileForm">
+        <div class="lr-modal-body" style="padding: 1.15rem 1.25rem;">
+          <div id="lrProfileErr" class="lr-badge lr-badge-danger" style="display: none; padding: 0.65rem 0.85rem; border-radius: var(--lr-radius-sm); margin-bottom: 1rem; line-height: 1.4;"></div>
+
+          <div class="lr-form-group" style="margin-bottom: 0.85rem;">
+            <label for="lrProfileEmail" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.3rem;">
+              Authenticated Google Account <span style="font-size: 0.7rem; color: var(--lr-text-muted);">🔒 Read-Only</span>
+            </label>
+            <input type="email" id="lrProfileEmail" class="lr-form-control" readonly style="opacity: 0.85; background: rgba(255,255,255,0.05); color: #38bdf8; cursor: not-allowed;" />
+            <small class="lr-form-hint" style="font-size: 0.7rem; color: var(--lr-text-muted); display: block; margin-top: 0.2rem;">Verified by Google Authentication.</small>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+            <div class="lr-form-group">
+              <label for="lrProfileFirstName" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.3rem;">
+                First Name <span style="color: #ef4444;">*</span>
+              </label>
+              <input type="text" id="lrProfileFirstName" class="lr-form-control" placeholder="e.g. Deepan" required minlength="2" maxlength="50" />
+            </div>
+
+            <div class="lr-form-group">
+              <label for="lrProfileSecondaryName" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.3rem;">
+                Secondary Name <span class="lr-text-muted" style="font-size: 0.7rem;">(Optional)</span>
+              </label>
+              <input type="text" id="lrProfileSecondaryName" class="lr-form-control" placeholder="e.g. Raj" maxlength="50" />
+            </div>
+          </div>
+
+          <div class="lr-form-group" style="margin-bottom: 0.5rem;">
+            <label for="lrProfileRollNumber" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.3rem;">
+              Roll Number (Exactly 6 Digits) <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="lrProfileRollNumber" class="lr-form-control" placeholder="e.g. 260101" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required />
+            <small class="lr-form-hint" style="font-size: 0.72rem; color: var(--lr-text-muted); display: block; margin-top: 0.25rem;">
+              Must be exactly six numeric digits (e.g. 260101). Will be uniquely registered to your profile.
+            </small>
+          </div>
+        </div>
+        <footer class="lr-modal-footer" style="padding: 0.85rem 1.25rem;">
+          <button type="submit" id="btnSubmitStudentProfile" class="lr-btn lr-btn-primary" style="width: 100%; font-weight: 600;">
+            Complete Profile & Continue →
+          </button>
         </footer>
       </form>
     </div>
   </div>
 
-  <!-- Student First-Login Profile Setup Modal -->
-  <div id="lrProfileModal" class="lr-modal-overlay" style="display: none;">
-    <div class="lr-modal-box" style="max-width: 460px;">
-      <header class="lr-modal-header">
-        <h3>🎓 Complete Student Profile</h3>
-      </header>
-      <form id="lrStudentProfileForm">
-        <div class="lr-modal-body">
-          <p class="lr-text-muted" style="margin: 0; font-size: 0.85rem;">
-            Please complete your profile to access the First-Year CSE Class A Learning Portal.
-          </p>
-
-          <div id="lrProfileErr" class="lr-badge lr-badge-danger" style="display: none; padding: 0.5rem; border-radius: var(--lr-radius-sm); margin-top: 0.5rem;"></div>
-
-          <div class="lr-form-group">
-            <label for="lrProfileFirstName">First Name <span style="color: #ef4444;">*</span></label>
-            <input type="text" id="lrProfileFirstName" class="lr-form-control" placeholder="e.g. Deepan" required minlength="2" maxlength="50" />
-          </div>
-
-          <div class="lr-form-group">
-            <label for="lrProfileSecondaryName">Secondary / Last Name <span class="lr-text-muted">(Optional)</span></label>
-            <input type="text" id="lrProfileSecondaryName" class="lr-form-control" placeholder="e.g. Raj" maxlength="50" />
-          </div>
-
-          <div class="lr-form-group">
-            <label for="lrProfileRollNumber">Roll Number (Exactly 6 Digits) <span style="color: #ef4444;">*</span></label>
-            <input type="text" id="lrProfileRollNumber" class="lr-form-control" placeholder="e.g. 260101" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required />
-            <small class="lr-form-hint">Must be exactly six digits (e.g. 012345). Leading zeroes are preserved.</small>
+  <!-- Bug Reporting Modal -->
+  <div id="lrBugReportModal" class="lr-modal-overlay" style="display: none;">
+    <div class="lr-modal-box lr-bug-modal-box" style="max-width: 580px; width: 100%;">
+      <header class="lr-modal-header" style="border-bottom: 1px solid var(--lr-border-subtle); padding: 1.15rem 1.35rem;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.6rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--lr-radius-md); padding: 0.35rem 0.55rem;">🐞</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: #f8fafc;">Report a Bug / Issue</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.75rem; color: var(--lr-text-muted);">
+              Direct Telegram notification to Department Administrators • Hall RV 402
+            </p>
           </div>
         </div>
-        <footer class="lr-modal-footer">
-          <button type="submit" class="lr-btn lr-btn-primary" style="width: 100%;">Save Profile & Enter Portal</button>
+        <button class="lr-btn-close lr-modal-close" id="lrBugModalCloseBtn" aria-label="Close">✕</button>
+      </header>
+
+      <form id="lrBugReportForm">
+        <div class="lr-modal-body" style="padding: 1.15rem 1.35rem; max-height: 70vh; overflow-y: auto;">
+          <!-- Error & Success Alert Boxes -->
+          <div id="lrBugAlertBox" style="display: none; padding: 0.75rem 1rem; border-radius: var(--lr-radius-md); margin-bottom: 1rem; font-size: 0.825rem; font-weight: 500;"></div>
+
+          <!-- Auto-Captured Metadata Strip -->
+          <div class="lr-bug-metadata-strip" style="background: rgba(255,255,255,0.03); border: 1px solid var(--lr-border-subtle); border-radius: var(--lr-radius-md); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem 1.25rem; font-size: 0.75rem;">
+            <div><span style="color: var(--lr-text-muted);">Reporter:</span> <strong id="lrBugMetaReporter" style="color: #38bdf8;">Loading...</strong></div>
+            <div><span style="color: var(--lr-text-muted);">Role:</span> <span id="lrBugMetaRole" class="lr-badge lr-badge-student">Student</span></div>
+            <div><span style="color: var(--lr-text-muted);">Route:</span> <code id="lrBugMetaRoute" style="color: #cbd5e1;">/learning.html</code></div>
+            <div><span style="color: var(--lr-text-muted);">Time (IST):</span> <span id="lrBugMetaTime" style="color: #94a3b8;">Auto</span></div>
+          </div>
+
+          <!-- Bug Title -->
+          <div class="lr-form-group" style="margin-bottom: 1rem;">
+            <label for="txtBugTitle" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+              Bug Title <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="txtBugTitle" class="lr-form-control" placeholder="Brief summary of the issue (e.g. Google login not working on mobile)" minlength="3" maxlength="150" required style="width: 100%; font-size: 0.875rem;" />
+          </div>
+
+          <!-- 2-Column: Category & Severity -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="lr-form-group">
+              <label for="selBugCategory" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+                Category <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="selBugCategory" class="lr-form-control" required style="width: 100%; font-size: 0.85rem;">
+                <option value="Login/Authentication">Login / Authentication</option>
+                <option value="Timetable">Timetable & Schedule</option>
+                <option value="Learning Resources">Learning Resources</option>
+                <option value="File Upload">File Upload & Drive</option>
+                <option value="UI/Design">UI / Design / Buttons</option>
+                <option value="Performance">Performance / Speed</option>
+                <option value="Other">Other Issues</option>
+              </select>
+            </div>
+
+            <div class="lr-form-group">
+              <label for="selBugSeverity" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+                Severity <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="selBugSeverity" class="lr-form-control" required style="width: 100%; font-size: 0.85rem;">
+                <option value="Low">Low — Minor cosmetic or typo</option>
+                <option value="Medium" selected>Medium — Functionality partially impaired</option>
+                <option value="High">High — Important feature broken</option>
+                <option value="Critical">Critical — Cannot access app / crash</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Affected Page -->
+          <div class="lr-form-group" style="margin-bottom: 1rem;">
+            <label for="txtBugAffectedPage" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+              Affected Page or Feature <span style="font-size: 0.72rem; color: var(--lr-text-muted);">(Optional)</span>
+            </label>
+            <input type="text" id="txtBugAffectedPage" class="lr-form-control" placeholder="e.g. Dashboard, Timetable, Python Notes Folder, Notice Board" maxlength="100" style="width: 100%; font-size: 0.85rem;" />
+          </div>
+
+          <!-- Description and Reproduction Steps -->
+          <div class="lr-form-group" style="margin-bottom: 1rem;">
+            <label for="txtBugDescription" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+              Description & Reproduction Steps <span style="color: #ef4444;">*</span>
+            </label>
+            <textarea id="txtBugDescription" class="lr-form-control" rows="4" placeholder="Describe what happened, what you expected, and steps to reproduce..." minlength="10" maxlength="2000" required style="width: 100%; font-size: 0.85rem; line-height: 1.5; resize: vertical;"></textarea>
+            <small style="color: var(--lr-text-muted); font-size: 0.7rem; display: block; margin-top: 0.25rem;">
+              Never enter passwords, authentication tokens, or personal secrets.
+            </small>
+          </div>
+
+          <!-- Optional Screenshot Attachment -->
+          <div class="lr-form-group" style="margin-bottom: 0.5rem;">
+            <label for="fileBugScreenshot" style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--lr-text-secondary); margin-bottom: 0.35rem;">
+              Optional Screenshot Attachment <span style="font-size: 0.72rem; color: var(--lr-text-muted);">(PNG, JPEG, WebP — Max 5MB)</span>
+            </label>
+            <input type="file" id="fileBugScreenshot" accept="image/png,image/jpeg,image/webp" class="lr-form-control" style="width: 100%; font-size: 0.8rem; padding: 0.4rem;" />
+            <div id="lrBugScreenshotPreview" style="display: none; margin-top: 0.5rem; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: var(--lr-radius-md);">
+              <img id="imgBugPreview" src="" alt="Screenshot Preview" style="max-height: 60px; max-width: 100px; object-fit: contain; border-radius: 4px;" />
+              <span id="lblBugPreviewFilename" style="font-size: 0.75rem; color: var(--lr-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+              <button type="button" id="btnRemoveBugScreenshot" class="lr-btn lr-btn-sm lr-btn-outline" style="margin-left: auto; padding: 0.2rem 0.5rem; font-size: 0.7rem;">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="lr-modal-footer" style="border-top: 1px solid var(--lr-border-subtle); padding: 0.85rem 1.35rem; display: flex; justify-content: flex-end; gap: 0.65rem;">
+          <button type="button" class="lr-btn lr-btn-outline lr-modal-close">Cancel</button>
+          <button type="submit" id="btnSubmitBugReport" class="lr-btn lr-btn-primary" style="background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #ef4444; min-width: 150px;">
+            <span>🐞 Submit Report</span>
+          </button>
         </footer>
       </form>
     </div>
@@ -189,8 +348,22 @@
   <!-- Toast Container -->
   <div id="lrToastContainer" class="lr-toast-container"></div>
 
-  <!-- Supabase JS CDN (If client is active) -->
+  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Initialize Supabase Client early for seamless OAuth callback parsing
+    window.SUPABASE_CONFIG = {
+      url: "https://uryiomifyhcbvzeafizi.supabase.co",
+      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ"
+    };
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      try {
+        window.supabase = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
+      } catch (e) {
+        console.warn('Early Supabase init:', e);
+      }
+    }
+  </script>
 
   <!-- Learning Platform Controller -->
   <script type="module" src="js/learning/learningApp.js"></script>

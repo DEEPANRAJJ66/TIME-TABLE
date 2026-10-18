@@ -258,11 +258,11 @@ it('11. Manager direct ban attempt during 72-hour window is REJECTED', () => {
   const store = new LearningStore();
   const studentEmail = 'student.72h@gmail.com';
 
-  // Manager attempt to re-ban student during active 72h window
+  // The affected manager who issued the original ban attempts to re-ban student during restriction window
   assert.throws(() => {
     store.banStudent({
       studentEmail,
-      actorEmail: 'another.manager@saranathan.ac.in',
+      actorEmail: 'manager1@saranathan.ac.in',
       actorRole: 'manager',
       banType: 'temporary',
       reason: 'Another complaint'
