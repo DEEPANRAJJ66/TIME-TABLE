@@ -7,6 +7,7 @@ import path from 'path';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const BACKUP_FILE = path.join(DATA_DIR, 'platform_store.json');
+const TMP_BACKUP_FILE = path.join('/tmp', 'platform_store.json');
 
 export const INITIAL_SUBJECTS = [
   { id: 'sub_graphics', code: '24ES102A', name: 'Engineering Graphics', icon: '📐', orderIndex: 1 },
@@ -38,15 +39,17 @@ export class PlatformStore {
   }
 
   init() {
-    // Ensure data directory
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
+    // Ensure data directory if writable
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+    } catch (_) {}
 
-    // Load from disk if exists
-    if (fs.existsSync(BACKUP_FILE)) {
+    const loadData = (filePath) => {
+      if (!fs.existsSync(filePath)) return;
       try {
-        const raw = fs.readFileSync(BACKUP_FILE, 'utf8');
+        const raw = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(raw);
         if (data.users) data.users.forEach(u => this.users.set(u.id, u));
         if (data.subjects) data.subjects.forEach(s => this.subjects.set(s.id, s));
@@ -62,9 +65,15 @@ export class PlatformStore {
         if (data.auditEvents) this.auditEvents = data.auditEvents;
         if (data.outbox) this.outbox = data.outbox;
       } catch (err) {
-        console.warn('Failed to parse platform_store.json, initializing fresh store:', err.message);
+        console.warn(`Failed to parse ${filePath}:`, err.message);
       }
-    }
+    };
+
+    // 1. Load baseline from repository bundled store
+    loadData(BACKUP_FILE);
+
+    // 2. Overlay updates from writable runtime tmp storage (AWS Lambda / Vercel container cache)
+    loadData(TMP_BACKUP_FILE);
 
     // Seed official subjects idempotently
     INITIAL_SUBJECTS.forEach(sub => {
@@ -104,27 +113,35 @@ export class PlatformStore {
   }
 
   persist() {
+    const snapshot = {
+      users: Array.from(this.users.values()),
+      subjects: Array.from(this.subjects.values()),
+      subjectAssignments: Array.from(this.subjectAssignments.values()),
+      resources: Array.from(this.resources.values()),
+      assignments: Array.from(this.assignments.values()),
+      submissions: Array.from(this.submissions.values()),
+      moderationRecords: this.moderationRecords,
+      banRestrictions: this.banRestrictions,
+      banRequests: this.banRequests,
+      notices: this.notices,
+      notifications: this.notifications,
+      auditEvents: this.auditEvents,
+      outbox: this.outbox,
+      persistedAt: new Date().toISOString()
+    };
+    const serialized = JSON.stringify(snapshot, null, 2);
+
+    // 1. Attempt writing to repository backup (works locally)
     try {
-      const snapshot = {
-        users: Array.from(this.users.values()),
-        subjects: Array.from(this.subjects.values()),
-        subjectAssignments: Array.from(this.subjectAssignments.values()),
-        resources: Array.from(this.resources.values()),
-        assignments: Array.from(this.assignments.values()),
-        submissions: Array.from(this.submissions.values()),
-        moderationRecords: this.moderationRecords,
-        banRestrictions: this.banRestrictions,
-        banRequests: this.banRequests,
-        notices: this.notices,
-        notifications: this.notifications,
-        auditEvents: this.auditEvents,
-        outbox: this.outbox,
-        persistedAt: new Date().toISOString()
-      };
-      fs.writeFileSync(BACKUP_FILE, JSON.stringify(snapshot, null, 2), 'utf8');
-    } catch (err) {
-      console.error('Store persistence warning:', err.message);
+      fs.writeFileSync(BACKUP_FILE, serialized, 'utf8');
+    } catch (_) {
+      // Expected in serverless read-only filesystem environments
     }
+
+    // 2. Attempt writing to /tmp backup (works in AWS Lambda / Vercel containers)
+    try {
+      fs.writeFileSync(TMP_BACKUP_FILE, serialized, 'utf8');
+    } catch (_) {}
   }
 
   // --- Users & Profiles ---

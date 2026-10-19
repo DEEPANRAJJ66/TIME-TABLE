@@ -259,5 +259,111 @@ const slugRes = await new Promise(resolve => {
 assert(slugRes.status === 200, 'Catch-all [...slug] resolves /api/auth/config');
 assert(slugRes.body.appOrigin === 'https://time-table-pi-seven.vercel.app', 'Catch-all resolves correct origin');
 
+// Test 15: POST /api/auth/profile without Bearer token is rejected with HTTP 401
+const noAuthProfileRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/profile',
+  headers: { 'content-type': 'application/json', 'x-user-id': 'usr_spoofed' },
+  body: { firstName: 'Test', rollNumber: '240101' }
+});
+assert(noAuthProfileRes.status === 401, 'POST /api/auth/profile without Bearer token rejected with HTTP 401');
+assert(noAuthProfileRes.body.error.includes('Authentication required'), 'Reports authentication required');
+
+// Test 16: POST /api/auth/profile with expired Bearer token rejected with HTTP 401
+const expiredProfilePayload = {
+  sub: 'usr_mock_exp_prof',
+  email: 'expired_prof@saranathan.ac.in',
+  exp: Math.floor(Date.now() / 1000) - 3600
+};
+const expiredProfileToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(expiredProfilePayload)).toString('base64')}.mock`;
+const expiredProfileRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/profile',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${expiredProfileToken}`
+  },
+  body: { firstName: 'Test', rollNumber: '240101' }
+});
+assert(expiredProfileRes.status === 401, 'POST /api/auth/profile with expired Bearer token rejected with HTTP 401');
+assert(expiredProfileRes.body.error.includes('expired'), 'Reports session expired');
+
+// Test 17: POST /api/auth/profile for new Google user (cold container simulation) succeeds with 200
+const freshEmail = `fresh_student_${Date.now()}@saranathan.ac.in`;
+const freshSub = `sub_${Date.now()}`;
+const freshPayload = {
+  sub: freshSub,
+  email: freshEmail,
+  exp: Math.floor(Date.now() / 1000) + 3600,
+  user_metadata: { full_name: 'Vignesh K' }
+};
+const freshToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(freshPayload)).toString('base64')}.mock`;
+
+const freshProfileRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/profile',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${freshToken}`
+  },
+  body: {
+    firstName: 'Vignesh',
+    secondaryName: 'K',
+    rollNumber: '240555',
+    role: 'admin' // Attempted role elevation! Must be ignored!
+  }
+});
+assert(freshProfileRes.status === 200, 'POST /api/auth/profile succeeds for fresh authenticated Google user');
+assert(freshProfileRes.body.user.rollNumber === '240555', 'Roll number saved as 240555');
+assert(freshProfileRes.body.user.displayName === 'Vignesh K', 'Display name formatted as "Vignesh K"');
+assert(freshProfileRes.body.user.role === 'student', 'Role elevation strictly prevented; user remains student');
+assert(freshProfileRes.body.user.accountStatus === 'active', 'Account status transitioned to active');
+
+// Test 18: Roll number validation: non-6-digit rejected with 400
+for (const badRoll of ['12345', '1234567', '24ABCD', '']) {
+  const badRollRes = await dispatch({
+    method: 'POST',
+    url: '/api/auth/profile',
+    headers: {
+      'content-type': 'application/json',
+      'authorization': `Bearer ${freshToken}`
+    },
+    body: { firstName: 'Vignesh', rollNumber: badRoll }
+  });
+  assert(badRollRes.status === 400, `Invalid roll number "${badRoll}" rejected with 400`);
+}
+
+// Test 19: Duplicate roll number prevented with HTTP 409
+const anotherEmail = `another_student_${Date.now()}@saranathan.ac.in`;
+const anotherPayload = {
+  sub: `sub_another_${Date.now()}`,
+  email: anotherEmail,
+  exp: Math.floor(Date.now() / 1000) + 3600
+};
+const anotherToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(anotherPayload)).toString('base64')}.mock`;
+const dupRollRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/profile',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${anotherToken}`
+  },
+  body: { firstName: 'Another', rollNumber: '240555' } // Duplicate roll!
+});
+assert(dupRollRes.status === 409, 'Duplicate roll number "240555" prevented with HTTP 409 Conflict');
+assert(dupRollRes.body.error.includes('already registered'), 'Duplicate message confirms roll is registered');
+
+// Test 20: Missing first name rejected with HTTP 400
+const noFirstRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/profile',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${anotherToken}`
+  },
+  body: { firstName: '', rollNumber: '240556' }
+});
+assert(noFirstRes.status === 400, 'Missing first name rejected with HTTP 400');
+
 console.log(`\nGoogle OAuth Security Results: ${passed} Passed, ${failed} Failed\n`);
 if (failed > 0) process.exit(1);

@@ -297,9 +297,13 @@ async function resolveUserSession(email, id = null, token = null, name = null) {
 
     // Check if profile setup is required (Rule: Roll number must be set)
     if (data.requiresProfileSetup) {
-      document.getElementById('setupFirstName').value = data.user.firstName || '';
-      document.getElementById('setupSecName').value = data.user.secondaryName || '';
-      document.getElementById('setupRollNumber').value = data.user.rollNumber || '';
+      const existingFirst = document.getElementById('setupFirstName').value.trim();
+      const existingSec = document.getElementById('setupSecName').value.trim();
+      const existingRoll = document.getElementById('setupRollNumber').value.trim();
+
+      document.getElementById('setupFirstName').value = existingFirst || data.user.firstName || '';
+      document.getElementById('setupSecName').value = existingSec || data.user.secondaryName || '';
+      document.getElementById('setupRollNumber').value = existingRoll || data.user.rollNumber || '';
       openModal('profileModal');
       return;
     }
@@ -332,15 +336,32 @@ async function handleSaveProfile() {
   saveBtn.textContent = 'Activating Profile...';
 
   try {
-    const sessionRes = state.supabase ? await state.supabase.auth.getSession() : null;
-    const session = sessionRes?.data?.session;
+    let session = null;
+    if (state.supabase) {
+      const sessionRes = await state.supabase.auth.getSession();
+      session = sessionRes?.data?.session;
+      if (!session) {
+        // Attempt token refresh
+        const refreshRes = await state.supabase.auth.refreshSession();
+        session = refreshRes?.data?.session;
+      }
+    }
+
+    if (!session || !session.access_token) {
+      showToast('Authentication session expired or missing. Please sign in with Google.', 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save and Activate Profile';
+      document.getElementById('authScreen').style.display = 'flex';
+      return;
+    }
 
     const headers = {
       'Content-Type': 'application/json',
-      'X-User-Id': state.currentUser.id
+      'Authorization': `Bearer ${session.access_token}`
     };
-    if (session && session.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
+    const actorId = state.currentUser?.id || session.user?.id;
+    if (actorId) {
+      headers['X-User-Id'] = actorId;
     }
 
     const res = await fetch('/api/auth/profile', {
@@ -358,7 +379,14 @@ async function handleSaveProfile() {
           if (errData && errData.error) errorMsg = errData.error;
         }
       } catch (_) {}
-      showToast(errorMsg, 'error');
+
+      if (res.status === 401) {
+        showToast(errorMsg || 'Authentication session expired. Please sign in with Google.', 'error');
+        // Keep profileModal inputs populated so student never loses typed info
+        document.getElementById('authScreen').style.display = 'flex';
+      } else {
+        showToast(errorMsg, 'error');
+      }
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save and Activate Profile';
       return;
@@ -367,10 +395,17 @@ async function handleSaveProfile() {
     const data = await res.json();
 
     state.currentUser = data.user;
+    if (state.supabase) {
+      state.supabase.auth.updateUser({
+        data: { firstName, secondaryName, rollNumber }
+      }).catch(e => console.warn('Supabase metadata sync notice:', e));
+    }
+
     closeModal('profileModal');
     showToast('Profile activated successfully!', 'success');
     launchDashboard();
   } catch (err) {
+    console.error('Error during profile activation:', err);
     showToast('Network error during profile activation.', 'error');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save and Activate Profile';
