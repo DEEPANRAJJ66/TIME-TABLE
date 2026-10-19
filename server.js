@@ -165,8 +165,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`\n=======================================================`);
-  console.log(`🚀 College Platform Server running at http://localhost:${PORT}`);
-  console.log(`📚 Live Timetable: http://localhost:${PORT}/index.html`);
-  console.log(`🎓 Learning Hub:  http://localhost:${PORT}/learning.html`);
+  console.log(`🚀 Live Timetable Planner Server running at http://localhost:${PORT}`);
+  console.log(`📚 CSE Class A Live Timetable: http://localhost:${PORT}/index.html`);
   console.log(`=======================================================\n`);
 });

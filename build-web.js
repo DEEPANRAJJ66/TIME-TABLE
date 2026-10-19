@@ -31,8 +31,6 @@ const filesToCopy = [
   'index.html',
   'style.css',
   'app.js',
-  'learning.html',
-  'learning.css',
   'data',
   'js',
   'assets',
