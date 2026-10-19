@@ -8,6 +8,7 @@ import path from 'path';
 const suites = [
   { name: 'Section 37: Role-Permission Matrix (22 Rules)', file: 'role_permissions.test.js' },
   { name: 'Section 4: Google-Only Auth & 6-Digit Profile Validation', file: 'auth_and_profile.test.js' },
+  { name: 'Section 4: Google OAuth & Session Security Verification', file: 'google_oauth_security.test.js' },
   { name: 'Section 15 & 39: Coursework Assignments & Submissions', file: 'assignments_and_submissions.test.js' },
   { name: 'Section 9: Moderation, Admin Unbans & 7-Day Restriction', file: 'moderation_and_restrictions.test.js' },
   { name: 'Section 12 & 38: Google Drive Storage & Streaming Proxy', file: 'google_drive_storage.test.js' },

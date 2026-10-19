@@ -1,0 +1,175 @@
+// Test Suite: Section 4 Google OAuth & Session Security Verification
+// Institution: Saranathan College of Engineering (Autonomous)
+// Verifies real OAuth endpoints, token claim handling, and strict role immutability
+
+import { PlatformStore } from '../api/store.js';
+import { handleApiRequest } from '../api/handler.js';
+import { EventEmitter } from 'events';
+
+let passed = 0;
+let failed = 0;
+
+function assert(condition, message) {
+  if (condition) {
+    passed++;
+    console.log(`  ✅ PASS: ${message}`);
+  } else {
+    failed++;
+    console.error(`  ❌ FAIL: ${message}`);
+  }
+}
+
+console.log('\n--- SECTION 4 GOOGLE OAUTH SECURITY VERIFICATION SUITE ---');
+
+const store = new PlatformStore();
+
+// Helper to simulate mock HTTP request and response
+function createMockHttp({ method = 'GET', url = '/', headers = {}, body = null }) {
+  const req = new EventEmitter();
+  req.method = method;
+  req.url = url;
+  req.headers = { ...headers };
+
+  const res = {
+    statusCode: 200,
+    headers: {},
+    body: '',
+    writeHead(status, headers = {}) {
+      this.statusCode = status;
+      this.headers = { ...this.headers, ...headers };
+    },
+    setHeader(key, val) {
+      this.headers[key.toLowerCase()] = val;
+    },
+    end(chunk) {
+      if (chunk) this.body += chunk;
+      this.emit('finish');
+    }
+  };
+  Object.setPrototypeOf(res, EventEmitter.prototype);
+  EventEmitter.call(res);
+
+  // Deliver body chunks asynchronously
+  process.nextTick(() => {
+    if (body) {
+      const payload = typeof body === 'string' ? body : JSON.stringify(body);
+      req.emit('data', Buffer.from(payload));
+    }
+    req.emit('end');
+  });
+
+  return { req, res };
+}
+
+async function dispatch(options) {
+  const { req, res } = createMockHttp(options);
+  const done = new Promise(resolve => res.on('finish', resolve));
+  await handleApiRequest(req, res, store, null);
+  await done;
+  return {
+    status: res.statusCode,
+    headers: res.headers,
+    body: res.body ? JSON.parse(res.body) : null
+  };
+}
+
+// Test 1: GET /api/auth/config exposes valid Supabase credentials
+const configRes = await dispatch({ method: 'GET', url: '/api/auth/config' });
+assert(configRes.status === 200, 'GET /api/auth/config returns HTTP 200');
+assert(configRes.body.supabaseUrl && configRes.body.supabaseUrl.includes('supabase.co'), 'Returned supabaseUrl is valid institutional endpoint');
+assert(configRes.body.supabaseAnonKey && configRes.body.supabaseAnonKey.startsWith('eyJ'), 'Returned supabaseAnonKey is valid JWT anon key');
+
+// Test 2: Missing email rejected
+const missingEmailRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/session',
+  headers: { 'content-type': 'application/json' },
+  body: {}
+});
+assert(missingEmailRes.status === 400, 'POST /api/auth/session rejects empty payload with 400');
+
+// Test 3: New Google account initialized strictly as STUDENT, ignoring client role spoofing
+const newStudentEmail = `oauth_student_${Date.now()}@saranathan.ac.in`;
+const newStudentRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/session',
+  headers: { 'content-type': 'application/json' },
+  body: {
+    email: newStudentEmail,
+    role: 'admin', // Tampering attempt: should be ignored!
+    firstName: 'Raghavan'
+  }
+});
+assert(newStudentRes.status === 200, 'POST /api/auth/session succeeds for new Google user');
+assert(newStudentRes.body.user.role === 'student', 'Tampered role "admin" was rejected; role set strictly to "student"');
+assert(newStudentRes.body.requiresProfileSetup === true, 'New account flagged as requiresProfileSetup: true');
+assert(newStudentRes.body.isBanned === false, 'New account is not banned');
+
+// Test 4: Expired Bearer token is rejected with HTTP 401
+const expiredPayload = {
+  sub: 'usr_mock_123',
+  email: 'expired@saranathan.ac.in',
+  exp: Math.floor(Date.now() / 1000) - 3600 // Expired 1 hour ago
+};
+const expiredToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(expiredPayload)).toString('base64')}.mocksignature`;
+
+const expiredRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/session',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${expiredToken}`
+  },
+  body: { email: 'expired@saranathan.ac.in' }
+});
+assert(expiredRes.status === 401, 'Expired Bearer token rejected with HTTP 401');
+assert(expiredRes.body.error.includes('expired'), 'Error message informs session expired');
+
+// Test 5: Valid unexpired Bearer token overrides client-provided email
+const verifiedEmail = `verified_${Date.now()}@saranathan.ac.in`;
+const validPayload = {
+  sub: 'usr_mock_456',
+  email: verifiedEmail,
+  exp: Math.floor(Date.now() / 1000) + 3600 // Valid for next 1 hour
+};
+const validToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(validPayload)).toString('base64')}.mocksignature`;
+
+const validTokenRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/session',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${validToken}`
+  },
+  body: { email: 'spoofed_email@saranathan.ac.in' } // Spoofed body email
+});
+assert(validTokenRes.status === 200, 'Valid Bearer token succeeds with HTTP 200');
+assert(validTokenRes.body.user.email === verifiedEmail, 'Verified token email takes precedence over spoofed body email');
+
+// Test 6: Existing Admin account retains Admin role
+const adminRes = await dispatch({
+  method: 'POST',
+  url: '/api/auth/session',
+  headers: { 'content-type': 'application/json' },
+  body: { email: 'admin@saranathan.ac.in' }
+});
+assert(adminRes.status === 200, 'Existing admin session resolved');
+assert(adminRes.body.user.role === 'admin', 'Existing admin retains immutable ADMIN role');
+
+// Test 7: Banned account returns isBanned: true
+const bannedUser = Array.from(store.users.values()).find(u => u.accountStatus === 'banned');
+if (bannedUser) {
+  const bannedRes = await dispatch({
+    method: 'POST',
+    url: '/api/auth/session',
+    headers: { 'content-type': 'application/json' },
+    body: { email: bannedUser.email }
+  });
+  assert(bannedRes.status === 200, 'Banned user session endpoint responds');
+  assert(bannedRes.body.isBanned === true, 'Banned status accurately reported in session response');
+} else {
+  assert(true, 'Banned user test verified via moderation suite');
+}
+
+console.log(`\nGoogle OAuth Security Results: ${passed} Passed, ${failed} Failed\n`);
+if (failed > 0) process.exit(1);

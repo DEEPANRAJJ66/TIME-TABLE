@@ -4,6 +4,38 @@
 import { appSettingsData, subjectsData, dayOrderTimetables } from '../data/timetableData.js';
 import { academicCalendarData, calendarDictionary } from '../data/calendarData.js';
 
+let _sharedClient = null;
+
+/**
+ * Returns a shared singleton Supabase client instance across the application.
+ * Reuses validated configuration from localStorage or institutional environment defaults.
+ */
+export function getSharedSupabaseClient(customUrl = null, customKey = null) {
+  if (_sharedClient && !customUrl && !customKey) {
+    return _sharedClient;
+  }
+
+  const url = customUrl || (typeof window !== 'undefined' && localStorage.getItem('college_planner_supabase_url')) || 'https://uryiomifyhcbvzeafizi.supabase.co';
+  const anonKey = customKey || (typeof window !== 'undefined' && localStorage.getItem('college_planner_supabase_key')) || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ';
+
+  if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
+    try {
+      _sharedClient = window.supabase.createClient(url.trim(), anonKey.trim(), {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: typeof window !== 'undefined' ? window.localStorage : undefined
+        }
+      });
+      return _sharedClient;
+    } catch (err) {
+      console.warn('Failed to initialize shared Supabase client:', err);
+    }
+  }
+  return null;
+}
+
 export class SupabaseSyncService {
   constructor() {
     this.storageKeys = {
@@ -31,7 +63,7 @@ export class SupabaseSyncService {
   getCredentials() {
     return {
       url: localStorage.getItem(this.storageKeys.url) || 'https://uryiomifyhcbvzeafizi.supabase.co',
-      anonKey: localStorage.getItem(this.storageKeys.anonKey) || 'sb_publishable_rqhs0pVnjBN9cLqBpydhlQ_Q1BTjCJx'
+      anonKey: localStorage.getItem(this.storageKeys.anonKey) || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ'
     };
   }
 
@@ -43,22 +75,16 @@ export class SupabaseSyncService {
       localStorage.removeItem(this.storageKeys.url);
       localStorage.removeItem(this.storageKeys.anonKey);
     }
+    _sharedClient = null; // Invalidate cached singleton to re-instantiate
     this.initClient();
   }
 
   initClient() {
     const { url, anonKey } = this.getCredentials();
-    if (url && anonKey && window.supabase && typeof window.supabase.createClient === 'function') {
-      try {
-        this.client = window.supabase.createClient(url, anonKey);
-        this.connectionState.status = 'configured';
-        return true;
-      } catch (err) {
-        console.warn('Failed to initialize Supabase client:', err);
-        this.client = null;
-      }
-    } else {
-      this.client = null;
+    this.client = getSharedSupabaseClient(url, anonKey);
+    if (this.client) {
+      this.connectionState.status = 'configured';
+      return true;
     }
     return false;
   }

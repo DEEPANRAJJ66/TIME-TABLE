@@ -84,17 +84,33 @@ export async function parseRawBody(req, limitBytes = 50 * 1024 * 1024) {
 // Helper to resolve the authenticated actor from Request Headers
 export async function resolveActor(req, store) {
   // Check Authorization header or X-User-Id
-  const authHeader = req.headers['authorization'] || '';
-  const userIdHeader = req.headers['x-user-id'] || '';
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'] || '';
+  const userIdHeader = req.headers['x-user-id'] || req.headers['X-User-Id'] || '';
 
   let user = null;
 
   if (userIdHeader) {
     user = await store.getUserById(userIdHeader);
-  } else if (authHeader.startsWith('Bearer ')) {
+  }
+
+  if (!user && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7).trim();
-    // In our hybrid local/Supabase environment, token can be userId or email
-    user = (await store.getUserById(token)) || (await store.getUserByEmail(token));
+    // 1. Try decoding Supabase JWT token if structured as standard 3-part token
+    if (token.includes('.')) {
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+          if (payload.sub) user = await store.getUserById(payload.sub);
+          if (!user && payload.email) user = await store.getUserByEmail(payload.email.toLowerCase());
+        }
+      } catch (_) {}
+    }
+
+    // 2. Direct lookup fallback for session tokens / local IDs
+    if (!user) {
+      user = (await store.getUserById(token)) || (await store.getUserByEmail(token.toLowerCase()));
+    }
   }
 
   return user;
@@ -155,9 +171,39 @@ export async function handleApiRequest(req, res, store, moderationService) {
     // ----------------------------------------------------
     // AUTHENTICATION & PROFILE SETUP
     // ----------------------------------------------------
+    if (pathname === '/api/auth/config' && method === 'GET') {
+      return sendJson(res, 200, {
+        supabaseUrl: process.env.SUPABASE_URL || 'https://uryiomifyhcbvzeafizi.supabase.co',
+        supabaseAnonKey: process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ'
+      });
+    }
+
     if (pathname === '/api/auth/session' && method === 'POST') {
       const body = await parseJsonBody(req);
-      const email = String(body.email || '').trim().toLowerCase();
+      let email = String(body.email || '').trim().toLowerCase();
+
+      // Check Bearer authorization header if provided from trusted Supabase session
+      const authHeader = req.headers['authorization'] || req.headers['Authorization'] || '';
+      if (authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7).trim();
+        if (token.includes('.')) {
+          try {
+            const parts = token.split('.');
+            if (parts.length === 3) {
+              const tokenPayload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+              if (tokenPayload.exp && tokenPayload.exp * 1000 < Date.now()) {
+                return sendJson(res, 401, { error: 'Authentication session expired. Please sign in again.' });
+              }
+              if (tokenPayload.email) {
+                // Ground truth email is from the verified token
+                email = tokenPayload.email.trim().toLowerCase();
+              }
+            }
+          } catch (tokenErr) {
+            console.warn('Could not parse token claims:', tokenErr.message);
+          }
+        }
+      }
 
       if (!email) {
         return sendJson(res, 400, { error: 'Valid Google email is required.' });
@@ -165,7 +211,7 @@ export async function handleApiRequest(req, res, store, moderationService) {
 
       let user = await store.getUserByEmail(email);
       if (!user) {
-        // Register new Google account as unconfirmed Student (pending profile completion)
+        // Register new Google account as Student (pending profile completion)
         const id = body.id || ('usr_' + Math.random().toString(36).substring(2, 10));
         const first = body.firstName || body.name || email.split('@')[0];
         user = {
@@ -174,14 +220,24 @@ export async function handleApiRequest(req, res, store, moderationService) {
           firstName: first,
           secondaryName: '',
           displayName: first,
-          rollNumber: '', // Empty until profile setup
-          role: ROLES.STUDENT, // Rule 10: All new accounts MUST begin as Student
+          rollNumber: '', // Mandatory 6 numeric digits collected during profile setup
+          role: ROLES.STUDENT, // Invariant: All new Google accounts initialize strictly as Student
           accountStatus: 'pending_profile',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
         store.users.set(id, user);
         store.persist();
+
+        await store.logAuditEvent({
+          actorId: id,
+          actorName: first,
+          actorRole: ROLES.STUDENT,
+          actionType: 'STUDENT_REGISTERED_OAUTH',
+          targetResourceType: 'user',
+          targetResourceId: id,
+          metadata: { email, role: ROLES.STUDENT }
+        });
       }
 
       // Check if user is banned

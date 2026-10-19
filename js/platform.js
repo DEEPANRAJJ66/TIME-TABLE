@@ -2,6 +2,8 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Supports Google-only Auth, 4-tier Role Dashboards, Drive Streaming, & Telegram Audits
 
+import { getSharedSupabaseClient } from './supabaseClient.js';
+
 // State Container
 const state = {
   currentUser: null,
@@ -85,36 +87,130 @@ function startIstClock() {
 // AUTHENTICATION & SESSION HANDLING
 // ----------------------------------------------------
 async function initAuth() {
-  // Check if Supabase JS SDK is loaded
-  if (window.supabase) {
-    try {
-      const res = await fetch('/api/status');
-      const statusData = await res.json();
-      // Initialize Supabase if available
-      // Note: If deployed, SUPABASE_URL and SUPABASE_ANON_KEY are used
-    } catch (err) {
-      console.warn('Could not contact /api/status:', err);
-    }
+  // 1. Process URL query parameters and hash fragments (e.g. from Google OAuth callback)
+  const currentUrl = new URL(window.location.href);
+  const hashString = window.location.hash ? window.location.hash.substring(1) : '';
+  const hashParams = new URLSearchParams(hashString);
+  const queryParams = currentUrl.searchParams;
+
+  // Check for OAuth error indications in search or hash
+  const oauthError = queryParams.get('error_description') || 
+                     queryParams.get('error') || 
+                     hashParams.get('error_description') || 
+                     hashParams.get('error');
+
+  if (oauthError) {
+    showToast(decodeURIComponent(oauthError.replace(/\+/g, ' ')), 'error');
+    // Sanitize address bar to remove error parameters
+    window.history.replaceState(null, '', window.location.pathname);
   }
 
-  // Check existing session in localStorage
-  const savedUserId = localStorage.getItem('saranathan_user_id');
-  const savedEmail = localStorage.getItem('saranathan_user_email');
+  // 2. Fetch server-configured Supabase configuration
+  let supabaseUrl = null;
+  let supabaseAnonKey = null;
+  try {
+    const configRes = await fetch('/api/auth/config');
+    if (configRes.ok) {
+      const configData = await configRes.json();
+      supabaseUrl = configData.supabaseUrl;
+      supabaseAnonKey = configData.supabaseAnonKey;
+    }
+  } catch (err) {
+    console.warn('Could not contact /api/auth/config:', err);
+  }
 
-  if (savedUserId || savedEmail) {
-    await resolveUserSession(savedEmail || 'admin@saranathan.ac.in', savedUserId);
-  } else {
-    // Show login screen
+  // 3. Initialize Shared Supabase Client
+  state.supabase = getSharedSupabaseClient(supabaseUrl, supabaseAnonKey);
+
+  if (!state.supabase) {
+    console.warn('Supabase client could not be initialized.');
+    showToast('Authentication service unavailable. Please check connection.', 'error');
     document.getElementById('authScreen').style.display = 'flex';
+    return;
+  }
+
+  // 4. Listen for real-time auth state events
+  state.supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      await handleVerifiedSession(session);
+    } else if (event === 'SIGNED_OUT') {
+      handleSignOutCleanup();
+    }
+  });
+
+  // 5. Inspect existing active session from client storage
+  try {
+    const { data, error } = await state.supabase.auth.getSession();
+    if (error) {
+      console.warn('Failed to retrieve Supabase session:', error);
+    }
+
+    // Sanitize address bar if tokens/code are present in hash or query
+    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    if (window.location.search && window.location.search.includes('code=')) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    if (data && data.session) {
+      await handleVerifiedSession(data.session);
+    } else {
+      // Clear any stale local user storage when unauthenticated
+      handleSignOutCleanup();
+    }
+  } catch (sessionErr) {
+    console.error('Session retrieval error:', sessionErr);
+    handleSignOutCleanup();
   }
 }
 
-async function resolveUserSession(email, id = null) {
+async function handleVerifiedSession(session) {
+  if (!session || !session.user) return;
+  const user = session.user;
+  const email = user.email;
+  const id = user.id;
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || '';
+  const token = session.access_token;
+  await resolveUserSession(email, id, token, name);
+}
+
+function handleSignOutCleanup() {
+  localStorage.removeItem('saranathan_user_id');
+  localStorage.removeItem('saranathan_user_email');
+  state.currentUser = null;
+  const mainApp = document.getElementById('mainApp');
+  if (mainApp) mainApp.style.display = 'none';
+  const authScreen = document.getElementById('authScreen');
+  if (authScreen) authScreen.style.display = 'flex';
+  closeModal('bannedModal');
+  closeModal('profileModal');
+}
+
+async function performSignOut() {
   try {
+    if (state.supabase) {
+      await state.supabase.auth.signOut();
+    }
+  } catch (e) {
+    console.warn('Supabase sign out error:', e);
+  }
+  handleSignOutCleanup();
+}
+
+async function resolveUserSession(email, id = null, token = null, name = null) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const body = { email, id };
+    if (name) body.name = name;
+
     const res = await fetch('/api/auth/session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, id })
+      headers,
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
@@ -179,12 +275,20 @@ async function handleSaveProfile() {
   saveBtn.textContent = 'Activating Profile...';
 
   try {
+    const sessionRes = state.supabase ? await state.supabase.auth.getSession() : null;
+    const session = sessionRes?.data?.session;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-User-Id': state.currentUser.id
+    };
+    if (session && session.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+
     const res = await fetch('/api/auth/profile', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': state.currentUser.id
-      },
+      headers,
       body: JSON.stringify({ firstName, secondaryName, rollNumber })
     });
 
@@ -1424,51 +1528,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Google sign in button
   document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
-    // In local evaluation or when testing in browser, let user select role or sign in
-    const testAccounts = [
-      { email: 'admin@saranathan.ac.in', label: 'Sign in as Administrator' },
-      { email: 'rep@saranathan.ac.in', label: 'Sign in as Representative' },
-      { email: 'manager@saranathan.ac.in', label: 'Sign in as Manager (Faculty)' },
-      { email: 'student1@saranathan.ac.in', label: 'Sign in as Student (First Year)' }
-    ];
+    if (!state.supabase) {
+      state.supabase = getSharedSupabaseClient();
+    }
 
-    const pick = prompt(
-      "SARANATHAN COLLEGE GOOGLE AUTHENTICATION:\n\n" +
-      "1. Admin (admin@saranathan.ac.in)\n" +
-      "2. Representative (rep@saranathan.ac.in)\n" +
-      "3. Manager (manager@saranathan.ac.in)\n" +
-      "4. Student (student1@saranathan.ac.in)\n" +
-      "Or type your custom Google email:",
-      "admin@saranathan.ac.in"
-    );
+    if (!state.supabase) {
+      showToast('Authentication service is currently unavailable. Please refresh and try again.', 'error');
+      return;
+    }
 
-    if (!pick) return;
-    let chosenEmail = pick.trim();
-    if (pick === '1') chosenEmail = 'admin@saranathan.ac.in';
-    if (pick === '2') chosenEmail = 'rep@saranathan.ac.in';
-    if (pick === '3') chosenEmail = 'manager@saranathan.ac.in';
-    if (pick === '4') chosenEmail = 'student1@saranathan.ac.in';
+    const signInBtn = document.getElementById('googleSignInBtn');
+    if (signInBtn) {
+      signInBtn.disabled = true;
+      signInBtn.innerHTML = `
+        <span style="display: inline-block; margin-right: 8px;">⏳</span>
+        Connecting to Google...
+      `;
+    }
 
-    await resolveUserSession(chosenEmail);
+    try {
+      const redirectUri = window.location.origin + window.location.pathname;
+      const { data, error } = await state.supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUri,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account'
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (err) {
+      console.error('Google OAuth error:', err);
+      showToast(err.message || 'Failed to initiate Google sign-in.', 'error');
+      if (signInBtn) {
+        signInBtn.disabled = false;
+        signInBtn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
+            <path fill="#ffffff" d="M12.24 10.285V13.4h6.887C18.2 16.14 15.645 18 12.24 18c-3.315 0-6-2.685-6-6s2.685-6 6-6c1.65 0 3.015.6 4.05 1.575l2.4-2.4C16.89 3.48 14.73 2.5 12.24 2.5 7.02 2.5 2.76 6.76 2.76 12s4.26 9.5 9.48 9.5c5.445 0 9.06-3.825 9.06-9.225 0-.645-.06-1.275-.18-1.99H12.24z"/>
+          </svg>
+          Sign in with Google
+        `;
+      }
+    }
   });
 
   // Save profile button
   document.getElementById('saveProfileBtn')?.addEventListener('click', handleSaveProfile);
 
   // Logout button
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('saranathan_user_id');
-    localStorage.removeItem('saranathan_user_email');
-    state.currentUser = null;
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await performSignOut();
     showToast('Signed out successfully.', 'info');
   });
 
-  document.getElementById('bannedLogoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('saranathan_user_id');
-    localStorage.removeItem('saranathan_user_email');
-    closeModal('bannedModal');
+  document.getElementById('bannedLogoutBtn')?.addEventListener('click', async () => {
+    await performSignOut();
     location.reload();
   });
 
