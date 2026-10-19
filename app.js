@@ -7,6 +7,18 @@ import { SupabaseSyncService } from './js/supabaseClient.js';
 import { appSettingsData, subjectsData, dayOrderTimetables } from './data/timetableData.js';
 import { academicCalendarData, calendarDictionary } from './data/calendarData.js';
 
+// OAuth Callback Relay: If user lands on the root page with OAuth credentials (hash fragment or code query),
+// immediately forward to /learning to complete authentication in the Learning Platform.
+if (typeof window !== 'undefined') {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  if (hash.includes('access_token=') || hash.includes('refresh_token=') || hash.includes('error=')) {
+    window.location.replace('/learning' + hash);
+  } else if (search.includes('code=') || search.includes('error=')) {
+    window.location.replace('/learning' + search);
+  }
+}
+
 class CollegeTimetableApp {
   constructor() {
     this.timeEngine = new TimeEngine('Asia/Kolkata');

@@ -207,5 +207,57 @@ assert(envConfigRes.body.appOrigin === 'https://portal.saranathan.ac.in', 'Expli
 assert(envConfigRes.body.callbackUrl === 'https://portal.saranathan.ac.in/learning', 'Callback URL matches explicit APP_URL');
 delete process.env.APP_URL;
 
+// Test 11: Production Vercel deployment URL time-table-pi-seven.vercel.app
+const liveVercelRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config',
+  headers: {
+    'host': 'time-table-pi-seven.vercel.app',
+    'x-forwarded-proto': 'https'
+  }
+});
+assert(liveVercelRes.status === 200, 'Live Vercel config request succeeds');
+assert(liveVercelRes.body.appOrigin === 'https://time-table-pi-seven.vercel.app', 'Live Vercel origin resolved accurately');
+assert(liveVercelRes.body.callbackUrl === 'https://time-table-pi-seven.vercel.app/learning', 'Live Vercel callbackUrl resolved to /learning');
+
+// Test 12: Normalizes trailing slashes on endpoints (/api/auth/config/)
+const trailingSlashRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config/',
+  headers: { 'host': 'time-table-pi-seven.vercel.app', 'x-forwarded-proto': 'https' }
+});
+assert(trailingSlashRes.status === 200, 'Trailing slash route /api/auth/config/ normalized successfully');
+
+// Test 13: Normalizes .js extensions on endpoints (/api/auth/config.js)
+const jsExtRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config.js',
+  headers: { 'host': 'time-table-pi-seven.vercel.app', 'x-forwarded-proto': 'https' }
+});
+assert(jsExtRes.status === 200, '.js extension route /api/auth/config.js normalized successfully');
+
+// Test 14: Handles Vercel catch-all [...slug] routing with req.query.slug
+const slugReq = {
+  url: '/api/[...slug]',
+  method: 'GET',
+  headers: { 'host': 'time-table-pi-seven.vercel.app', 'x-forwarded-proto': 'https' },
+  query: { slug: ['auth', 'config'] }
+};
+const slugRes = await new Promise(resolve => {
+  let statusCode = 200;
+  let headers = {};
+  let body = '';
+  const mockRes = {
+    writeHead: (code, h) => { statusCode = code; headers = h; },
+    end: (content) => {
+      body = content;
+      resolve({ status: statusCode, headers, body: JSON.parse(body || '{}') });
+    }
+  };
+  import('../api/handler.js').then(m => m.handleApiRequest(slugReq, mockRes, store, null));
+});
+assert(slugRes.status === 200, 'Catch-all [...slug] resolves /api/auth/config');
+assert(slugRes.body.appOrigin === 'https://time-table-pi-seven.vercel.app', 'Catch-all resolves correct origin');
+
 console.log(`\nGoogle OAuth Security Results: ${passed} Passed, ${failed} Failed\n`);
 if (failed > 0) process.exit(1);

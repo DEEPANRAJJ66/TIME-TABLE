@@ -56,22 +56,15 @@ export function getApplicationOrigin(req = null) {
     return process.env.SITE_URL.trim().replace(/\/+$/, '');
   }
 
-  // 2. Vercel System Environment Variables (automatically provided in Vercel deployments)
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/+$/, '')}`;
-  }
-  if (process.env.VERCEL_URL && process.env.VERCEL_URL.trim()) {
-    return `https://${process.env.VERCEL_URL.trim().replace(/\/+$/, '')}`;
-  }
-
-  // 3. Inspect request headers if available with strict host validation
+  // 2. Inspect request headers if available with strict host validation
+  // This accurately reflects the actual domain the user is visiting (e.g. time-table-pi-seven.vercel.app)
   if (req && req.headers) {
     const rawHost = req.headers['x-forwarded-host'] || req.headers['host'] || '';
     const host = rawHost.split(':')[0].toLowerCase();
     const port = rawHost.split(':')[1];
     const proto = req.headers['x-forwarded-proto'] || (host === 'localhost' || host === '127.0.0.1' ? 'http' : 'https');
 
-    // Only trust *.vercel.app, *.saranathan.ac.in, or custom production domains
+    // Trust *.vercel.app, *.saranathan.ac.in, or custom production domains
     if (host.endsWith('.vercel.app') || host.endsWith('.saranathan.ac.in')) {
       return `${proto}://${host}${port ? `:${port}` : ''}`;
     }
@@ -79,6 +72,14 @@ export function getApplicationOrigin(req = null) {
     if (host === 'localhost' || host === '127.0.0.1') {
       return `${proto}://${host}${port ? `:${port}` : ':3000'}`;
     }
+  }
+
+  // 3. Vercel System Environment Variables (automatically provided in Vercel deployments)
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/+$/, '')}`;
+  }
+  if (process.env.VERCEL_URL && process.env.VERCEL_URL.trim()) {
+    return `https://${process.env.VERCEL_URL.trim().replace(/\/+$/, '')}`;
   }
 
   // 4. Default fallback for local development
@@ -166,8 +167,24 @@ export async function resolveActor(req, store) {
  * Main API Request Dispatcher
  */
 export async function handleApiRequest(req, res, store, moderationService) {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+  const parsedUrl = url.parse(req.url || '/', true);
+  let pathname = (parsedUrl.pathname || '').replace(/\/+$/, '') || '/';
+
+  // Support Vercel catch-all [...slug] routing if invoked with slug parameter
+  if (pathname.includes('[...slug]') || pathname === '/api/handler') {
+    if (req.query && req.query.slug) {
+      const slugParts = Array.isArray(req.query.slug) ? req.query.slug : [req.query.slug];
+      pathname = '/api/' + slugParts.join('/');
+    } else if (req.headers['x-matched-path'] && !req.headers['x-matched-path'].includes('[...slug]')) {
+      pathname = url.parse(req.headers['x-matched-path'], true).pathname.replace(/\/+$/, '') || pathname;
+    }
+  }
+
+  // Normalize .js extensions if present in endpoint route (e.g. /api/auth/config.js -> /api/auth/config)
+  if (pathname.endsWith('.js') && pathname !== '/api/handler.js') {
+    pathname = pathname.slice(0, -3);
+  }
+
   const method = req.method.toUpperCase();
 
   // Handle CORS preflight

@@ -148,10 +148,15 @@ async function initAuth() {
   try {
     const configRes = await fetch('/api/auth/config');
     if (configRes.ok) {
-      const configData = await configRes.json();
-      state.appConfig = configData;
-      supabaseUrl = configData.supabaseUrl;
-      supabaseAnonKey = configData.supabaseAnonKey;
+      const contentType = configRes.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const configData = await configRes.json();
+        state.appConfig = configData;
+        supabaseUrl = configData.supabaseUrl;
+        supabaseAnonKey = configData.supabaseAnonKey;
+      }
+    } else {
+      console.warn(`GET /api/auth/config returned HTTP ${configRes.status}: ${configRes.statusText}`);
     }
   } catch (err) {
     console.warn('Could not contact /api/auth/config:', err);
@@ -253,13 +258,25 @@ async function resolveUserSession(email, id = null, token = null, name = null) {
       body: JSON.stringify(body)
     });
 
-    const data = await res.json();
     if (!res.ok) {
-      showToast(data.error || 'Authentication failed', 'error');
+      let errorMsg = `Authentication server returned status ${res.status}`;
+      try {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errData = await res.json();
+          if (errData && errData.error) errorMsg = errData.error;
+        } else {
+          const text = await res.text();
+          if (text && text.length < 120 && !text.includes('<!DOCTYPE')) errorMsg = text;
+        }
+      } catch (_) {}
+      console.error(`Session resolution failed with status ${res.status}: ${errorMsg}`);
+      showToast(errorMsg, 'error');
       document.getElementById('authScreen').style.display = 'flex';
       return;
     }
 
+    const data = await res.json();
     state.currentUser = data.user;
     localStorage.setItem('saranathan_user_id', data.user.id);
     localStorage.setItem('saranathan_user_email', data.user.email);
@@ -332,13 +349,22 @@ async function handleSaveProfile() {
       body: JSON.stringify({ firstName, secondaryName, rollNumber })
     });
 
-    const data = await res.json();
     if (!res.ok) {
-      showToast(data.error || 'Failed to complete profile', 'error');
+      let errorMsg = 'Failed to complete profile';
+      try {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errData = await res.json();
+          if (errData && errData.error) errorMsg = errData.error;
+        }
+      } catch (_) {}
+      showToast(errorMsg, 'error');
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save and Activate Profile';
       return;
     }
+
+    const data = await res.json();
 
     state.currentUser = data.user;
     closeModal('profileModal');

@@ -7,8 +7,8 @@
       "destination": "/learning.html"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/handler.js"
+      "source": "/learning",
+      "destination": "/learning.html"
     }
   ]
 }
