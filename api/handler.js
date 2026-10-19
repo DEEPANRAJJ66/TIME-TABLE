@@ -3,6 +3,8 @@
 // Enforces: Google-only Auth, 4-tier Role Hierarchy, Drive Storage Proxy, Telegram Audits
 
 import url from 'url';
+import { PlatformStore } from './store.js';
+import { ModerationService } from './moderation.js';
 import {
   ROLES,
   canPromoteUser,
@@ -38,6 +40,50 @@ export function sendJson(res, statusCode, data) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-Id'
   });
   res.end(JSON.stringify(data));
+}
+
+/**
+ * Canonical Application Origin Resolution
+ * Prioritizes explicit APP_URL/SITE_URL environment variables, Vercel deployment URLs,
+ * and falls back to validated request headers (with anti-spoofing whitelist) or localhost for development.
+ */
+export function getApplicationOrigin(req = null) {
+  // 1. Explicit production configuration via environment
+  if (process.env.APP_URL && process.env.APP_URL.trim()) {
+    return process.env.APP_URL.trim().replace(/\/+$/, '');
+  }
+  if (process.env.SITE_URL && process.env.SITE_URL.trim()) {
+    return process.env.SITE_URL.trim().replace(/\/+$/, '');
+  }
+
+  // 2. Vercel System Environment Variables (automatically provided in Vercel deployments)
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/+$/, '')}`;
+  }
+  if (process.env.VERCEL_URL && process.env.VERCEL_URL.trim()) {
+    return `https://${process.env.VERCEL_URL.trim().replace(/\/+$/, '')}`;
+  }
+
+  // 3. Inspect request headers if available with strict host validation
+  if (req && req.headers) {
+    const rawHost = req.headers['x-forwarded-host'] || req.headers['host'] || '';
+    const host = rawHost.split(':')[0].toLowerCase();
+    const port = rawHost.split(':')[1];
+    const proto = req.headers['x-forwarded-proto'] || (host === 'localhost' || host === '127.0.0.1' ? 'http' : 'https');
+
+    // Only trust *.vercel.app, *.saranathan.ac.in, or custom production domains
+    if (host.endsWith('.vercel.app') || host.endsWith('.saranathan.ac.in')) {
+      return `${proto}://${host}${port ? `:${port}` : ''}`;
+    }
+
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return `${proto}://${host}${port ? `:${port}` : ':3000'}`;
+    }
+  }
+
+  // 4. Default fallback for local development
+  const localPort = process.env.PORT || '3000';
+  return `http://localhost:${localPort}`;
 }
 
 // Helper to parse JSON body
@@ -172,9 +218,15 @@ export async function handleApiRequest(req, res, store, moderationService) {
     // AUTHENTICATION & PROFILE SETUP
     // ----------------------------------------------------
     if (pathname === '/api/auth/config' && method === 'GET') {
+      const appOrigin = getApplicationOrigin(req);
+      const isLocal = appOrigin.includes('localhost') || appOrigin.includes('127.0.0.1');
+
       return sendJson(res, 200, {
         supabaseUrl: process.env.SUPABASE_URL || 'https://uryiomifyhcbvzeafizi.supabase.co',
-        supabaseAnonKey: process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ'
+        supabaseAnonKey: process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ',
+        appOrigin,
+        callbackUrl: `${appOrigin}/learning`,
+        isProduction: !isLocal
       });
     }
 
@@ -1068,4 +1120,16 @@ ${actor.role.toUpperCase()}`;
 function ROLE_HIERARCHY_VAL(role) {
   const map = { admin: 4, representative: 3, manager: 2, student: 1 };
   return map[role] || 0;
+}
+
+// Singleton Store and Moderation Service for Serverless invocations
+let serverlessStore = null;
+let serverlessModeration = null;
+
+export default async function handler(req, res) {
+  if (!serverlessStore) {
+    serverlessStore = new PlatformStore();
+    serverlessModeration = new ModerationService(serverlessStore);
+  }
+  return handleApiRequest(req, res, serverlessStore, serverlessModeration);
 }

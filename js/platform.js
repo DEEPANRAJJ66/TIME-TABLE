@@ -19,7 +19,8 @@ const state = {
   banRestrictions: [],
   banRequests: [],
   auditLogs: [],
-  supabase: null
+  supabase: null,
+  appConfig: null
 };
 
 // UI Helper: Toast Notifications
@@ -86,6 +87,42 @@ function startIstClock() {
 // ----------------------------------------------------
 // AUTHENTICATION & SESSION HANDLING
 // ----------------------------------------------------
+
+/**
+ * Canonical OAuth Redirect URI Builder
+ * In production (mobile or desktop browser), guarantees that the redirect URI
+ * matches the deployed application's origin and canonical learning route.
+ * In local development, keeps http://localhost:${port}/learning intact.
+ */
+export function getOAuthRedirectUri() {
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  // Determine origin: In production, prioritize server-validated appOrigin (if configured)
+  // or the current browser window.location.origin
+  let baseOrigin = window.location.origin;
+
+  if (!isLocalHost) {
+    if (state.appConfig?.appOrigin && !state.appConfig.appOrigin.includes('localhost') && !state.appConfig.appOrigin.includes('127.0.0.1')) {
+      baseOrigin = state.appConfig.appOrigin;
+    } else {
+      baseOrigin = window.location.origin;
+    }
+  } else {
+    // Local development: keep localhost
+    baseOrigin = window.location.origin;
+  }
+
+  // Canonical target route: /learning (or /learning.html if loaded directly)
+  let targetPath = window.location.pathname;
+  if (!targetPath || targetPath === '/' || targetPath === '/index.html' || targetPath === '/auth/callback') {
+    targetPath = '/learning';
+  }
+
+  const cleanBase = baseOrigin.replace(/\/+$/, '');
+  const cleanPath = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
+  return `${cleanBase}${cleanPath}`;
+}
+
 async function initAuth() {
   // 1. Process URL query parameters and hash fragments (e.g. from Google OAuth callback)
   const currentUrl = new URL(window.location.href);
@@ -112,6 +149,7 @@ async function initAuth() {
     const configRes = await fetch('/api/auth/config');
     if (configRes.ok) {
       const configData = await configRes.json();
+      state.appConfig = configData;
       supabaseUrl = configData.supabaseUrl;
       supabaseAnonKey = configData.supabaseAnonKey;
     }
@@ -147,10 +185,12 @@ async function initAuth() {
 
     // Sanitize address bar if tokens/code are present in hash or query
     if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
-      window.history.replaceState(null, '', window.location.pathname);
+      const cleanPath = window.location.pathname === '/auth/callback' ? '/learning' : window.location.pathname;
+      window.history.replaceState(null, '', cleanPath);
     }
-    if (window.location.search && window.location.search.includes('code=')) {
-      window.history.replaceState(null, '', window.location.pathname);
+    if (window.location.search && (window.location.search.includes('code=') || window.location.search.includes('error='))) {
+      const cleanPath = window.location.pathname === '/auth/callback' ? '/learning' : window.location.pathname;
+      window.history.replaceState(null, '', cleanPath);
     }
 
     if (data && data.session) {
@@ -1547,7 +1587,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const redirectUri = window.location.origin + window.location.pathname;
+      const redirectUri = getOAuthRedirectUri();
+      console.log('Initiating Google OAuth with redirectUri:', redirectUri);
+
       const { data, error } = await state.supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

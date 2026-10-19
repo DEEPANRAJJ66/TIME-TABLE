@@ -78,7 +78,7 @@ const server = http.createServer(async (req, res) => {
   // Routing for static and web application pages
   if (pathname === '/' || pathname === '') {
     pathname = '/index.html'; // Serves original preserved Timetable app
-  } else if (pathname === '/learning') {
+  } else if (pathname === '/learning' || pathname === '/auth/callback') {
     pathname = '/learning.html'; // Serves modern College Learning Platform
   }
 

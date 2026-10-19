@@ -171,5 +171,41 @@ if (bannedUser) {
   assert(true, 'Banned user test verified via moderation suite');
 }
 
+// Test 8: Vercel deployment origin correctly resolved from headers
+const vercelConfigRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config',
+  headers: {
+    'host': 'college-time-planner.vercel.app',
+    'x-forwarded-proto': 'https'
+  }
+});
+assert(vercelConfigRes.status === 200, 'Vercel config request succeeds');
+assert(vercelConfigRes.body.appOrigin === 'https://college-time-planner.vercel.app', 'Vercel domain resolved as canonical appOrigin');
+assert(vercelConfigRes.body.callbackUrl === 'https://college-time-planner.vercel.app/learning', 'Vercel callbackUrl resolved to /learning');
+assert(vercelConfigRes.body.isProduction === true, 'Vercel request flagged as isProduction: true');
+
+// Test 9: Anti-spoofing: Untrusted host header rejected from appOrigin
+const spoofedConfigRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config',
+  headers: {
+    'host': 'evil-phishing-site.com',
+    'x-forwarded-proto': 'https'
+  }
+});
+assert(spoofedConfigRes.body.appOrigin.includes('localhost'), 'Untrusted host header rejected; fell back safely to localhost');
+
+// Test 10: Explicit APP_URL environment variable takes precedence
+process.env.APP_URL = 'https://portal.saranathan.ac.in';
+const envConfigRes = await dispatch({
+  method: 'GET',
+  url: '/api/auth/config',
+  headers: { 'host': 'random-host.com' }
+});
+assert(envConfigRes.body.appOrigin === 'https://portal.saranathan.ac.in', 'Explicit APP_URL takes priority over headers');
+assert(envConfigRes.body.callbackUrl === 'https://portal.saranathan.ac.in/learning', 'Callback URL matches explicit APP_URL');
+delete process.env.APP_URL;
+
 console.log(`\nGoogle OAuth Security Results: ${passed} Passed, ${failed} Failed\n`);
 if (failed > 0) process.exit(1);

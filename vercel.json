@@ -1,4 +1,14 @@
 {
   "version": 2,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/auth/callback",
+      "destination": "/learning.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/handler.js"
+    }
+  ]
 }
