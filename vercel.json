@@ -9,6 +9,79 @@
     {
       "source": "/learning",
       "destination": "/learning.html"
+    },
+    {
+      "source": "/api/resources/upload-direct",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/resources/status",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/resources/:id",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/drive/stream/:fileId",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/telegram/bug-report",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/moderation/records",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/moderation/ban",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/moderation/unban",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/moderation/ban-request",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/moderation/ban-request/decide",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/auth/config",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/auth/session",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/auth/profile",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/users/:id/role",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/submissions/:id",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/assignments/:id",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/notices/:id",
+      "destination": "/api/handler"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/handler"
     }
   ]
 }
+

@@ -232,15 +232,39 @@ export async function handleApiRequest(req, res, store, moderationService) {
   const parsedUrl = url.parse(req.url || '/', true);
   let pathname = (parsedUrl.pathname || '').replace(/\/+$/, '') || '/';
 
-  // Support Vercel catch-all [...slug] routing if invoked with slug parameter
-  if (pathname.includes('[...slug]') || pathname === '/api/handler') {
+  // -----------------------------------------------------------------------
+  // Vercel Rewrite Path Recovery
+  // When vercel.json routes e.g. "/api/resources/upload-direct" to "/api/handler",
+  // req.url becomes "/api/handler" but the original path is preserved in headers.
+  // Priority: x-matched-path > x-invoke-path > x-now-route-matches > slug query > req.url
+  // -----------------------------------------------------------------------
+  const _matchedPath = req.headers['x-matched-path'] || req.headers['x-invoke-path'] || '';
+  const _routeMatches = req.headers['x-now-route-matches'] || '';
+
+  if (pathname === '/api/handler' || pathname.includes('[...slug]')) {
     if (req.query && req.query.slug) {
+      // [...slug].js catch-all: slug is an array of path segments
       const slugParts = Array.isArray(req.query.slug) ? req.query.slug : [req.query.slug];
       pathname = '/api/' + slugParts.join('/');
-    } else if (req.headers['x-matched-path'] && !req.headers['x-matched-path'].includes('[...slug]')) {
-      pathname = url.parse(req.headers['x-matched-path'], true).pathname.replace(/\/+$/, '') || pathname;
+    } else if (_matchedPath && !_matchedPath.includes('/api/handler') && !_matchedPath.includes('[...slug]')) {
+      // vercel.json explicit rewrite: x-matched-path holds the original source path
+      const _recoveredPath = url.parse(_matchedPath, true).pathname.replace(/\/+$/, '');
+      if (_recoveredPath && _recoveredPath !== '/api/handler') {
+        pathname = _recoveredPath;
+      }
+    } else if (_routeMatches) {
+      // x-now-route-matches is URL-encoded captured groups from the rewrite pattern
+      try {
+        const _matches = new URLSearchParams(_routeMatches);
+        if (_matches.has('0')) {
+          pathname = '/api/' + _matches.get('0');
+        } else if (_matches.has('slug')) {
+          pathname = '/api/' + _matches.get('slug');
+        }
+      } catch (_e) { /* keep current pathname */ }
     }
   }
+
 
   // Normalize .js extensions if present in endpoint route (e.g. /api/auth/config.js -> /api/auth/config)
   if (pathname.endsWith('.js') && pathname !== '/api/handler.js') {
