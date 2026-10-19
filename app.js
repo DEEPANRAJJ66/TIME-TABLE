@@ -6,7 +6,6 @@ import { DayOrderEngine } from './js/dayOrderEngine.js';
 import { SupabaseSyncService } from './js/supabaseClient.js';
 import { appSettingsData, subjectsData, dayOrderTimetables } from './data/timetableData.js';
 import { academicCalendarData, calendarDictionary } from './data/calendarData.js';
-import { initIntro } from './js/introManager.js';
 
 class CollegeTimetableApp {
   constructor() {
@@ -117,29 +116,14 @@ class CollegeTimetableApp {
   async init() {
     this.updateSoundButtonUI();
 
-    // 1. Initial data load: Directly initialize verified local college data (Phase 1 offline-first)
-    this.loadLocalBaselineData();
+    // 1. Initial data load (Supabase remote -> localStorage cache -> verified baseline)
+    await this.syncDatabaseData();
 
     // 2. Start live clock & ticker
     this.startTicker();
 
     // 3. Initial UI render
     this.render();
-
-    // 4. Setup robust lifecycle listeners (Native Capacitor + Web standards)
-    this.setupLifecycleListeners();
-  }
-
-  loadLocalBaselineData() {
-    this.subjects = { ...subjectsData };
-    this.timetables = { ...dayOrderTimetables };
-    this.appSettings = { ...appSettingsData };
-    this.dayOrderEngine.setCalendarData(calendarDictionary);
-
-    if (this.dbStatusLabel) {
-      this.dbStatusLabel.textContent = 'Offline Verified';
-      if (this.dbStatusBtn) this.dbStatusBtn.style.color = 'var(--accent-emerald)';
-    }
   }
 
   async syncDatabaseData() {
@@ -728,62 +712,6 @@ class CollegeTimetableApp {
     this.closeModalBtn.addEventListener('click', () => this.closeSupabaseModal());
     this.saveDbBtn.addEventListener('click', () => this.saveSupabaseConfig());
     this.resetDbBtn.addEventListener('click', () => this.resetToBaseline());
-
-    // Setup lifecycle listeners separately in setupLifecycleListeners()
-  }
-
-  setupLifecycleListeners() {
-    // 1. Web Standard visibilitychange
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        this.handleForegroundResume();
-      }
-    });
-
-    // 2. Window focus & pageshow
-    window.addEventListener('focus', () => {
-      this.handleForegroundResume();
-    });
-
-    window.addEventListener('pageshow', () => {
-      this.handleForegroundResume();
-    });
-
-    // 3. Capacitor Native App plugin lifecycle
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-      window.Capacitor.Plugins.App.addListener('appStateChange', (state) => {
-        if (state && state.isActive) {
-          this.handleForegroundResume();
-        }
-      });
-      window.Capacitor.Plugins.App.addListener('resume', () => {
-        this.handleForegroundResume();
-      });
-    }
-  }
-
-  handleForegroundResume() {
-    // 1. Immediately sample fresh IST date and time
-    this.todayIST = this.timeEngine.getNowIST();
-    this.todayDateStr = this.timeEngine.getDateKey(this.todayIST);
-
-    // 2. Align selectedDateStr if viewing live schedule
-    if (this.previewDayOrder === null) {
-      this.selectedDateStr = this.todayDateStr;
-    }
-
-    // 3. Immediately refresh clock digits
-    if (this.heroClockDigits) {
-      this.heroClockDigits.textContent = this.timeEngine.formatClockTime(this.todayIST);
-    }
-
-    // 4. Immediately recalculate Day Order, period/break/holiday state, countdown, and update UI
-    this.evaluateAndRenderLiveState();
-
-    // 5. Update calendar view if visible
-    if (this.activeView === 'calendar') {
-      this.renderCalendar();
-    }
   }
 
   switchView(viewName) {
@@ -934,7 +862,6 @@ class CollegeTimetableApp {
 
 // Instantiate and start app on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-  initIntro();
   const app = new CollegeTimetableApp();
   app.init();
 });

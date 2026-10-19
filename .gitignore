@@ -21,10 +21,27 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment Secrets
+# Environment Secrets & Sensitive Credentials
 .env
 .env.local
 .env.*
+!.env.example
 
-# Temporary Scratch Files
+# Temporary Scratch Files & Logs
 scratch/
+*.log
+
+# Android Build Artifacts & Local Configs
+.gradle/
+local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
+# Agent & AI Tooling Workspaces
+.agent/
+.agents/
+.gemini/
+.gsd/
+

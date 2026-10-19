@@ -673,3 +673,27 @@ export const dayOrderTimetables = {
     }
   ]
 };
+
+export const timetableMaster = {
+  '1': { periods: dayOrderTimetables[1] },
+  '2': { periods: dayOrderTimetables[2] },
+  '3': { periods: dayOrderTimetables[3] },
+  '4': { periods: dayOrderTimetables[4] },
+  '5': { periods: dayOrderTimetables[5] }
+};
+
+export const subjectCatalog = subjectsData;
+
+export const periodTimings = [
+  { period: 1, label: 'Period 1', start: '09:00', end: '09:50', type: 'lecture' },
+  { period: 2, label: 'Period 2', start: '09:50', end: '10:40', type: 'lecture' },
+  { period: 0, label: 'Tea Break', start: '11:00', end: '11:15', type: 'break', name: 'tea' },
+  { period: 3, label: 'Period 3', start: '11:15', end: '12:00', type: 'lecture' },
+  { period: 4, label: 'Period 4', start: '12:00', end: '12:45', type: 'lecture' },
+  { period: 0, label: 'Lunch', start: '12:40', end: '13:30', type: 'lunch', name: 'lunch' },
+  { period: 5, label: 'Period 5', start: '13:30', end: '14:15', type: 'lecture' },
+  { period: 6, label: 'Period 6', start: '14:15', end: '15:00', type: 'lecture' },
+  { period: 7, label: 'Period 7', start: '15:00', end: '15:45', type: 'lecture' },
+  { period: 8, label: 'Period 8', start: '15:45', end: '16:30', type: 'lecture' }
+];
+

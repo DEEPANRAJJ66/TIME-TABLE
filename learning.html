@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saranathan College of Engineering — Learning Platform (CSE-A)</title>
+  <link rel="stylesheet" href="/css/platform.css">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Sign In Screen (When not authenticated) -->
+  <div id="authScreen" class="modal-backdrop open" style="display: none;">
+    <div class="modal-dialog" style="max-width: 440px; text-align: center; padding: var(--space-8) var(--space-6);">
+      <div style="font-size: 3rem; margin-bottom: var(--space-3);">🎓</div>
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--color-nav-bg);">SARANATHAN COLLEGE</h2>
+      <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        Autonomous Institution • Tiruchirappalli<br>
+        <strong>First Year CSE (Class A) — Learning Platform</strong>
+      </p>
+
+      <div style="background: #f8fafc; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6); text-align: left;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px;">Institutional Access Policy</div>
+        <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+          Sign-in is strictly restricted to verified Google Authentication. All new accounts register as Student until promoted by Administration.
+        </div>
+      </div>
+
+      <button id="googleSignInBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; display: flex; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
+          <path fill="#ffffff" d="M12.24 10.285V13.4h6.887C18.2 16.14 15.645 18 12.24 18c-3.315 0-6-2.685-6-6s2.685-6 6-6c1.65 0 3.015.6 4.05 1.575l2.4-2.4C16.89 3.48 14.73 2.5 12.24 2.5 7.02 2.5 2.76 6.76 2.76 12s4.26 9.5 9.48 9.5c5.445 0 9.06-3.825 9.06-9.225 0-.645-.06-1.275-.18-1.99H12.24z"/>
+        </svg>
+        Sign in with Google
+      </button>
+
+      <div style="margin-top: var(--space-4); font-size: 0.75rem; color: var(--color-text-muted);">
+        <a href="/" style="color: var(--color-primary); text-decoration: none; font-weight: 600;">← Return to College Timetable Planner</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Completion Modal (First-time Mandatory Setup) -->
+  <div id="profileModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Complete Your Student Profile</div>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: var(--space-4);">
+          Please enter your official college enrollment information to activate your account.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="setupFirstName">First Name *</label>
+          <input type="text" id="setupFirstName" class="form-input" placeholder="e.g. Deepanraj" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setupSecName">Secondary / Initial</label>
+          <input type="text" id="setupSecName" class="form-input" placeholder="e.g. J">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setupRollNumber">Roll Number (6 Digits) *</label>
+          <input type="text" id="setupRollNumber" class="form-input" placeholder="e.g. 240101" maxlength="6" pattern="[0-9]{6}" required>
+          <div class="form-help">Must be exactly six numeric digits. Verified for uniqueness.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveProfileBtn" class="btn btn-primary">Save and Activate Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banned Account Modal -->
+  <div id="bannedModal" class="modal-backdrop">
+    <div class="modal-dialog" style="text-align: center; padding: var(--space-6);">
+      <div style="font-size: 3rem; color: var(--color-danger); margin-bottom: var(--space-2);">🚫</div>
+      <h3 style="color: var(--color-danger); margin-bottom: var(--space-2);">Account Suspended</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+        Your account has been placed under administrative suspension. Access to course materials and assignment submissions is restricted.
+      </p>
+      <div id="banDetailsText" style="background: var(--color-danger-bg); border: 1px solid var(--color-danger-border); padding: var(--space-3); border-radius: var(--radius-md); font-size: 0.8rem; text-align: left; margin-bottom: var(--space-6);"></div>
+      <button id="bannedLogoutBtn" class="btn btn-secondary">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Primary Application Container -->
+  <div class="app-container" id="mainApp" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">🏛️</span>
+        <div>
+          <div class="sidebar-title">SARANATHAN</div>
+          <div class="sidebar-sub">B.E. CSE • CLASS A</div>
+          <span id="userRoleBadge" class="sidebar-role-badge role-student">Student</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Injected dynamically based on role -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-meta">
+            <div class="user-name" id="userNameDisplay">Loading...</div>
+            <div class="user-email" id="userEmailDisplay">...</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: var(--space-2);">
+          <button id="logoutBtn" class="btn btn-secondary btn-sm" style="flex: 1;">Sign Out</button>
+          <a href="/" class="btn btn-secondary btn-sm" title="Go to Timetable Planner" style="flex: 1; text-align: center;">📅 Timetable</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Body -->
+    <main class="app-main">
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle Navigation">☰</button>
+          <div class="header-title" id="pageTitle">Dashboard Overview</div>
+        </div>
+        <div class="header-right">
+          <span style="font-size: 0.8rem; color: var(--color-text-muted);" id="istTimeClock">IST Loading...</span>
+          <button id="reportBugBtn" class="btn btn-secondary btn-sm" title="Report an issue to administration">🐞 Report Bug</button>
+        </div>
+      </header>
+
+      <div class="content-body" id="pageContent">
+        <!-- Rendered dynamically by view handlers -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Resource Direct Upload Modal (Managers & Admins) -->
+  <div id="uploadModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Upload Study Material to Google Drive</div>
+        <button class="modal-close" data-close-modal="uploadModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="uploadSubjectSelect">Designated Subject *</label>
+          <select id="uploadSubjectSelect" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadSectionInput">Unit / Section Name *</label>
+          <input type="text" id="uploadSectionInput" class="form-input" placeholder="e.g. Unit 1: Foundations" value="Unit 1">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadTitleInput">Resource Title *</label>
+          <input type="text" id="uploadTitleInput" class="form-input" placeholder="e.g. Lecture Notes on Python Data Structures" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadTypeSelect">Resource Category *</label>
+          <select id="uploadTypeSelect" class="form-select">
+            <option value="notes">Lecture Notes (PDF)</option>
+            <option value="assignment">Assignment Sheet</option>
+            <option value="video">Educational Video</option>
+            <option value="lab">Lab Exercise Manual</option>
+            <option value="reference">Reference Material</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadFileInput">Select File *</label>
+          <input type="file" id="uploadFileInput" class="form-input" required>
+          <div class="form-help">Supported: PDF, Images, Word documents, Zip. Uploaded directly to designated college folder.</div>
+        </div>
+        <div id="uploadProgressContainer" style="display: none; margin-top: var(--space-3);">
+          <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;" id="uploadProgressText">Uploading to Google Drive...</div>
+          <div style="background: var(--color-border); height: 8px; border-radius: 4px; overflow: hidden;">
+            <div id="uploadProgressBar" style="width: 50%; height: 100%; background: var(--color-primary); transition: width 0.2s;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="uploadModal">Cancel</button>
+        <button id="startUploadBtn" class="btn btn-primary">Start Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Assignment Modal -->
+  <div id="assignmentModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Create Coursework Assignment</div>
+        <button class="modal-close" data-close-modal="assignmentModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="asgnSubjectSelect">Subject *</label>
+          <select id="asgnSubjectSelect" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="asgnTitleInput">Assignment Title *</label>
+          <input type="text" id="asgnTitleInput" class="form-input" placeholder="e.g. Assignment 1: Recursion in Python" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="asgnInstructionsInput">Instructions & Questions</label>
+          <textarea id="asgnInstructionsInput" class="form-textarea" placeholder="Provide instructions, rubric, or assignment questions..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="asgnDeadlineInput">Submission Deadline (IST Date & Time) *</label>
+          <input type="datetime-local" id="asgnDeadlineInput" class="form-input" required>
+          <div class="form-help">Stored authoritatively as UTC instant and enforced server-side.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="assignmentModal">Cancel</button>
+        <button id="saveAssignmentBtn" class="btn btn-primary">Publish Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Submission Modal -->
+  <div id="submitAssignmentModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="submitModalTitle">Submit Assignment</div>
+        <button class="modal-close" data-close-modal="submitAssignmentModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="submitAsgnDetails" style="background: #f8fafc; border: 1px solid var(--color-border); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-4); font-size: 0.85rem;"></div>
+        <div class="form-group">
+          <label class="form-label" for="submissionAnswerInput">Written Answer / Solution Text</label>
+          <textarea id="submissionAnswerInput" class="form-textarea" placeholder="Paste your answers, explanations, or solution code here..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="submitAssignmentModal">Cancel</button>
+        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm & Submit Work</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Notice Modal -->
+  <div id="noticeModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Broadcast Global Notice</div>
+        <button class="modal-close" data-close-modal="noticeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="noticeTitleInput">Notice Heading *</label>
+          <input type="text" id="noticeTitleInput" class="form-input" placeholder="e.g. Cycle Test I Schedule & Instructions" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="noticeMessageInput">Notice Message *</label>
+          <textarea id="noticeMessageInput" class="form-textarea" placeholder="Type notice body..." required></textarea>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--color-text-muted); background: #f8fafc; padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+          Notice will be formatted with official college letterhead:
+          <pre style="margin-top: 4px; font-size: 11px; color: var(--color-text-secondary);">Date: [Authoritative Server IST Time]
+Dear Friends,
+[Your message]
+With regards,
+[Your Name]
+[YOUR ROLE]</pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="noticeModal">Cancel</button>
+        <button id="postNoticeBtn" class="btn btn-primary">Publish Notice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Transition Confirmation Modal -->
+  <div id="roleModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Modify Member Role</div>
+        <button class="modal-close" data-close-modal="roleModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="roleTargetInfo" style="font-size: 0.9rem; margin-bottom: var(--space-4);"></p>
+        <div class="form-group">
+          <label class="form-label" for="targetRoleSelect">New Authorized Role *</label>
+          <select id="targetRoleSelect" class="form-select"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="roleModal">Cancel</button>
+        <button id="confirmRoleChangeBtn" class="btn btn-primary">Update Role</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Ban Modal -->
+  <div id="banModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--color-danger);">Issue Account Ban</div>
+        <button class="modal-close" data-close-modal="banModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="banTargetInfo" style="font-size: 0.9rem; margin-bottom: var(--space-4);"></p>
+        <div class="form-group">
+          <label class="form-label" for="banReasonInput">Mandatory Justification / Reason *</label>
+          <textarea id="banReasonInput" class="form-textarea" placeholder="Explain the policy violation or reason for suspension (min 5 characters)..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="banModal">Cancel</button>
+        <button id="confirmBanBtn" class="btn btn-danger">Confirm Account Ban</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bug Report Modal -->
+  <div id="bugModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">🐞 Report Platform Issue</div>
+        <button class="modal-close" data-close-modal="bugModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="bugTitleInput">Issue Title *</label>
+          <input type="text" id="bugTitleInput" class="form-input" placeholder="e.g. Upload button fails on PDF" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bugCategorySelect">Category</label>
+          <select id="bugCategorySelect" class="form-select">
+            <option value="Drive Upload">Drive Upload</option>
+            <option value="Assignment Submission">Assignment Submission</option>
+            <option value="UI / Layout">UI / Layout</option>
+            <option value="Authentication">Authentication</option>
+            <option value="Performance">Performance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bugDescInput">Detailed Description *</label>
+          <textarea id="bugDescInput" class="form-textarea" placeholder="Describe what happened, error message, or steps to reproduce..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal="bugModal">Cancel</button>
+        <button id="submitBugBtn" class="btn btn-primary">Dispatch Bug Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Frontend Client Script -->
+  <script type="module" src="/js/platform.js"></script>
+</body>
+</html>

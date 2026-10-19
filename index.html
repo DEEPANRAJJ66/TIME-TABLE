@@ -3,18 +3,20 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSE Class A — First-Year Live Timetable Planner</title>
   <meta name="description"
     content="Real-time live timetable and Day Order indicator for First-Year Computer Science and Engineering (Class A), Saranathan College of Engineering.">
-  <meta name="theme-color" content="#0b1120">
 
-  <!-- Modern Typography (With system fallbacks) -->
+  <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap"
     rel="stylesheet">
+
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/jpeg" href="assets/cse.jpeg">
@@ -22,28 +24,6 @@
 </head>
 
 <body>
-  <!-- Opening Intro Video Overlay (Sub-Second Opener) -->
-  <div id="introOverlay" class="intro-overlay" aria-hidden="true">
-    <div class="intro-video-container">
-      <video id="introVideo" class="intro-video" autoplay muted playsinline webkit-playsinline preload="auto">
-        <source src="INTRO/VN20260918_202604.mp4" type="video/mp4">
-        <source src="intro/VN20260918_202604.mp4" type="video/mp4">
-      </video>
-    </div>
-  </div>
-  <script>
-    // Immediate pre-render guard: If user prefers reduced motion or already saw intro in this session, hide overlay before first paint
-    (function() {
-      try {
-        if (sessionStorage.getItem('college_intro_seen') === 'true' ||
-            (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-          var ov = document.getElementById('introOverlay');
-          if (ov) ov.style.display = 'none';
-        }
-      } catch (_) {}
-    })();
-  </script>
-
   <div class="app-container">
     <!-- Top Navigation Header -->
     <header class="top-nav">
@@ -64,7 +44,7 @@
         <!-- Supabase Cloud Sync Status Badge -->
         <button id="dbStatusBtn" class="status-pill" title="Click to view database connection settings">
           <span class="status-dot"></span>
-          <span id="dbStatusLabel">Offline Verified</span>
+          <span id="dbStatusLabel">Connecting...</span>
         </button>
 
         <!-- Theme Toggle Button -->
@@ -78,6 +58,12 @@
           <span id="soundIcon">🔔</span>
           <span id="soundLabel">Bell On</span>
         </button>
+
+        <!-- Access College Learning Platform -->
+        <a href="/learning.html" class="btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:#2563eb; color:#ffffff; font-weight:600;" title="Access Study Materials, Assignments, & Notices">
+          <span>🎓</span>
+          <span>Learning Platform</span>
+        </a>
       </div>
     </header>
 
@@ -311,8 +297,7 @@
     </div>
   </div>
 
-  <!-- Intro Controller & Main Application Script (ES Modules) -->
-  <script type="module" src="js/introManager.js"></script>
+  <!-- Main Application Script (ES Module) -->
   <script type="module" src="app.js"></script>
 </body>
 

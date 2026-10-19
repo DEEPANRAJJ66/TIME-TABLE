@@ -112,6 +112,23 @@ export class TimeEngine {
     return `${h}:${mStr} ${ampm}`;
   }
 
+  parseTimeToMinutes(timeStr) {
+    return this.timeToMinutes(timeStr);
+  }
+
+  format12Hour(timeStr) {
+    return this.to12Hour(timeStr);
+  }
+
+  getTimeDifferenceMinutes(startStr, endStr) {
+    return Math.abs(this.timeToMinutes(endStr) - this.timeToMinutes(startStr));
+  }
+
+  isCollegeHours(timeStr) {
+    const mins = this.timeToMinutes(timeStr);
+    return mins >= (9 * 60) && mins <= (16 * 60 + 45);
+  }
+
   /**
    * Evaluates current period, countdown, progress, and all period states
    */

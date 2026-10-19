@@ -1,35 +1,28 @@
 {
-  "name": "cse-class-a-timetable",
+  "name": "saranathan-college-learning-platform",
   "version": "1.0.0",
-  "description": "CSE Class A First-Year Live Timetable Planner for Saranathan College of Engineering",
-  "main": "app.js",
+  "description": "Production-Grade College Learning, Study Material and Assignment Platform for Saranathan College of Engineering",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "node build-web.js",
-    "cap:sync": "npm run build && npx cap sync",
-    "cap:build": "npm run build && npx cap sync android && cd android && ./gradlew.bat assembleDebug",
-    "test": "node test/engine.test.js",
+    "test": "node test/all_suites.test.js",
+    "test:roles": "node test/role_permissions.test.js",
+    "test:auth": "node test/auth_and_profile.test.js",
+    "test:assignments": "node test/assignments_and_submissions.test.js",
+    "test:drive": "node test/google_drive_storage.test.js",
+    "test:moderation": "node test/moderation_and_restrictions.test.js",
     "test:timetable": "node test/engine.test.js"
   },
   "keywords": [
     "saranathan",
     "cse",
-    "timetable",
-    "planner",
-    "offline",
-    "capacitor",
-    "android"
+    "learning-platform",
+    "assignments",
+    "study-materials",
+    "timetable"
   ],
   "author": "Saranathan College of Engineering",
-  "license": "ISC",
-  "dependencies": {
-    "@capacitor/android": "^7.0.1",
-    "@capacitor/app": "^7.0.0",
-    "@capacitor/cli": "^7.0.1",
-    "@capacitor/core": "^7.0.1",
-    "@capacitor/splash-screen": "^7.0.0",
-    "@capacitor/status-bar": "^7.0.0"
-  }
+  "license": "ISC"
 }

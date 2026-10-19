@@ -1,11 +1,4 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "outputDirectory": "public",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/handler.js"
-    }
-  ]
+  "cleanUrls": true
 }

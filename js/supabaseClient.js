@@ -31,7 +31,7 @@ export class SupabaseSyncService {
   getCredentials() {
     return {
       url: localStorage.getItem(this.storageKeys.url) || 'https://uryiomifyhcbvzeafizi.supabase.co',
-      anonKey: localStorage.getItem(this.storageKeys.anonKey) || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeWlvbWlmeWhjYnZ6ZWFmaXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjM3NTYsImV4cCI6MjEwNTEzOTc1Nn0.aJqNd28FiMf_KdKqWOELlW0pAgxFjp7yxt0nOIyTSsQ'
+      anonKey: localStorage.getItem(this.storageKeys.anonKey) || 'sb_publishable_rqhs0pVnjBN9cLqBpydhlQ_Q1BTjCJx'
     };
   }
 
