@@ -247,6 +247,11 @@ export async function handleApiRequest(req, res, store, moderationService) {
     pathname = pathname.slice(0, -3);
   }
 
+  // Normalize /index suffix from folder-based handlers (e.g. /api/resources/index -> /api/resources)
+  if (pathname.endsWith('/index')) {
+    pathname = pathname.slice(0, -6);
+  }
+
   const method = req.method.toUpperCase();
 
   // Handle CORS preflight
@@ -716,9 +721,9 @@ export async function handleApiRequest(req, res, store, moderationService) {
     }
 
     // Authenticated Google Drive streaming proxy (No raw public links exposed!)
-    if (pathname.startsWith('/api/drive/stream/') && method === 'GET') {
+    if ((pathname.startsWith('/api/drive/stream/') || (pathname === '/api/drive/stream' && req.query?.fileId)) && method === 'GET') {
       const actor = await resolveActor(req, store);
-      const fileId = pathname.replace('/api/drive/stream/', '').trim();
+      const fileId = (req.query?.fileId || pathname.replace('/api/drive/stream/', '')).trim();
 
       // Find resource by Drive file ID
       const resources = await store.getResources();
@@ -791,11 +796,11 @@ export async function handleApiRequest(req, res, store, moderationService) {
       return sendJson(res, 200, { success: true, resource });
     }
 
-    if (pathname.startsWith('/api/resources/') && method === 'DELETE') {
+    if ((pathname.startsWith('/api/resources/') || (pathname === '/api/resources' && req.query?.id)) && method === 'DELETE') {
       const actor = await resolveActor(req, store);
       assertUserActive(actor);
 
-      const resourceId = pathname.replace('/api/resources/', '').trim();
+      const resourceId = (req.query?.id || pathname.replace('/api/resources/', '')).trim();
       const resource = await store.getResourceById(resourceId);
       if (!resource) {
         return sendJson(res, 404, { error: 'Resource not found.' });
@@ -1167,6 +1172,10 @@ ${actor.role.toUpperCase()}`;
     if (pathname === '/api/telegram/bug-report' && method === 'POST') {
       const actor = await resolveActor(req, store);
       const body = await parseJsonBody(req);
+
+      if (!body.title || !body.title.trim() || !body.description || !body.description.trim()) {
+        return sendJson(res, 400, { error: 'Bug report title and description are required.' });
+      }
 
       const report = {
         title: body.title,

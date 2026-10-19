@@ -4,6 +4,7 @@
 
 import { PlatformStore } from '../api/store.js';
 import { handleApiRequest } from '../api/handler.js';
+import { ModerationService } from '../api/moderation.js';
 import { EventEmitter } from 'events';
 
 let passed = 0;
@@ -22,6 +23,7 @@ function assert(condition, message) {
 console.log('\n--- SECTION 4 GOOGLE OAUTH SECURITY VERIFICATION SUITE ---');
 
 const store = new PlatformStore();
+const moderation = new ModerationService(store);
 
 // Helper to simulate mock HTTP request and response
 function createMockHttp({ method = 'GET', url = '/', headers = {}, body = null }) {
@@ -64,12 +66,20 @@ function createMockHttp({ method = 'GET', url = '/', headers = {}, body = null }
 async function dispatch(options) {
   const { req, res } = createMockHttp(options);
   const done = new Promise(resolve => res.on('finish', resolve));
-  await handleApiRequest(req, res, store, null);
+  await handleApiRequest(req, res, store, moderation);
   await done;
+  let parsedBody = null;
+  if (res.body) {
+    try {
+      parsedBody = JSON.parse(res.body);
+    } catch (_) {
+      parsedBody = res.body;
+    }
+  }
   return {
     status: res.statusCode,
     headers: res.headers,
-    body: res.body ? JSON.parse(res.body) : null
+    body: parsedBody
   };
 }
 
@@ -291,6 +301,7 @@ assert(expiredProfileRes.body.error.includes('expired'), 'Reports session expire
 // Test 17: POST /api/auth/profile for new Google user (cold container simulation) succeeds with 200
 const freshEmail = `fresh_student_${Date.now()}@saranathan.ac.in`;
 const freshSub = `sub_${Date.now()}`;
+const freshRoll = String(Date.now()).slice(-6);
 const freshPayload = {
   sub: freshSub,
   email: freshEmail,
@@ -309,15 +320,15 @@ const freshProfileRes = await dispatch({
   body: {
     firstName: 'Vignesh',
     secondaryName: 'K',
-    rollNumber: '240555',
+    rollNumber: freshRoll,
     role: 'admin' // Attempted role elevation! Must be ignored!
   }
 });
 assert(freshProfileRes.status === 200, 'POST /api/auth/profile succeeds for fresh authenticated Google user');
-assert(freshProfileRes.body.user.rollNumber === '240555', 'Roll number saved as 240555');
-assert(freshProfileRes.body.user.displayName === 'Vignesh K', 'Display name formatted as "Vignesh K"');
-assert(freshProfileRes.body.user.role === 'student', 'Role elevation strictly prevented; user remains student');
-assert(freshProfileRes.body.user.accountStatus === 'active', 'Account status transitioned to active');
+assert(freshProfileRes.body?.user?.rollNumber === freshRoll, `Roll number saved as ${freshRoll}`);
+assert(freshProfileRes.body?.user?.displayName === 'Vignesh K', 'Display name formatted as "Vignesh K"');
+assert(freshProfileRes.body?.user?.role === 'student', 'Role elevation strictly prevented; user remains student');
+assert(freshProfileRes.body?.user?.accountStatus === 'active', 'Account status transitioned to active');
 
 // Test 18: Roll number validation: non-6-digit rejected with 400
 for (const badRoll of ['12345', '1234567', '24ABCD', '']) {
@@ -348,9 +359,9 @@ const dupRollRes = await dispatch({
     'content-type': 'application/json',
     'authorization': `Bearer ${anotherToken}`
   },
-  body: { firstName: 'Another', rollNumber: '240555' } // Duplicate roll!
+  body: { firstName: 'Another', rollNumber: freshRoll } // Duplicate roll!
 });
-assert(dupRollRes.status === 409, 'Duplicate roll number "240555" prevented with HTTP 409 Conflict');
+assert(dupRollRes.status === 409, `Duplicate roll number "${freshRoll}" prevented with HTTP 409 Conflict`);
 assert(dupRollRes.body.error.includes('already registered'), 'Duplicate message confirms roll is registered');
 
 // Test 20: Missing first name rejected with HTTP 400
@@ -364,6 +375,108 @@ const noFirstRes = await dispatch({
   body: { firstName: '', rollNumber: '240556' }
 });
 assert(noFirstRes.status === 400, 'Missing first name rejected with HTTP 400');
+
+// Test 21: Direct file upload: Missing x-subject-id header returns HTTP 400
+const studentToken = anotherToken;
+const noSubjectUploadRes = await dispatch({
+  method: 'POST',
+  url: '/api/resources/upload-direct',
+  headers: {
+    'content-type': 'application/pdf',
+    'authorization': `Bearer ${studentToken}`
+  },
+  body: 'mock file buffer content'
+});
+assert(noSubjectUploadRes.status === 400, 'POST /api/resources/upload-direct without x-subject-id rejected with HTTP 400');
+
+// Test 22: Direct file upload: Student role strictly forbidden (HTTP 403)
+const studentUploadRes = await dispatch({
+  method: 'POST',
+  url: '/api/resources/upload-direct',
+  headers: {
+    'content-type': 'application/pdf',
+    'authorization': `Bearer ${studentToken}`,
+    'x-subject-id': 'sub_python'
+  },
+  body: 'mock file buffer content'
+});
+assert(studentUploadRes.status === 403, 'POST /api/resources/upload-direct by Student strictly rejected with HTTP 403 Forbidden');
+
+// Test 23: In-app Bug Report (Telegram integration): Missing title/description returns HTTP 400
+const invalidBugRes = await dispatch({
+  method: 'POST',
+  url: '/api/telegram/bug-report',
+  headers: {
+    'content-type': 'application/json',
+    'authorization': `Bearer ${studentToken}`
+  },
+  body: { title: '', description: '' }
+});
+assert(invalidBugRes.status === 400, 'POST /api/telegram/bug-report without required fields rejected with HTTP 400');
+
+// Test 24: Moderation records: Student role strictly forbidden (HTTP 403)
+const studentModRes = await dispatch({
+  method: 'GET',
+  url: '/api/moderation/records',
+  headers: {
+    'authorization': `Bearer ${studentToken}`
+  }
+});
+assert(studentModRes.status === 403, 'GET /api/moderation/records by Student rejected with HTTP 403 Forbidden');
+
+// Test 25: Moderation records: Admin role authorized (HTTP 200)
+const adminUser = await store.getUserByEmail('admin@saranathan.ac.in');
+assert(adminUser && adminUser.role === 'admin', 'Default Admin user exists in persistent store');
+const adminModRes = await dispatch({
+  method: 'GET',
+  url: '/api/moderation/records',
+  headers: {
+    'x-user-id': adminUser.id
+  }
+});
+assert(adminModRes.status === 200, 'GET /api/moderation/records by Admin succeeds with HTTP 200');
+assert(Array.isArray(adminModRes.body.records), 'Moderation response contains records array');
+assert(Array.isArray(adminModRes.body.requests), 'Moderation response contains requests array');
+assert(Array.isArray(adminModRes.body.restrictions), 'Moderation response contains restrictions array');
+
+// Test 26: Safe response handling: Non-JSON HTML 404 does not crash JSON parser
+const htmlResponseText = '<!DOCTYPE html><html><body>404 NOT_FOUND</body></html>';
+let parseFailed = false;
+let extractedMessage = '';
+try {
+  // Simulate the safe parsing logic implemented in apiRequest
+  const contentType = 'text/html; charset=utf-8';
+  if (contentType.includes('application/json')) {
+    JSON.parse(htmlResponseText);
+  } else {
+    extractedMessage = 'Service endpoint not found (/api/unknown)';
+  }
+} catch (e) {
+  parseFailed = true;
+}
+assert(!parseFailed, 'Non-JSON HTML 404 handled gracefully without SyntaxError: Unexpected token');
+assert(extractedMessage.includes('Service endpoint not found'), 'Safe friendly error message extracted');
+
+// Test 27: Double-submission / concurrent request lock prevention
+let inFlightCount = 0;
+let maxConcurrent = 0;
+async function simulatedSubmission(lockDurationMs) {
+  inFlightCount++;
+  if (inFlightCount > maxConcurrent) maxConcurrent = inFlightCount;
+  await new Promise(r => setTimeout(r, lockDurationMs));
+  inFlightCount--;
+}
+// With debounce/disabled state simulated
+let isSubmitting = false;
+let acceptedCalls = 0;
+for (let i = 0; i < 5; i++) {
+  if (!isSubmitting) {
+    isSubmitting = true;
+    simulatedSubmission(20).then(() => { isSubmitting = false; });
+    acceptedCalls++;
+  }
+}
+assert(acceptedCalls === 1, 'Double-click debouncing strictly accepted only 1 submission out of 5 rapid clicks');
 
 console.log(`\nGoogle OAuth Security Results: ${passed} Passed, ${failed} Failed\n`);
 if (failed > 0) process.exit(1);

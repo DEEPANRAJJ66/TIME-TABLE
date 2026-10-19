@@ -85,6 +85,166 @@ function startIstClock() {
 }
 
 // ----------------------------------------------------
+// STANDARDIZED API CLIENT & RESPONSE HANDLING (Section 5)
+// ----------------------------------------------------
+
+export class ApiError extends Error {
+  constructor(message, status = 500, code = 'API_ERROR', details = null) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+/**
+ * Shared API request utility:
+ * - Checks HTTP status before treating response as successful
+ * - Safely handles JSON, plain-text, and HTML error pages without crashing (avoids SyntaxError: Unexpected token 'T')
+ * - Automatically injects Bearer auth and X-User-Id
+ * - Distinguishes 401, 403, 404, 408, 429, 500, 502/503
+ * - Supports request timeouts
+ */
+export async function apiRequest(endpoint, options = {}) {
+  const url = endpoint;
+  const timeoutMs = options.timeoutMs || 25000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  const headers = Object.assign({}, options.headers || {});
+
+  // Inject Bearer token if session exists and not explicitly overridden
+  if (!headers['Authorization'] && state.session?.access_token) {
+    headers['Authorization'] = `Bearer ${state.session.access_token}`;
+  }
+
+  // Inject current user ID for backend authorization mapping
+  if (!headers['X-User-Id'] && state.currentUser?.id) {
+    headers['X-User-Id'] = state.currentUser.id;
+  }
+
+  // Set Content-Type: application/json if sending a string body and not raw buffer/FormData
+  const isBinaryOrFormData = options.body instanceof FormData ||
+                             (typeof Blob !== 'undefined' && options.body instanceof Blob) ||
+                             (typeof ArrayBuffer !== 'undefined' && (options.body instanceof ArrayBuffer || ArrayBuffer.isView(options.body)));
+
+  if (!isBinaryOrFormData && options.body && typeof options.body === 'string' && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  try {
+    const fetchOptions = {
+      ...options,
+      headers,
+      signal: options.signal || controller.signal
+    };
+
+    const res = await fetch(url, fetchOptions);
+
+    // Read response body safely according to Content-Type
+    const contentType = res.headers.get('content-type') || '';
+    let parsedData = null;
+    let rawText = '';
+
+    if (contentType.includes('application/json')) {
+      try {
+        parsedData = await res.json();
+      } catch (jsonErr) {
+        console.warn(`Malformed JSON from ${endpoint}:`, jsonErr);
+      }
+    } else {
+      try {
+        rawText = await res.text();
+      } catch (_) {}
+    }
+
+    if (!res.ok) {
+      let message = '';
+      let code = 'ERROR';
+
+      if (parsedData && (parsedData.error || parsedData.message)) {
+        message = parsedData.error || parsedData.message;
+        code = parsedData.code || code;
+      } else if (rawText && rawText.length < 150 && !rawText.includes('<!DOCTYPE') && !rawText.includes('<html')) {
+        message = rawText.trim();
+      } else {
+        switch (res.status) {
+          case 400:
+            message = 'Invalid request parameters. Please verify your input.';
+            code = 'BAD_REQUEST';
+            break;
+          case 401:
+            message = 'Authentication required. Please sign in with your Google college account.';
+            code = 'UNAUTHORIZED';
+            break;
+          case 403:
+            message = 'Access forbidden: You do not have permission for this resource.';
+            code = 'FORBIDDEN';
+            break;
+          case 404:
+            message = `Service endpoint not found (${endpoint}).`;
+            code = 'NOT_FOUND';
+            break;
+          case 429:
+            message = 'Too many requests. Please wait a moment before trying again.';
+            code = 'RATE_LIMITED';
+            break;
+          case 502:
+          case 503:
+          case 504:
+            message = 'Upstream service temporarily unavailable. Please retry shortly.';
+            code = 'GATEWAY_ERROR';
+            break;
+          default:
+            message = `Server error (${res.status}): ${res.statusText || 'Unexpected response'}`;
+            code = 'SERVER_ERROR';
+        }
+      }
+
+      throw new ApiError(message, res.status, code, parsedData);
+    }
+
+    // 204 No Content
+    if (res.status === 204) return { success: true };
+
+    return parsedData || { success: true, text: rawText };
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new ApiError(`Request to ${endpoint} timed out. Please check your connection.`, 408, 'TIMEOUT');
+    }
+    if (err instanceof ApiError) {
+      throw err;
+    }
+    throw new ApiError(err.message || 'Network error occurred.', 0, 'NETWORK_ERROR');
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Prevents duplicate submissions caused by repeated clicks,
+ * provides loading spinner indicator, and safely restores button state.
+ */
+export async function withButtonLoading(btn, loadingText, action) {
+  if (!btn) return await action();
+  if (btn.disabled) return; // Prevent double click
+
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  if (loadingText) {
+    btn.innerHTML = `<span style="display:inline-block; margin-right:6px;">⏳</span> ${loadingText}`;
+  }
+
+  try {
+    return await action();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+// ----------------------------------------------------
 // AUTHENTICATION & SESSION HANDLING
 // ----------------------------------------------------
 
@@ -146,20 +306,12 @@ async function initAuth() {
   let supabaseUrl = null;
   let supabaseAnonKey = null;
   try {
-    const configRes = await fetch('/api/auth/config');
-    if (configRes.ok) {
-      const contentType = configRes.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        const configData = await configRes.json();
-        state.appConfig = configData;
-        supabaseUrl = configData.supabaseUrl;
-        supabaseAnonKey = configData.supabaseAnonKey;
-      }
-    } else {
-      console.warn(`GET /api/auth/config returned HTTP ${configRes.status}: ${configRes.statusText}`);
-    }
+    const configData = await apiRequest('/api/auth/config');
+    state.appConfig = configData;
+    supabaseUrl = configData.supabaseUrl;
+    supabaseAnonKey = configData.supabaseAnonKey;
   } catch (err) {
-    console.warn('Could not contact /api/auth/config:', err);
+    console.warn('Could not contact /api/auth/config:', err.message);
   }
 
   // 3. Initialize Shared Supabase Client
@@ -252,31 +404,12 @@ async function resolveUserSession(email, id = null, token = null, name = null) {
     const body = { email, id };
     if (name) body.name = name;
 
-    const res = await fetch('/api/auth/session', {
+    const data = await apiRequest('/api/auth/session', {
       method: 'POST',
       headers,
       body: JSON.stringify(body)
     });
 
-    if (!res.ok) {
-      let errorMsg = `Authentication server returned status ${res.status}`;
-      try {
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const errData = await res.json();
-          if (errData && errData.error) errorMsg = errData.error;
-        } else {
-          const text = await res.text();
-          if (text && text.length < 120 && !text.includes('<!DOCTYPE')) errorMsg = text;
-        }
-      } catch (_) {}
-      console.error(`Session resolution failed with status ${res.status}: ${errorMsg}`);
-      showToast(errorMsg, 'error');
-      document.getElementById('authScreen').style.display = 'flex';
-      return;
-    }
-
-    const data = await res.json();
     state.currentUser = data.user;
     localStorage.setItem('saranathan_user_id', data.user.id);
     localStorage.setItem('saranathan_user_email', data.user.email);
@@ -312,7 +445,7 @@ async function resolveUserSession(email, id = null, token = null, name = null) {
     launchDashboard();
   } catch (err) {
     console.error('Session resolution error:', err);
-    showToast('Failed to connect to authentication server.', 'error');
+    showToast(err.message || 'Failed to connect to authentication server.', 'error');
     document.getElementById('authScreen').style.display = 'flex';
   }
 }
@@ -332,84 +465,61 @@ async function handleSaveProfile() {
   }
 
   const saveBtn = document.getElementById('saveProfileBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Activating Profile...';
 
-  try {
-    let session = null;
-    if (state.supabase) {
-      const sessionRes = await state.supabase.auth.getSession();
-      session = sessionRes?.data?.session;
-      if (!session) {
-        // Attempt token refresh
-        const refreshRes = await state.supabase.auth.refreshSession();
-        session = refreshRes?.data?.session;
-      }
-    }
-
-    if (!session || !session.access_token) {
-      showToast('Authentication session expired or missing. Please sign in with Google.', 'error');
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save and Activate Profile';
-      document.getElementById('authScreen').style.display = 'flex';
-      return;
-    }
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
-    };
-    const actorId = state.currentUser?.id || session.user?.id;
-    if (actorId) {
-      headers['X-User-Id'] = actorId;
-    }
-
-    const res = await fetch('/api/auth/profile', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ firstName, secondaryName, rollNumber })
-    });
-
-    if (!res.ok) {
-      let errorMsg = 'Failed to complete profile';
-      try {
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const errData = await res.json();
-          if (errData && errData.error) errorMsg = errData.error;
+  await withButtonLoading(saveBtn, 'Activating Profile...', async () => {
+    try {
+      let session = null;
+      if (state.supabase) {
+        const sessionRes = await state.supabase.auth.getSession();
+        session = sessionRes?.data?.session;
+        if (!session) {
+          // Attempt token refresh
+          const refreshRes = await state.supabase.auth.refreshSession();
+          session = refreshRes?.data?.session;
         }
-      } catch (_) {}
+      }
 
-      if (res.status === 401) {
-        showToast(errorMsg || 'Authentication session expired. Please sign in with Google.', 'error');
-        // Keep profileModal inputs populated so student never loses typed info
+      if (!session || !session.access_token) {
+        showToast('Authentication session expired or missing. Please sign in with Google.', 'error');
+        document.getElementById('authScreen').style.display = 'flex';
+        return;
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      };
+      const actorId = state.currentUser?.id || session.user?.id;
+      if (actorId) {
+        headers['X-User-Id'] = actorId;
+      }
+
+      const data = await apiRequest('/api/auth/profile', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ firstName, secondaryName, rollNumber })
+      });
+
+      state.currentUser = data.user;
+      if (state.supabase) {
+        state.supabase.auth.updateUser({
+          data: { firstName, secondaryName, rollNumber }
+        }).catch(e => console.warn('Supabase metadata sync notice:', e));
+      }
+
+      closeModal('profileModal');
+      showToast('Profile activated successfully!', 'success');
+      launchDashboard();
+    } catch (err) {
+      console.error('Error during profile activation:', err);
+      if (err.status === 401) {
+        showToast(err.message || 'Authentication session expired. Please sign in with Google.', 'error');
         document.getElementById('authScreen').style.display = 'flex';
       } else {
-        showToast(errorMsg, 'error');
+        showToast(err.message || 'Profile activation failed.', 'error');
       }
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save and Activate Profile';
-      return;
     }
-
-    const data = await res.json();
-
-    state.currentUser = data.user;
-    if (state.supabase) {
-      state.supabase.auth.updateUser({
-        data: { firstName, secondaryName, rollNumber }
-      }).catch(e => console.warn('Supabase metadata sync notice:', e));
-    }
-
-    closeModal('profileModal');
-    showToast('Profile activated successfully!', 'success');
-    launchDashboard();
-  } catch (err) {
-    console.error('Error during profile activation:', err);
-    showToast('Network error during profile activation.', 'error');
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Save and Activate Profile';
-  }
+  });
 }
 
 // ----------------------------------------------------
@@ -528,9 +638,9 @@ async function navigateTab(tabId) {
 // ----------------------------------------------------
 async function renderOverview(container) {
   const [subRes, asgnRes, notcRes] = await Promise.all([
-    fetch('/api/subjects').then(r => r.json()),
-    fetch('/api/assignments').then(r => r.json()),
-    fetch('/api/notices').then(r => r.json())
+    apiRequest('/api/subjects').catch(() => ({ subjects: [] })),
+    apiRequest('/api/assignments').catch(() => ({ assignments: [] })),
+    apiRequest('/api/notices').catch(() => ({ notices: [] }))
   ]);
 
   state.subjects = subRes.subjects || [];
@@ -636,7 +746,7 @@ async function renderOverview(container) {
 // VIEW: 7 SUBJECTS & MATERIALS
 // ----------------------------------------------------
 async function renderSubjectsView(container) {
-  const res = await fetch('/api/subjects').then(r => r.json());
+  const res = await apiRequest('/api/subjects').catch(() => ({ subjects: [] }));
   state.subjects = res.subjects || [];
 
   const canUpload = ['admin', 'representative', 'manager'].includes(state.currentUser.role);
@@ -695,10 +805,10 @@ async function renderSubjectDetail(subjectId) {
 
   area.innerHTML = '<div style="padding: 20px; text-align: center;">Fetching study materials from Google Drive...</div>';
 
-  const res = await fetch(`/api/resources?subjectId=${subjectId}`, {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest(`/api/resources?subjectId=${subjectId}`).catch(err => {
+    showToast(err.message || 'Failed to load materials', 'error');
+    return { resources: [] };
   });
-  const data = await res.json();
   const resources = data.resources || [];
 
   area.innerHTML = `
@@ -768,8 +878,8 @@ function populateUploadSubjectSelect() {
 // ----------------------------------------------------
 async function renderAssignmentsView(container) {
   const [asgnRes, subRes] = await Promise.all([
-    fetch('/api/assignments').then(r => r.json()),
-    fetch('/api/subjects').then(r => r.json())
+    apiRequest('/api/assignments').catch(() => ({ assignments: [] })),
+    apiRequest('/api/subjects').catch(() => ({ subjects: [] }))
   ]);
 
   state.assignments = asgnRes.assignments || [];
@@ -885,7 +995,7 @@ function openSubmissionModal(assignmentId, title, deadline) {
 // VIEW: GLOBAL COLLEGE NOTICES (Section 16 Letterhead)
 // ----------------------------------------------------
 async function renderNoticesView(container) {
-  const res = await fetch('/api/notices').then(r => r.json());
+  const res = await apiRequest('/api/notices').catch(() => ({ notices: [] }));
   state.notices = res.notices || [];
 
   const canPost = ['admin', 'representative'].includes(state.currentUser.role);
@@ -929,10 +1039,10 @@ async function renderNoticesView(container) {
 // VIEW: USER & ROLE DIRECTORY (Admin & Representative)
 // ----------------------------------------------------
 async function renderUsersView(container) {
-  const res = await fetch('/api/users', {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest('/api/users').catch(err => {
+    showToast(err.message || 'Failed to load users', 'error');
+    return { users: [] };
   });
-  const data = await res.json();
   state.users = data.users || [];
 
   container.innerHTML = `
@@ -1051,10 +1161,10 @@ function openBanModal(userId, name, currentRole) {
 // VIEW: DRAFT REVIEW & PUBLISHING (Admin & Representative)
 // ----------------------------------------------------
 async function renderDraftsView(container) {
-  const res = await fetch('/api/resources', {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest('/api/resources').catch(err => {
+    showToast(err.message || 'Failed to load drafts', 'error');
+    return { resources: [] };
   });
-  const data = await res.json();
   const allResources = data.resources || [];
   const drafts = allResources.filter(r => r.publicationStatus === 'draft');
 
@@ -1126,16 +1236,10 @@ async function renderDraftsView(container) {
 
 async function updateResourceStatus(resourceId, newStatus) {
   try {
-    const res = await fetch('/api/resources/status', {
+    await apiRequest('/api/resources/status', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': state.currentUser.id
-      },
       body: JSON.stringify({ resourceId, newStatus })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
     showToast(`Resource status updated to ${newStatus}.`, 'success');
   } catch (err) {
     showToast(err.message || 'Status update failed', 'error');
@@ -1144,12 +1248,9 @@ async function updateResourceStatus(resourceId, newStatus) {
 
 async function deleteResource(resourceId) {
   try {
-    const res = await fetch(`/api/resources/${resourceId}`, {
-      method: 'DELETE',
-      headers: { 'X-User-Id': state.currentUser.id }
+    await apiRequest(`/api/resources/${resourceId}`, {
+      method: 'DELETE'
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
     showToast('Resource deleted successfully.', 'success');
   } catch (err) {
     showToast(err.message || 'Deletion failed', 'error');
@@ -1160,10 +1261,12 @@ async function deleteResource(resourceId) {
 // VIEW: MODERATION & 7-DAY RESTRICTION (Section 9)
 // ----------------------------------------------------
 async function renderModerationView(container) {
-  const res = await fetch('/api/moderation/records', {
-    headers: { 'X-User-Id': state.currentUser.id }
-  });
-  const data = await res.json();
+  let data = { records: [], requests: [], restrictions: [] };
+  try {
+    data = await apiRequest('/api/moderation/records');
+  } catch (err) {
+    showToast(err.message || 'Failed to load moderation records', 'error');
+  }
   const records = data.records || [];
   const requests = data.requests || [];
   const restrictions = data.restrictions || [];
@@ -1278,16 +1381,10 @@ async function renderModerationView(container) {
 
 async function unbanUser(targetUserId, resolutionNotes) {
   try {
-    const res = await fetch('/api/moderation/unban', {
+    await apiRequest('/api/moderation/unban', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': state.currentUser.id
-      },
       body: JSON.stringify({ targetUserId, resolutionNotes })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
     showToast('Account unbanned successfully! 7-day restriction initialized if applicable.', 'success');
   } catch (err) {
     showToast(err.message || 'Unban failed', 'error');
@@ -1299,8 +1396,8 @@ async function unbanUser(targetUserId, resolutionNotes) {
 // ----------------------------------------------------
 async function renderAuditView(container) {
   const [auditRes, statusRes] = await Promise.all([
-    fetch('/api/audit', { headers: { 'X-User-Id': state.currentUser.id } }).then(r => r.json()),
-    fetch('/api/status').then(r => r.json())
+    apiRequest('/api/audit').catch(() => ({ logs: [] })),
+    apiRequest('/api/status').catch(() => ({ services: {} }))
   ]);
 
   const logs = auditRes.logs || [];
@@ -1377,12 +1474,12 @@ async function renderAuditView(container) {
 // VIEW: MANAGER WORKSPACE (My Materials & Submissions)
 // ----------------------------------------------------
 async function renderMyMaterialsView(container) {
-  const res = await fetch('/api/resources', {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest('/api/resources').catch(err => {
+    showToast(err.message || 'Failed to load materials', 'error');
+    return { resources: [] };
   });
-  const data = await res.json();
   const allResources = data.resources || [];
-  const myResources = allResources.filter(r => r.uploaderId === state.currentUser.id);
+  const myResources = allResources.filter(r => r.uploaderId === state.currentUser?.id);
 
   container.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
@@ -1455,10 +1552,10 @@ async function renderMyMaterialsView(container) {
 // VIEW: SUBMISSIONS REVIEW (Managers & Admins)
 // ----------------------------------------------------
 async function renderSubmissionsView(container) {
-  const res = await fetch('/api/submissions', {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest('/api/submissions').catch(err => {
+    showToast(err.message || 'Failed to load submissions', 'error');
+    return { submissions: [] };
   });
-  const data = await res.json();
   const submissions = data.submissions || [];
 
   container.innerHTML = `
@@ -1516,10 +1613,10 @@ async function renderSubmissionsView(container) {
 // VIEW: STUDENT SUBMISSIONS (Strict IDOR Isolation)
 // ----------------------------------------------------
 async function renderStudentSubmissionsView(container) {
-  const res = await fetch('/api/submissions', {
-    headers: { 'X-User-Id': state.currentUser.id }
+  const data = await apiRequest('/api/submissions').catch(err => {
+    showToast(err.message || 'Failed to load your submissions', 'error');
+    return { submissions: [] };
   });
-  const data = await res.json();
   const mySubmissions = data.submissions || [];
 
   container.innerHTML = `
@@ -1708,42 +1805,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const file = fileInput.files[0];
     const uploadBtn = document.getElementById('startUploadBtn');
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = 'Uploading to Drive...';
-
     const progContainer = document.getElementById('uploadProgressContainer');
-    progContainer.style.display = 'block';
+    if (progContainer) progContainer.style.display = 'block';
 
-    try {
-      const buffer = await file.arrayBuffer();
+    await withButtonLoading(uploadBtn, 'Uploading to Drive...', async () => {
+      try {
+        const buffer = await file.arrayBuffer();
 
-      const res = await fetch('/api/resources/upload-direct', {
-        method: 'POST',
-        headers: {
-          'Content-Type': file.type || 'application/octet-stream',
-          'X-User-Id': state.currentUser.id,
-          'X-Subject-Id': subjectId,
-          'X-Section-Name': encodeURIComponent(sectionName || 'Unit 1'),
-          'X-Resource-Title': encodeURIComponent(title),
-          'X-Resource-Type': resourceType,
-          'X-Filename': encodeURIComponent(file.name)
-        },
-        body: buffer
-      });
+        await apiRequest('/api/resources/upload-direct', {
+          method: 'POST',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+            'X-Subject-Id': subjectId,
+            'X-Section-Name': encodeURIComponent(sectionName || 'Unit 1'),
+            'X-Resource-Title': encodeURIComponent(title),
+            'X-Resource-Type': resourceType,
+            'X-Filename': encodeURIComponent(file.name)
+          },
+          body: buffer
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('File successfully uploaded to designated Google Drive folder!', 'success');
-      closeModal('uploadModal');
-      navigateTab(state.activeTab);
-    } catch (err) {
-      showToast(err.message || 'Drive upload failed', 'error');
-    } finally {
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = 'Start Upload';
-      progContainer.style.display = 'none';
-    }
+        showToast('File successfully uploaded to designated Google Drive folder!', 'success');
+        closeModal('uploadModal');
+        fileInput.value = '';
+        navigateTab(state.activeTab);
+      } catch (err) {
+        showToast(err.message || 'Drive upload failed', 'error');
+      } finally {
+        if (progContainer) progContainer.style.display = 'none';
+      }
+    });
   });
 
   // Create Assignment Handler
@@ -1752,6 +1843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = document.getElementById('asgnTitleInput').value.trim();
     const instructions = document.getElementById('asgnInstructionsInput').value.trim();
     const deadlineVal = document.getElementById('asgnDeadlineInput').value;
+    const saveBtn = document.getElementById('saveAssignmentBtn');
 
     if (!title || !deadlineVal) {
       return showToast('Title and deadline are required.', 'error');
@@ -1759,25 +1851,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const deadlineUtc = new Date(deadlineVal).toISOString();
 
-    try {
-      const res = await fetch('/api/assignments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser.id
-        },
-        body: JSON.stringify({ subjectId, title, instructions, deadlineUtc })
-      });
+    await withButtonLoading(saveBtn, 'Publishing Assignment...', async () => {
+      try {
+        await apiRequest('/api/assignments', {
+          method: 'POST',
+          body: JSON.stringify({ subjectId, title, instructions, deadlineUtc })
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('Assignment created and published!', 'success');
-      closeModal('assignmentModal');
-      navigateTab('assignments');
-    } catch (err) {
-      showToast(err.message || 'Failed to create assignment', 'error');
-    }
+        showToast('Assignment created and published!', 'success');
+        closeModal('assignmentModal');
+        navigateTab('assignments');
+      } catch (err) {
+        showToast(err.message || 'Failed to create assignment', 'error');
+      }
+    });
   });
 
   // Confirm Student Submission Handler
@@ -1790,61 +1877,46 @@ document.addEventListener('DOMContentLoaded', () => {
       return showToast('Please enter your answer text or solution notes.', 'error');
     }
 
-    btn.disabled = true;
-    btn.textContent = 'Submitting...';
+    await withButtonLoading(btn, 'Submitting Work...', async () => {
+      try {
+        const data = await apiRequest('/api/submissions', {
+          method: 'POST',
+          body: JSON.stringify({ assignmentId, answerText })
+        });
 
-    try {
-      const res = await fetch('/api/submissions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser.id
-        },
-        body: JSON.stringify({ assignmentId, answerText })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      closeModal('submitAssignmentModal');
-      alert(`SUBMISSION CONFIRMED!\n\nReceipt Code: ${data.submission.receiptId}\nSubmitted At: ${data.submission.submittedAtIst}\nStatus: ${data.submission.status.toUpperCase()}`);
-      navigateTab('my-submissions');
-    } catch (err) {
-      showToast(err.message || 'Submission failed', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Confirm & Submit Work';
-    }
+        closeModal('submitAssignmentModal');
+        alert(`SUBMISSION CONFIRMED!\n\nReceipt Code: ${data.submission.receiptId}\nSubmitted At: ${data.submission.submittedAtIst}\nStatus: ${data.submission.status.toUpperCase()}`);
+        navigateTab('my-submissions');
+      } catch (err) {
+        showToast(err.message || 'Submission failed', 'error');
+      }
+    });
   });
 
   // Post Notice Handler (Section 16 Format)
   document.getElementById('postNoticeBtn')?.addEventListener('click', async () => {
     const title = document.getElementById('noticeTitleInput').value.trim();
     const message = document.getElementById('noticeMessageInput').value.trim();
+    const btn = document.getElementById('postNoticeBtn');
 
     if (!title || !message) {
       return showToast('Title and message are mandatory.', 'error');
     }
 
-    try {
-      const res = await fetch('/api/notices', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser.id
-        },
-        body: JSON.stringify({ title, message })
-      });
+    await withButtonLoading(btn, 'Broadcasting Notice...', async () => {
+      try {
+        await apiRequest('/api/notices', {
+          method: 'POST',
+          body: JSON.stringify({ title, message })
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('Global notice broadcasted to all students and Telegram!', 'success');
-      closeModal('noticeModal');
-      navigateTab('notices');
-    } catch (err) {
-      showToast(err.message || 'Failed to post notice', 'error');
-    }
+        showToast('Global notice broadcasted to all students and Telegram!', 'success');
+        closeModal('noticeModal');
+        navigateTab('notices');
+      } catch (err) {
+        showToast(err.message || 'Failed to post notice', 'error');
+      }
+    });
   });
 
   // Confirm Role Transition Handler
@@ -1853,25 +1925,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetUserId = btn.getAttribute('data-target-user-id');
     const targetRole = document.getElementById('targetRoleSelect').value;
 
-    try {
-      const res = await fetch('/api/users/role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser.id
-        },
-        body: JSON.stringify({ targetUserId, targetRole })
-      });
+    await withButtonLoading(btn, 'Updating Role...', async () => {
+      try {
+        await apiRequest('/api/users/role', {
+          method: 'POST',
+          body: JSON.stringify({ targetUserId, targetRole })
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('Role updated successfully!', 'success');
-      closeModal('roleModal');
-      navigateTab('users');
-    } catch (err) {
-      showToast(err.message || 'Role change denied', 'error');
-    }
+        showToast('Role updated successfully!', 'success');
+        closeModal('roleModal');
+        navigateTab('users');
+      } catch (err) {
+        showToast(err.message || 'Role change denied', 'error');
+      }
+    });
   });
 
   // Confirm Account Ban Handler
@@ -1884,25 +1951,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return showToast('Reason must be at least 5 characters.', 'error');
     }
 
-    try {
-      const res = await fetch('/api/moderation/ban', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser.id
-        },
-        body: JSON.stringify({ targetUserId, reason })
-      });
+    await withButtonLoading(btn, 'Enforcing Ban...', async () => {
+      try {
+        await apiRequest('/api/moderation/ban', {
+          method: 'POST',
+          body: JSON.stringify({ targetUserId, reason })
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('Account ban issued and logged to audit channel.', 'success');
-      closeModal('banModal');
-      navigateTab(state.activeTab);
-    } catch (err) {
-      showToast(err.message || 'Ban denied', 'error');
-    }
+        showToast('Account ban issued and logged to audit channel.', 'success');
+        closeModal('banModal');
+        navigateTab(state.activeTab);
+      } catch (err) {
+        showToast(err.message || 'Ban denied', 'error');
+      }
+    });
   });
 
   // Report Bug Modal & Submission (Telegram Dispatch)
@@ -1914,35 +1976,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = document.getElementById('bugTitleInput').value.trim();
     const category = document.getElementById('bugCategorySelect').value;
     const description = document.getElementById('bugDescInput').value.trim();
+    const btn = document.getElementById('submitBugBtn');
 
     if (!title || !description) {
       return showToast('Title and description are required.', 'error');
     }
 
-    try {
-      const res = await fetch('/api/telegram/bug-report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': state.currentUser?.id || ''
-        },
-        body: JSON.stringify({
-          title,
-          category,
-          description,
-          affectedPage: state.activeTab
-        })
-      });
+    await withButtonLoading(btn, 'Dispatching to Telegram...', async () => {
+      try {
+        await apiRequest('/api/telegram/bug-report', {
+          method: 'POST',
+          body: JSON.stringify({
+            title,
+            category,
+            description,
+            affectedPage: state.activeTab
+          })
+        });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      showToast('Bug report dispatched directly to administration Telegram channel!', 'success');
-      closeModal('bugModal');
-      document.getElementById('bugTitleInput').value = '';
-      document.getElementById('bugDescInput').value = '';
-    } catch (err) {
-      showToast(err.message || 'Bug report dispatch failed', 'error');
-    }
+        showToast('Bug report dispatched directly to administration Telegram channel!', 'success');
+        closeModal('bugModal');
+        document.getElementById('bugTitleInput').value = '';
+        document.getElementById('bugDescInput').value = '';
+      } catch (err) {
+        showToast(err.message || 'Bug report dispatch failed', 'error');
+      }
+    });
   });
 });
