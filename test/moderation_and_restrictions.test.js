@@ -2,9 +2,9 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Validates Ban/Unban authority, Admin-only unban, and the 7-day restriction boundary conditions
 
-import { PlatformStore } from '../api/store.js';
-import { ModerationService } from '../api/moderation.js';
-import { ROLES, canBanUser, canUnbanUser } from '../api/authorization.js';
+import { PlatformStore } from '../lib/store.js';
+import { ModerationService } from '../lib/moderation.js';
+import { ROLES, canBanUser, canUnbanUser } from '../lib/authorization.js';
 
 let passed = 0;
 let failed = 0;

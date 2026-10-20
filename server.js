@@ -7,9 +7,9 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import { fileURLToPath } from 'url';
-import { PlatformStore } from './api/store.js';
-import { ModerationService } from './api/moderation.js';
-import { handleApiRequest } from './api/handler.js';
+import { PlatformStore } from './lib/store.js';
+import { ModerationService } from './lib/moderation.js';
+import { handleApiRequest } from './lib/handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

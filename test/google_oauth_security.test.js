@@ -2,9 +2,9 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Verifies real OAuth endpoints, token claim handling, and strict role immutability
 
-import { PlatformStore } from '../api/store.js';
-import { handleApiRequest } from '../api/handler.js';
-import { ModerationService } from '../api/moderation.js';
+import { PlatformStore } from '../lib/store.js';
+import { handleApiRequest } from '../lib/handler.js';
+import { ModerationService } from '../lib/moderation.js';
 import { EventEmitter } from 'events';
 
 let passed = 0;
@@ -264,7 +264,7 @@ const slugRes = await new Promise(resolve => {
       resolve({ status: statusCode, headers, body: JSON.parse(body || '{}') });
     }
   };
-  import('../api/handler.js').then(m => m.handleApiRequest(slugReq, mockRes, store, null));
+  import('../lib/handler.js').then(m => m.handleApiRequest(slugReq, mockRes, store, null));
 });
 assert(slugRes.status === 200, 'Catch-all [...slug] resolves /api/auth/config');
 assert(slugRes.body.appOrigin === 'https://time-table-pi-seven.vercel.app', 'Catch-all resolves correct origin');

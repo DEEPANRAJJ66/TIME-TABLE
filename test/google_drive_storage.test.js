@@ -2,9 +2,9 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Validates folder containment, resumable initiation, streaming proxy authorization, and audit logs
 
-import { getApprovedFolderId } from '../api/drive.js';
-import { canViewResource, canUploadResource } from '../api/authorization.js';
-import { PlatformStore } from '../api/store.js';
+import { getApprovedFolderId } from '../lib/drive.js';
+import { canViewResource, canUploadResource } from '../lib/authorization.js';
+import { PlatformStore } from '../lib/store.js';
 
 let passed = 0;
 let failed = 0;

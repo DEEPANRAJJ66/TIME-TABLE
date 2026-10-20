@@ -2,8 +2,8 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Validates deadline enforcement, late submission tracking, receipt generation, and IDOR isolation
 
-import { PlatformStore } from '../api/store.js';
-import { canViewSubmission } from '../api/authorization.js';
+import { PlatformStore } from '../lib/store.js';
+import { canViewSubmission } from '../lib/authorization.js';
 
 let passed = 0;
 let failed = 0;

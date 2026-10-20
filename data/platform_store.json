@@ -81,8 +81,8 @@
       "rollNumber": "240101",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-19T12:27:34.388Z",
-      "updatedAt": "2026-10-19T12:27:34.388Z"
+      "createdAt": "2026-10-20T05:14:47.804Z",
+      "updatedAt": "2026-10-20T05:14:47.804Z"
     },
     {
       "id": "usr_v1",
@@ -93,8 +93,8 @@
       "rollNumber": "240999",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-19T12:27:34.391Z",
-      "updatedAt": "2026-10-19T12:27:34.391Z"
+      "createdAt": "2026-10-20T05:14:47.805Z",
+      "updatedAt": "2026-10-20T05:14:47.805Z"
     },
     {
       "id": "usr_v3",
@@ -105,8 +105,8 @@
       "rollNumber": "240888",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-19T12:27:34.394Z",
-      "updatedAt": "2026-10-19T12:27:34.394Z"
+      "createdAt": "2026-10-20T05:14:47.807Z",
+      "updatedAt": "2026-10-20T05:14:47.807Z"
     },
     {
       "id": "usr_admin",
@@ -142,7 +142,175 @@
       "role": "student",
       "accountStatus": "banned",
       "displayName": "Student A",
-      "updatedAt": "2026-10-19T12:27:35.246Z"
+      "updatedAt": "2026-10-20T05:14:48.051Z"
+    },
+    {
+      "id": "usr_c0bmmqi1",
+      "email": "oauth_student_1792428772435@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-19T16:52:52.435Z",
+      "updatedAt": "2026-10-19T16:52:52.435Z"
+    },
+    {
+      "id": "usr_mock_456",
+      "email": "verified_1792473287875@saranathan.ac.in",
+      "firstName": "verified_1792473287875",
+      "secondaryName": "",
+      "displayName": "verified_1792473287875",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:14:47.875Z",
+      "updatedAt": "2026-10-20T05:14:47.875Z"
+    },
+    {
+      "id": "sub_1792428772443",
+      "email": "fresh_student_1792428772443@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "772443",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-19T16:52:52.444Z",
+      "updatedAt": "2026-10-19T16:52:52.446Z"
+    },
+    {
+      "id": "sub_another_1792428772449",
+      "email": "another_student_1792428772449@saranathan.ac.in",
+      "firstName": "another_student_1792428772449",
+      "secondaryName": "",
+      "displayName": "another_student_1792428772449",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-19T16:52:52.449Z",
+      "updatedAt": "2026-10-19T16:52:52.449Z"
+    },
+    {
+      "id": "usr_4zvd1frn",
+      "email": "oauth_student_1792467913103@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T03:45:13.103Z",
+      "updatedAt": "2026-10-20T03:45:13.103Z"
+    },
+    {
+      "id": "sub_1792467913107",
+      "email": "fresh_student_1792467913107@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "913107",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T03:45:13.107Z",
+      "updatedAt": "2026-10-20T03:45:13.108Z"
+    },
+    {
+      "id": "sub_another_1792467913110",
+      "email": "another_student_1792467913110@saranathan.ac.in",
+      "firstName": "another_student_1792467913110",
+      "secondaryName": "",
+      "displayName": "another_student_1792467913110",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T03:45:13.110Z",
+      "updatedAt": "2026-10-20T03:45:13.110Z"
+    },
+    {
+      "id": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "email": "reedaftar001@gmail.com",
+      "firstName": "DEEPAN RAJ",
+      "secondaryName": "",
+      "displayName": "DEEPAN RAJ",
+      "rollNumber": "589898",
+      "role": "representative",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T03:54:45.755Z",
+      "updatedAt": "2026-10-20T03:55:19.194Z"
+    },
+    {
+      "id": "usr_lwsfdd2y",
+      "email": "oauth_student_1792473092257@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:11:32.257Z",
+      "updatedAt": "2026-10-20T05:11:32.257Z"
+    },
+    {
+      "id": "sub_1792473092262",
+      "email": "fresh_student_1792473092262@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "092262",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:11:32.262Z",
+      "updatedAt": "2026-10-20T05:11:32.264Z"
+    },
+    {
+      "id": "sub_another_1792473092266",
+      "email": "another_student_1792473092266@saranathan.ac.in",
+      "firstName": "another_student_1792473092266",
+      "secondaryName": "",
+      "displayName": "another_student_1792473092266",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:11:32.266Z",
+      "updatedAt": "2026-10-20T05:11:32.266Z"
+    },
+    {
+      "id": "usr_e02edpkv",
+      "email": "oauth_student_1792473287872@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:14:47.872Z",
+      "updatedAt": "2026-10-20T05:14:47.872Z"
+    },
+    {
+      "id": "sub_1792473287878",
+      "email": "fresh_student_1792473287878@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "287878",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:14:47.879Z",
+      "updatedAt": "2026-10-20T05:14:47.880Z"
+    },
+    {
+      "id": "sub_another_1792473287882",
+      "email": "another_student_1792473287882@saranathan.ac.in",
+      "firstName": "another_student_1792473287882",
+      "secondaryName": "",
+      "displayName": "another_student_1792473287882",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:14:47.882Z",
+      "updatedAt": "2026-10-20T05:14:47.882Z"
     }
   ],
   "subjects": [
@@ -280,6 +448,98 @@
       "id": "res_ee2cnfv1",
       "createdAt": "2026-10-19T12:27:35.593Z",
       "updatedAt": "2026-10-19T12:27:35.593Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_l68754hs",
+      "createdAt": "2026-10-19T16:52:52.811Z",
+      "updatedAt": "2026-10-19T16:52:52.811Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_08qtsqzv",
+      "createdAt": "2026-10-20T03:45:13.335Z",
+      "updatedAt": "2026-10-20T03:45:13.335Z"
+    },
+    {
+      "title": "dfghfshfghfh",
+      "filename": "Screenshot (2).png",
+      "mimeType": "image/png",
+      "fileSize": 427806,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit%201",
+      "resourceType": "notes",
+      "uploaderId": "usr_dlssxn6d",
+      "uploaderName": "Deepanraj J",
+      "uploaderRole": "admin",
+      "uploaderEmail": "jeyaramandeeban@gmail.com",
+      "googleDriveFileId": "1dnXHjhv_oihLAyQ3dH2RBybeM_hoKXeB",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_izrsccpm",
+      "createdAt": "2026-10-20T03:52:36.566Z",
+      "updatedAt": "2026-10-20T03:52:36.566Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_qp7hb7nq",
+      "createdAt": "2026-10-20T05:11:32.622Z",
+      "updatedAt": "2026-10-20T05:11:32.622Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_fr7kw8h0",
+      "createdAt": "2026-10-20T05:14:48.118Z",
+      "updatedAt": "2026-10-20T05:14:48.118Z"
     }
   ],
   "assignments": [
@@ -357,6 +617,106 @@
       "createdAt": "2026-10-19T12:27:34.777Z",
       "updatedAt": "2026-10-19T12:27:34.777Z",
       "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-22T16:52:52.571Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_70o2pb41",
+      "createdAt": "2026-10-19T16:52:52.571Z",
+      "updatedAt": "2026-10-19T16:52:52.571Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-19T15:52:52.571Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_o61cp816",
+      "createdAt": "2026-10-19T16:52:52.575Z",
+      "updatedAt": "2026-10-19T16:52:52.575Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T03:45:13.199Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_pw085aiv",
+      "createdAt": "2026-10-20T03:45:13.199Z",
+      "updatedAt": "2026-10-20T03:45:13.199Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T02:45:13.199Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_zy34yfnd",
+      "createdAt": "2026-10-20T03:45:13.202Z",
+      "updatedAt": "2026-10-20T03:45:13.202Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:11:32.354Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_nzpu77wp",
+      "createdAt": "2026-10-20T05:11:32.354Z",
+      "updatedAt": "2026-10-20T05:11:32.354Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:11:32.354Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_wpkgjsol",
+      "createdAt": "2026-10-20T05:11:32.356Z",
+      "updatedAt": "2026-10-20T05:11:32.356Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:14:47.965Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_uvcp2r4d",
+      "createdAt": "2026-10-20T05:14:47.965Z",
+      "updatedAt": "2026-10-20T05:14:47.965Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:14:47.965Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_x9xxi09l",
+      "createdAt": "2026-10-20T05:14:47.967Z",
+      "updatedAt": "2026-10-20T05:14:47.967Z",
+      "submissionCount": 1
     }
   ],
   "submissions": [
@@ -431,11 +791,107 @@
       "status": "submitted_late",
       "id": "subm_yh318h0b",
       "receiptId": "RCPT-MVF8C263-5846"
+    },
+    {
+      "assignmentId": "asgn_70o2pb41",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-19T16:52:52.573Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_6c0zsqn4",
+      "receiptId": "RCPT-MVFHT8F1-2795"
+    },
+    {
+      "assignmentId": "asgn_o61cp816",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-19T16:52:52.577Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_9r81yt40",
+      "receiptId": "RCPT-MVFHT8F5-9209"
+    },
+    {
+      "assignmentId": "asgn_pw085aiv",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T03:45:13.200Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_e3s5ghqy",
+      "receiptId": "RCPT-MVG545IO-4114"
+    },
+    {
+      "assignmentId": "asgn_zy34yfnd",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T03:45:13.203Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_z6lfw3h8",
+      "receiptId": "RCPT-MVG545IR-6989"
+    },
+    {
+      "assignmentId": "asgn_nzpu77wp",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:11:32.355Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_84e9tbnn",
+      "receiptId": "RCPT-MVG875S3-5582"
+    },
+    {
+      "assignmentId": "asgn_wpkgjsol",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:11:32.357Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_wcnzc2x9",
+      "receiptId": "RCPT-MVG875S5-7528"
+    },
+    {
+      "assignmentId": "asgn_uvcp2r4d",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:14:47.966Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_xatq9ols",
+      "receiptId": "RCPT-MVG8BCPQ-2526"
+    },
+    {
+      "assignmentId": "asgn_x9xxi09l",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:14:47.969Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_u7h77krc",
+      "receiptId": "RCPT-MVG8BCPT-3535"
     }
   ],
   "moderationRecords": [
     {
-      "id": "mod_kdnjan98",
+      "id": "mod_okz0lv7y",
       "targetUserId": "usr_stua",
       "targetEmail": "stua@saranathan.ac.in",
       "targetRole": "student",
@@ -445,11 +901,11 @@
       "action": "ban",
       "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction.",
       "isActive": true,
-      "createdAtUtc": "2026-10-19T12:27:35.246Z",
-      "createdAtIst": "19 Oct 2026, 05:57 pm IST"
+      "createdAtUtc": "2026-10-20T05:14:48.051Z",
+      "createdAtIst": "20 Oct 2026, 10:44 am IST"
     },
     {
-      "id": "mod_txlp2nm8",
+      "id": "mod_wygnhukr",
       "targetUserId": "usr_stua",
       "targetEmail": "stua@saranathan.ac.in",
       "targetRole": "student",
@@ -459,28 +915,28 @@
       "action": "ban",
       "reason": "Disruptive behavior during Python lab",
       "isActive": false,
-      "createdAtUtc": "2026-10-19T12:27:35.122Z",
-      "createdAtIst": "19 Oct 2026, 05:57 pm IST",
+      "createdAtUtc": "2026-10-20T05:14:48.026Z",
+      "createdAtIst": "20 Oct 2026, 10:44 am IST",
       "unbanActorId": "usr_admin",
-      "unbanTimestamp": "2026-10-19T12:27:35.229Z",
+      "unbanTimestamp": "2026-10-20T05:14:48.041Z",
       "resolutionNotes": "Unbanned after academic review and warning"
     }
   ],
   "banRestrictions": [
     {
-      "id": "restr_mmbtf7z6",
+      "id": "restr_mencm3vo",
       "managerId": "usr_mgr1",
       "studentId": "usr_stua",
-      "restrictionStartUtc": "2026-10-19T12:27:35.229Z",
-      "restrictionEndUtc": "2026-10-26T12:27:35.229Z",
-      "restrictionEndIst": "26 Oct 2026, 05:57 pm IST",
+      "restrictionStartUtc": "2026-10-20T05:14:48.041Z",
+      "restrictionEndUtc": "2026-10-27T05:14:48.041Z",
+      "restrictionEndIst": "27 Oct 2026, 10:44 am IST",
       "reason": "Student Student A was unbanned by Admin. Manager cannot re-ban for 7 days.",
-      "createdAtUtc": "2026-10-19T12:27:35.229Z"
+      "createdAtUtc": "2026-10-20T05:14:48.041Z"
     }
   ],
   "banRequests": [
     {
-      "id": "breq_2ipjmt4l",
+      "id": "breq_3cfmsrua",
       "managerId": "usr_mgr1",
       "managerName": "Manager 1",
       "studentId": "usr_stua",
@@ -488,15 +944,492 @@
       "studentEmail": "stua@saranathan.ac.in",
       "reason": "Student violated lab rules again; requesting Admin review due to active restriction.",
       "status": "approved",
-      "createdAtUtc": "2026-10-19T12:27:35.240Z",
-      "createdAtIst": "19 Oct 2026, 05:57 pm IST",
+      "createdAtUtc": "2026-10-20T05:14:48.047Z",
+      "createdAtIst": "20 Oct 2026, 10:44 am IST",
       "resolvedBy": "usr_admin",
-      "resolvedAt": "2026-10-19T12:27:35.244Z",
+      "resolvedAt": "2026-10-20T05:14:48.049Z",
       "resolutionNotes": "Admin approved after examining lab logs."
     }
   ],
-  "notices": [],
+  "notices": [
+    {
+      "title": "HAPPY SARAWATHI POOJA",
+      "message": "UYTU7RITYUYTUTKFFFGJYFYTYUYFYTG",
+      "formattedLetterhead": "Date: 20 Oct 2026, 09:26 am IST\n\nDear Friends,\n\nUYTU7RITYUYTUTKFFFGJYFYTYUYFYTG\n\nWith regards,\n\nDEEPAN RAJ\nREPRESENTATIVE",
+      "authorId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "authorName": "DEEPAN RAJ",
+      "authorRole": "representative",
+      "publishedAtIst": "20 Oct 2026, 09:26 am IST",
+      "publicationStatus": "published",
+      "id": "notc_rl1jsuwh",
+      "createdAt": "2026-10-20T03:56:11.962Z",
+      "updatedAt": "2026-10-20T03:56:11.962Z"
+    },
+    {
+      "title": "HAPPY SARAWATHI POOJA",
+      "message": "ENJOY YOUR HOLIDAY DONOT FORGOT TO STUDY",
+      "formattedLetterhead": "Date: 20 Oct 2026, 09:24 am IST\n\nDear Friends,\n\nENJOY YOUR HOLIDAY DONOT FORGOT TO STUDY\n\nWith regards,\n\nDeepanraj J\nADMIN",
+      "authorId": "usr_dlssxn6d",
+      "authorName": "Deepanraj J",
+      "authorRole": "admin",
+      "publishedAtIst": "20 Oct 2026, 09:24 am IST",
+      "publicationStatus": "published",
+      "id": "notc_gbd5lbt4",
+      "createdAt": "2026-10-20T03:54:12.771Z",
+      "updatedAt": "2026-10-20T03:54:12.771Z"
+    }
+  ],
   "notifications": [
+    {
+      "recipientUserId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_ciizmsof",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.993Z"
+    },
+    {
+      "recipientUserId": "usr_dlssxn6d",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_0xzsr9a0",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.991Z"
+    },
+    {
+      "recipientUserId": "sub_another_1792467913110",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_72gl1j2w",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.990Z"
+    },
+    {
+      "recipientUserId": "sub_1792467913107",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_dr0c9dav",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.989Z"
+    },
+    {
+      "recipientUserId": "usr_4zvd1frn",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_4m93mag8",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.988Z"
+    },
+    {
+      "recipientUserId": "sub_another_1792428772449",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_7hn6epnc",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.986Z"
+    },
+    {
+      "recipientUserId": "sub_1792428772443",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_33oxvq47",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.984Z"
+    },
+    {
+      "recipientUserId": "usr_mock_456",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_g8lb0qin",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.983Z"
+    },
+    {
+      "recipientUserId": "usr_c0bmmqi1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_fr9p4jz3",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.982Z"
+    },
+    {
+      "recipientUserId": "usr_stua",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_ioefu8kj",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.981Z"
+    },
+    {
+      "recipientUserId": "usr_mgr2",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_d3rnttpm",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.979Z"
+    },
+    {
+      "recipientUserId": "usr_mgr1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_0t0sf2ci",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.978Z"
+    },
+    {
+      "recipientUserId": "usr_rep",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_hx60p8q0",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.976Z"
+    },
+    {
+      "recipientUserId": "usr_admin",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_i7wbygtr",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.975Z"
+    },
+    {
+      "recipientUserId": "usr_v3",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_sl8zeyq4",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.973Z"
+    },
+    {
+      "recipientUserId": "usr_v1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_crle6qz0",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.973Z"
+    },
+    {
+      "recipientUserId": "usr_t1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_8091i503",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.972Z"
+    },
+    {
+      "recipientUserId": "usr_jdqg98ac",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_k5tc5e9r",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.970Z"
+    },
+    {
+      "recipientUserId": "usr_7otqo7en",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_hk1f503e",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.969Z"
+    },
+    {
+      "recipientUserId": "usr_iky9fowe",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_yemwavmt",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.968Z"
+    },
+    {
+      "recipientUserId": "usr_epm1mke3",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_tajqz4rm",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.966Z"
+    },
+    {
+      "recipientUserId": "usr_dlssxn6d",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_wkko3u8z",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.965Z"
+    },
+    {
+      "recipientUserId": "usr_3lbc2uvw",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "DEEPAN RAJ: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_rl1jsuwh",
+      "id": "ntf_pxjk45hh",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:56:11.964Z"
+    },
+    {
+      "recipientUserId": "usr_dlssxn6d",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_5qiy4n27",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.795Z"
+    },
+    {
+      "recipientUserId": "sub_another_1792467913110",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_5voi4e8w",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.794Z"
+    },
+    {
+      "recipientUserId": "sub_1792467913107",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_7oz3osbh",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.794Z"
+    },
+    {
+      "recipientUserId": "usr_4zvd1frn",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_lz76zy8q",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.793Z"
+    },
+    {
+      "recipientUserId": "sub_another_1792428772449",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_jm2pntpa",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.793Z"
+    },
+    {
+      "recipientUserId": "sub_1792428772443",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_g4g2byx9",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.791Z"
+    },
+    {
+      "recipientUserId": "usr_mock_456",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_4vs6co30",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.791Z"
+    },
+    {
+      "recipientUserId": "usr_c0bmmqi1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_79aczrfi",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.790Z"
+    },
+    {
+      "recipientUserId": "usr_stua",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_3c8kvjwo",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.789Z"
+    },
+    {
+      "recipientUserId": "usr_mgr2",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_ezbj5snu",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.789Z"
+    },
+    {
+      "recipientUserId": "usr_mgr1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_wigh0z1h",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.788Z"
+    },
+    {
+      "recipientUserId": "usr_rep",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_l6q9rkvh",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.788Z"
+    },
+    {
+      "recipientUserId": "usr_admin",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_vg3du11u",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.787Z"
+    },
+    {
+      "recipientUserId": "usr_v3",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_0ywa4btx",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.786Z"
+    },
+    {
+      "recipientUserId": "usr_v1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_r3eo7iep",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.784Z"
+    },
+    {
+      "recipientUserId": "usr_t1",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_amev9nfy",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.782Z"
+    },
+    {
+      "recipientUserId": "usr_jdqg98ac",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_no4lyiav",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.781Z"
+    },
+    {
+      "recipientUserId": "usr_7otqo7en",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_j6tw5m2s",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.780Z"
+    },
+    {
+      "recipientUserId": "usr_iky9fowe",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_rp9b4i2f",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.779Z"
+    },
+    {
+      "recipientUserId": "usr_epm1mke3",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_yarduh5j",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.777Z"
+    },
+    {
+      "recipientUserId": "usr_dlssxn6d",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_7auqh79s",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.776Z"
+    },
+    {
+      "recipientUserId": "usr_3lbc2uvw",
+      "eventType": "NEW_NOTICE",
+      "title": "📢 New Notice from College Administration",
+      "message": "Deepanraj J: \"HAPPY SARAWATHI POOJA...\"",
+      "relatedResourceId": "notc_gbd5lbt4",
+      "id": "ntf_24bi2qbc",
+      "isRead": false,
+      "createdAt": "2026-10-20T03:54:12.774Z"
+    },
     {
       "recipientUserId": "usr_3lbc2uvw",
       "eventType": "RESOURCE_PUBLISHED",
@@ -509,6 +1442,524 @@
     }
   ],
   "auditEvents": [
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_fr7kw8h0",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_v28lvp64",
+      "createdAt": "2026-10-20T05:14:48.119Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_ov5l7nn6",
+      "createdAt": "2026-10-20T05:14:48.053Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_3cfmsrua",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_opac3aju",
+      "createdAt": "2026-10-20T05:14:48.048Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:14:48.041Z"
+      },
+      "id": "aud_97uzc403",
+      "createdAt": "2026-10-20T05:14:48.046Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_wa35l5so",
+      "createdAt": "2026-10-20T05:14:48.040Z"
+    },
+    {
+      "actorId": "sub_1792473287878",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792473287878",
+      "metadata": {
+        "rollNumber": "287878",
+        "email": "fresh_student_1792473287878@saranathan.ac.in"
+      },
+      "id": "aud_1f98i2gi",
+      "createdAt": "2026-10-20T05:14:47.881Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792473287875",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792473287875@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_kkox01fl",
+      "createdAt": "2026-10-20T05:14:47.876Z"
+    },
+    {
+      "actorId": "usr_e02edpkv",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_e02edpkv",
+      "metadata": {
+        "email": "oauth_student_1792473287872@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_hipp27wg",
+      "createdAt": "2026-10-20T05:14:47.873Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_qp7hb7nq",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_9tm3po2f",
+      "createdAt": "2026-10-20T05:11:32.623Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_ek3ujj1i",
+      "createdAt": "2026-10-20T05:11:32.558Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_5kq4sbmr",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_awdrshft",
+      "createdAt": "2026-10-20T05:11:32.554Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:11:32.549Z"
+      },
+      "id": "aud_9ulkemqo",
+      "createdAt": "2026-10-20T05:11:32.551Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_n8ixlr7r",
+      "createdAt": "2026-10-20T05:11:32.547Z"
+    },
+    {
+      "actorId": "sub_1792473092262",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792473092262",
+      "metadata": {
+        "rollNumber": "092262",
+        "email": "fresh_student_1792473092262@saranathan.ac.in"
+      },
+      "id": "aud_zb09a81q",
+      "createdAt": "2026-10-20T05:11:32.264Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792473092259",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792473092259@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_jhw29k07",
+      "createdAt": "2026-10-20T05:11:32.260Z"
+    },
+    {
+      "actorId": "usr_lwsfdd2y",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_lwsfdd2y",
+      "metadata": {
+        "email": "oauth_student_1792473092257@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_e6lybpc5",
+      "createdAt": "2026-10-20T05:11:32.258Z"
+    },
+    {
+      "actorId": "usr_dlssxn6d",
+      "actorName": "Deepanraj J",
+      "actorRole": "admin",
+      "actionType": "USER_PROMOTED",
+      "targetResourceType": "user",
+      "targetResourceId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "metadata": {
+        "oldRole": "student",
+        "newRole": "representative",
+        "targetEmail": "reedaftar001@gmail.com"
+      },
+      "id": "aud_uhpzmn55",
+      "createdAt": "2026-10-20T03:55:19.195Z"
+    },
+    {
+      "actorId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "actorName": "DEEPAN RAJ",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "metadata": {
+        "rollNumber": "589898",
+        "email": "reedaftar001@gmail.com"
+      },
+      "id": "aud_60d07fr8",
+      "createdAt": "2026-10-20T03:54:48.419Z"
+    },
+    {
+      "actorId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "actorName": "DEEPAN RAJ",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "c2c6f6d1-f925-412c-9cd5-47af3832aca4",
+      "metadata": {
+        "email": "reedaftar001@gmail.com",
+        "role": "student"
+      },
+      "id": "aud_qdvczzcu",
+      "createdAt": "2026-10-20T03:54:45.757Z"
+    },
+    {
+      "actorId": "usr_dlssxn6d",
+      "actorName": "Deepanraj J",
+      "actorRole": "admin",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_izrsccpm",
+      "metadata": {
+        "filename": "Screenshot (2).png",
+        "subjectId": "sub_graphics",
+        "googleDriveFileId": "1dnXHjhv_oihLAyQ3dH2RBybeM_hoKXeB"
+      },
+      "id": "aud_xd904xhm",
+      "createdAt": "2026-10-20T03:52:36.568Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_08qtsqzv",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_k0nmvpmj",
+      "createdAt": "2026-10-20T03:45:13.336Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_6hthw576",
+      "createdAt": "2026-10-20T03:45:13.280Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_791zpwpn",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_jp82via1",
+      "createdAt": "2026-10-20T03:45:13.278Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T03:45:13.273Z"
+      },
+      "id": "aud_c8sjfppa",
+      "createdAt": "2026-10-20T03:45:13.275Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_0pbxypec",
+      "createdAt": "2026-10-20T03:45:13.272Z"
+    },
+    {
+      "actorId": "sub_1792467913107",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792467913107",
+      "metadata": {
+        "rollNumber": "913107",
+        "email": "fresh_student_1792467913107@saranathan.ac.in"
+      },
+      "id": "aud_sy9wc5nr",
+      "createdAt": "2026-10-20T03:45:13.109Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792467913105",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792467913105@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_9vf2q11j",
+      "createdAt": "2026-10-20T03:45:13.106Z"
+    },
+    {
+      "actorId": "usr_4zvd1frn",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_4zvd1frn",
+      "metadata": {
+        "email": "oauth_student_1792467913103@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_lj7xt7lq",
+      "createdAt": "2026-10-20T03:45:13.104Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_l68754hs",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_3c8gzzvj",
+      "createdAt": "2026-10-19T16:52:52.813Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_1g8cr9g0",
+      "createdAt": "2026-10-19T16:52:52.711Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_w3avivpq",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_k6x72b0c",
+      "createdAt": "2026-10-19T16:52:52.705Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-26T16:52:52.697Z"
+      },
+      "id": "aud_wx4id6q0",
+      "createdAt": "2026-10-19T16:52:52.702Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_5dfg0vsl",
+      "createdAt": "2026-10-19T16:52:52.695Z"
+    },
+    {
+      "actorId": "sub_1792428772443",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792428772443",
+      "metadata": {
+        "rollNumber": "772443",
+        "email": "fresh_student_1792428772443@saranathan.ac.in"
+      },
+      "id": "aud_00hqdq9m",
+      "createdAt": "2026-10-19T16:52:52.447Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792428772439",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792428772439@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_fodr70yd",
+      "createdAt": "2026-10-19T16:52:52.440Z"
+    },
+    {
+      "actorId": "usr_c0bmmqi1",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_c0bmmqi1",
+      "metadata": {
+        "email": "oauth_student_1792428772435@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_4ro07qxf",
+      "createdAt": "2026-10-19T16:52:52.437Z"
+    },
     {
       "actorId": "usr_mgr",
       "actorName": "EG Faculty",
@@ -861,5 +2312,5 @@
     }
   ],
   "outbox": [],
-  "persistedAt": "2026-10-19T12:27:35.597Z"
+  "persistedAt": "2026-10-20T05:14:48.119Z"
 }

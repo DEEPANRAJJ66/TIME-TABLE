@@ -15,7 +15,7 @@ import {
   canViewSubmission,
   canPostNotice,
   assertUserActive
-} from '../api/authorization.js';
+} from '../lib/authorization.js';
 
 let passed = 0;
 let failed = 0;

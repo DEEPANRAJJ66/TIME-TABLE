@@ -2,7 +2,7 @@
 // Institution: Saranathan College of Engineering (Autonomous)
 // Validates 6-digit roll number, uniqueness constraints, and role immutability
 
-import { PlatformStore } from '../api/store.js';
+import { PlatformStore } from '../lib/store.js';
 
 let passed = 0;
 let failed = 0;

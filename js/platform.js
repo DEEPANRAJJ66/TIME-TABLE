@@ -142,22 +142,16 @@ export async function apiRequest(endpoint, options = {}) {
 
     const res = await fetch(url, fetchOptions);
 
-    // Read response body safely according to Content-Type
-    const contentType = res.headers.get('content-type') || '';
-    let parsedData = null;
-    let rawText = '';
-
-    if (contentType.includes('application/json')) {
-      try {
-        parsedData = await res.json();
-      } catch (jsonErr) {
-        console.warn(`Malformed JSON from ${endpoint}:`, jsonErr);
+    try {
+      rawText = await res.text();
+      if (rawText && rawText.trim()) {
+        try {
+          parsedData = JSON.parse(rawText);
+        } catch (_) {
+          // Non-JSON response (e.g. plain text or HTML error page from serverless host)
+        }
       }
-    } else {
-      try {
-        rawText = await res.text();
-      } catch (_) {}
-    }
+    } catch (_) {}
 
     if (!res.ok) {
       let message = '';
