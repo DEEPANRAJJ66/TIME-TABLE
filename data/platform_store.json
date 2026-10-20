@@ -81,8 +81,8 @@
       "rollNumber": "240101",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-20T05:14:47.804Z",
-      "updatedAt": "2026-10-20T05:14:47.804Z"
+      "createdAt": "2026-10-20T06:00:24.382Z",
+      "updatedAt": "2026-10-20T06:00:24.382Z"
     },
     {
       "id": "usr_v1",
@@ -93,8 +93,8 @@
       "rollNumber": "240999",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-20T05:14:47.805Z",
-      "updatedAt": "2026-10-20T05:14:47.805Z"
+      "createdAt": "2026-10-20T06:00:24.385Z",
+      "updatedAt": "2026-10-20T06:00:24.385Z"
     },
     {
       "id": "usr_v3",
@@ -105,8 +105,8 @@
       "rollNumber": "240888",
       "role": "student",
       "accountStatus": "active",
-      "createdAt": "2026-10-20T05:14:47.807Z",
-      "updatedAt": "2026-10-20T05:14:47.807Z"
+      "createdAt": "2026-10-20T06:00:24.389Z",
+      "updatedAt": "2026-10-20T06:00:24.389Z"
     },
     {
       "id": "usr_admin",
@@ -142,7 +142,7 @@
       "role": "student",
       "accountStatus": "banned",
       "displayName": "Student A",
-      "updatedAt": "2026-10-20T05:14:48.051Z"
+      "updatedAt": "2026-10-20T06:00:24.879Z"
     },
     {
       "id": "usr_c0bmmqi1",
@@ -158,15 +158,15 @@
     },
     {
       "id": "usr_mock_456",
-      "email": "verified_1792473287875@saranathan.ac.in",
-      "firstName": "verified_1792473287875",
+      "email": "verified_1792476024538@saranathan.ac.in",
+      "firstName": "verified_1792476024538",
       "secondaryName": "",
-      "displayName": "verified_1792473287875",
+      "displayName": "verified_1792476024538",
       "rollNumber": "",
       "role": "student",
       "accountStatus": "pending_profile",
-      "createdAt": "2026-10-20T05:14:47.875Z",
-      "updatedAt": "2026-10-20T05:14:47.875Z"
+      "createdAt": "2026-10-20T06:00:24.538Z",
+      "updatedAt": "2026-10-20T06:00:24.538Z"
     },
     {
       "id": "sub_1792428772443",
@@ -311,6 +311,210 @@
       "accountStatus": "pending_profile",
       "createdAt": "2026-10-20T05:14:47.882Z",
       "updatedAt": "2026-10-20T05:14:47.882Z"
+    },
+    {
+      "id": "usr_valid_stu",
+      "email": "valid_student@saranathan.ac.in",
+      "firstName": "valid_student",
+      "secondaryName": "",
+      "displayName": "valid_student",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:44:03.425Z",
+      "updatedAt": "2026-10-20T05:44:03.425Z"
+    },
+    {
+      "id": "usr_twx8ozyc",
+      "email": "oauth_student_1792475091161@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:44:51.161Z",
+      "updatedAt": "2026-10-20T05:44:51.161Z"
+    },
+    {
+      "id": "usr_dz57cqdl",
+      "email": "oauth_student_1792475177089@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:46:17.089Z",
+      "updatedAt": "2026-10-20T05:46:17.089Z"
+    },
+    {
+      "id": "sub_1792475177096",
+      "email": "fresh_student_1792475177096@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "177096",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:46:17.096Z",
+      "updatedAt": "2026-10-20T05:46:17.097Z"
+    },
+    {
+      "id": "sub_another_1792475177099",
+      "email": "another_student_1792475177099@saranathan.ac.in",
+      "firstName": "another_student_1792475177099",
+      "secondaryName": "",
+      "displayName": "another_student_1792475177099",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:46:17.099Z",
+      "updatedAt": "2026-10-20T05:46:17.099Z"
+    },
+    {
+      "id": "usr_xqtipvf2",
+      "email": "oauth_student_1792475239423@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:47:19.423Z",
+      "updatedAt": "2026-10-20T05:47:19.423Z"
+    },
+    {
+      "id": "sub_1792475239429",
+      "email": "fresh_student_1792475239429@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "239429",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:47:19.430Z",
+      "updatedAt": "2026-10-20T05:47:19.431Z"
+    },
+    {
+      "id": "sub_another_1792475239433",
+      "email": "another_student_1792475239433@saranathan.ac.in",
+      "firstName": "another_student_1792475239433",
+      "secondaryName": "",
+      "displayName": "another_student_1792475239433",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:47:19.433Z",
+      "updatedAt": "2026-10-20T05:47:19.433Z"
+    },
+    {
+      "id": "usr_bgw9d39k",
+      "email": "oauth_student_1792475304744@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:48:24.744Z",
+      "updatedAt": "2026-10-20T05:48:24.744Z"
+    },
+    {
+      "id": "sub_1792475304762",
+      "email": "fresh_student_1792475304762@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "304762",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:48:24.762Z",
+      "updatedAt": "2026-10-20T05:48:24.765Z"
+    },
+    {
+      "id": "sub_another_1792475304770",
+      "email": "another_student_1792475304770@saranathan.ac.in",
+      "firstName": "another_student_1792475304770",
+      "secondaryName": "",
+      "displayName": "another_student_1792475304770",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:48:24.770Z",
+      "updatedAt": "2026-10-20T05:48:24.770Z"
+    },
+    {
+      "id": "usr_xab9rah7",
+      "email": "oauth_student_1792475807755@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:56:47.755Z",
+      "updatedAt": "2026-10-20T05:56:47.755Z"
+    },
+    {
+      "id": "sub_1792475807761",
+      "email": "fresh_student_1792475807761@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "807761",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T05:56:47.761Z",
+      "updatedAt": "2026-10-20T05:56:47.763Z"
+    },
+    {
+      "id": "sub_another_1792475807765",
+      "email": "another_student_1792475807765@saranathan.ac.in",
+      "firstName": "another_student_1792475807765",
+      "secondaryName": "",
+      "displayName": "another_student_1792475807765",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T05:56:47.765Z",
+      "updatedAt": "2026-10-20T05:56:47.765Z"
+    },
+    {
+      "id": "usr_ql6iidah",
+      "email": "oauth_student_1792476024528@saranathan.ac.in",
+      "firstName": "Raghavan",
+      "secondaryName": "",
+      "displayName": "Raghavan",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T06:00:24.529Z",
+      "updatedAt": "2026-10-20T06:00:24.529Z"
+    },
+    {
+      "id": "sub_1792476024548",
+      "email": "fresh_student_1792476024548@saranathan.ac.in",
+      "firstName": "Vignesh",
+      "secondaryName": "K",
+      "displayName": "Vignesh K",
+      "rollNumber": "024548",
+      "role": "student",
+      "accountStatus": "active",
+      "createdAt": "2026-10-20T06:00:24.548Z",
+      "updatedAt": "2026-10-20T06:00:24.552Z"
+    },
+    {
+      "id": "sub_another_1792476024558",
+      "email": "another_student_1792476024558@saranathan.ac.in",
+      "firstName": "another_student_1792476024558",
+      "secondaryName": "",
+      "displayName": "another_student_1792476024558",
+      "rollNumber": "",
+      "role": "student",
+      "accountStatus": "pending_profile",
+      "createdAt": "2026-10-20T06:00:24.558Z",
+      "updatedAt": "2026-10-20T06:00:24.558Z"
     }
   ],
   "subjects": [
@@ -540,6 +744,114 @@
       "id": "res_fr7kw8h0",
       "createdAt": "2026-10-20T05:14:48.118Z",
       "updatedAt": "2026-10-20T05:14:48.118Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_b7vnwt2h",
+      "createdAt": "2026-10-20T05:45:01.725Z",
+      "updatedAt": "2026-10-20T05:45:01.725Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_zvr0wwmr",
+      "createdAt": "2026-10-20T05:46:17.340Z",
+      "updatedAt": "2026-10-20T05:46:17.340Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_0ah6ohmn",
+      "createdAt": "2026-10-20T05:47:19.656Z",
+      "updatedAt": "2026-10-20T05:47:19.656Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_iswy68b5",
+      "createdAt": "2026-10-20T05:48:25.046Z",
+      "updatedAt": "2026-10-20T05:48:25.046Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_09mdldem",
+      "createdAt": "2026-10-20T05:56:48.008Z",
+      "updatedAt": "2026-10-20T05:56:48.008Z"
+    },
+    {
+      "title": "Engineering Graphics Unit 1 Projections",
+      "filename": "eg_unit1.pdf",
+      "mimeType": "application/pdf",
+      "fileSize": 512000,
+      "subjectId": "sub_graphics",
+      "sectionName": "Unit 1",
+      "uploaderId": "usr_mgr",
+      "uploaderName": "EG Faculty",
+      "uploaderRole": "manager",
+      "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "approvedFolderId": "1l-K5elNmYw_THQXCEvucT2BRzNtbKhYi",
+      "publicationStatus": "draft",
+      "storageProvider": "google_drive",
+      "id": "res_qp1fjho3",
+      "createdAt": "2026-10-20T06:00:25.016Z",
+      "updatedAt": "2026-10-20T06:00:25.016Z"
     }
   ],
   "assignments": [
@@ -717,6 +1029,156 @@
       "createdAt": "2026-10-20T05:14:47.967Z",
       "updatedAt": "2026-10-20T05:14:47.967Z",
       "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:45:01.573Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_j6qk44zr",
+      "createdAt": "2026-10-20T05:45:01.573Z",
+      "updatedAt": "2026-10-20T05:45:01.573Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:45:01.573Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_ohksyh8c",
+      "createdAt": "2026-10-20T05:45:01.576Z",
+      "updatedAt": "2026-10-20T05:45:01.576Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:46:17.181Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_smujwe6m",
+      "createdAt": "2026-10-20T05:46:17.181Z",
+      "updatedAt": "2026-10-20T05:46:17.181Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:46:17.181Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_be084jry",
+      "createdAt": "2026-10-20T05:46:17.183Z",
+      "updatedAt": "2026-10-20T05:46:17.183Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:47:19.517Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_nf4kaz2h",
+      "createdAt": "2026-10-20T05:47:19.517Z",
+      "updatedAt": "2026-10-20T05:47:19.517Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:47:19.517Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_mngl49qb",
+      "createdAt": "2026-10-20T05:47:19.520Z",
+      "updatedAt": "2026-10-20T05:47:19.520Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:48:24.882Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_no0k0s2h",
+      "createdAt": "2026-10-20T05:48:24.883Z",
+      "updatedAt": "2026-10-20T05:48:24.883Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:48:24.882Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_0qjtnoou",
+      "createdAt": "2026-10-20T05:48:24.886Z",
+      "updatedAt": "2026-10-20T05:48:24.886Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T05:56:47.849Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_pkom7d2g",
+      "createdAt": "2026-10-20T05:56:47.849Z",
+      "updatedAt": "2026-10-20T05:56:47.849Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T04:56:47.849Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_7fdx1hd3",
+      "createdAt": "2026-10-20T05:56:47.852Z",
+      "updatedAt": "2026-10-20T05:56:47.852Z",
+      "submissionCount": 1
+    },
+    {
+      "title": "Python Lab Sheet 1: Functions",
+      "instructions": "Implement recursive and iterative factorial functions.",
+      "subjectId": "sub_python",
+      "sectionName": "Unit 1",
+      "creatorId": "usr_mgr1",
+      "creatorName": "Faculty Manager",
+      "deadlineUtc": "2026-10-23T06:00:24.706Z",
+      "deadlineIst": "22 Oct 2026, 05:00 PM IST",
+      "publicationStatus": "published",
+      "submissionCount": 1,
+      "id": "asgn_uqlo369w",
+      "createdAt": "2026-10-20T06:00:24.706Z",
+      "updatedAt": "2026-10-20T06:00:24.706Z"
+    },
+    {
+      "title": "Physics Assignment 1: Optics",
+      "subjectId": "sub_physics",
+      "deadlineUtc": "2026-10-20T05:00:24.706Z",
+      "deadlineIst": "19 Oct 2026, 10:00 AM IST",
+      "id": "asgn_s7rzsw8p",
+      "createdAt": "2026-10-20T06:00:24.712Z",
+      "updatedAt": "2026-10-20T06:00:24.712Z",
+      "submissionCount": 1
     }
   ],
   "submissions": [
@@ -887,11 +1349,155 @@
       "status": "submitted_late",
       "id": "subm_u7h77krc",
       "receiptId": "RCPT-MVG8BCPT-3535"
+    },
+    {
+      "assignmentId": "asgn_j6qk44zr",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:45:01.574Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_iwxa4q3t",
+      "receiptId": "RCPT-MVG9E83Q-6006"
+    },
+    {
+      "assignmentId": "asgn_ohksyh8c",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:45:01.577Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_5brmil1c",
+      "receiptId": "RCPT-MVG9E83T-3793"
+    },
+    {
+      "assignmentId": "asgn_smujwe6m",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:46:17.182Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_1ror42mi",
+      "receiptId": "RCPT-MVG9FUFY-4045"
+    },
+    {
+      "assignmentId": "asgn_be084jry",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:46:17.185Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_v37xkfmk",
+      "receiptId": "RCPT-MVG9FUG1-1287"
+    },
+    {
+      "assignmentId": "asgn_nf4kaz2h",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:47:19.518Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_oaocou4z",
+      "receiptId": "RCPT-MVG9H6JI-6745"
+    },
+    {
+      "assignmentId": "asgn_mngl49qb",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:47:19.521Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_255r73hu",
+      "receiptId": "RCPT-MVG9H6JL-2249"
+    },
+    {
+      "assignmentId": "asgn_no0k0s2h",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:48:24.884Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_xf9a4uf5",
+      "receiptId": "RCPT-MVG9IKZ8-8492"
+    },
+    {
+      "assignmentId": "asgn_0qjtnoou",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:48:24.887Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_inmgliqo",
+      "receiptId": "RCPT-MVG9IKZB-4492"
+    },
+    {
+      "assignmentId": "asgn_pkom7d2g",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T05:56:47.850Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_t6mdkhtb",
+      "receiptId": "RCPT-MVG9TD2I-1080"
+    },
+    {
+      "assignmentId": "asgn_7fdx1hd3",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T05:56:47.854Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_95w9wuu6",
+      "receiptId": "RCPT-MVG9TD2M-8199"
+    },
+    {
+      "assignmentId": "asgn_uqlo369w",
+      "studentId": "usr_stud1",
+      "studentName": "Student One",
+      "studentRollNumber": "240101",
+      "studentEmail": "stud1@saranathan.ac.in",
+      "answerText": "def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
+      "submittedAtUtc": "2026-10-20T06:00:24.708Z",
+      "isLate": false,
+      "status": "submitted",
+      "id": "subm_0nrbehkk",
+      "receiptId": "RCPT-MVG9Y0ED-7855"
+    },
+    {
+      "assignmentId": "asgn_s7rzsw8p",
+      "studentId": "usr_stud2",
+      "studentName": "Student Two",
+      "studentRollNumber": "240102",
+      "submittedAtUtc": "2026-10-20T06:00:24.715Z",
+      "isLate": true,
+      "status": "submitted_late",
+      "id": "subm_ozutai4j",
+      "receiptId": "RCPT-MVG9Y0EJ-2168"
     }
   ],
   "moderationRecords": [
     {
-      "id": "mod_okz0lv7y",
+      "id": "mod_vutqf4za",
       "targetUserId": "usr_stua",
       "targetEmail": "stua@saranathan.ac.in",
       "targetRole": "student",
@@ -901,11 +1507,11 @@
       "action": "ban",
       "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction.",
       "isActive": true,
-      "createdAtUtc": "2026-10-20T05:14:48.051Z",
-      "createdAtIst": "20 Oct 2026, 10:44 am IST"
+      "createdAtUtc": "2026-10-20T06:00:24.879Z",
+      "createdAtIst": "20 Oct 2026, 11:30 am IST"
     },
     {
-      "id": "mod_wygnhukr",
+      "id": "mod_8x3x2kvq",
       "targetUserId": "usr_stua",
       "targetEmail": "stua@saranathan.ac.in",
       "targetRole": "student",
@@ -915,28 +1521,28 @@
       "action": "ban",
       "reason": "Disruptive behavior during Python lab",
       "isActive": false,
-      "createdAtUtc": "2026-10-20T05:14:48.026Z",
-      "createdAtIst": "20 Oct 2026, 10:44 am IST",
+      "createdAtUtc": "2026-10-20T06:00:24.819Z",
+      "createdAtIst": "20 Oct 2026, 11:30 am IST",
       "unbanActorId": "usr_admin",
-      "unbanTimestamp": "2026-10-20T05:14:48.041Z",
+      "unbanTimestamp": "2026-10-20T06:00:24.854Z",
       "resolutionNotes": "Unbanned after academic review and warning"
     }
   ],
   "banRestrictions": [
     {
-      "id": "restr_mencm3vo",
+      "id": "restr_di6eng0o",
       "managerId": "usr_mgr1",
       "studentId": "usr_stua",
-      "restrictionStartUtc": "2026-10-20T05:14:48.041Z",
-      "restrictionEndUtc": "2026-10-27T05:14:48.041Z",
-      "restrictionEndIst": "27 Oct 2026, 10:44 am IST",
+      "restrictionStartUtc": "2026-10-20T06:00:24.854Z",
+      "restrictionEndUtc": "2026-10-27T06:00:24.854Z",
+      "restrictionEndIst": "27 Oct 2026, 11:30 am IST",
       "reason": "Student Student A was unbanned by Admin. Manager cannot re-ban for 7 days.",
-      "createdAtUtc": "2026-10-20T05:14:48.041Z"
+      "createdAtUtc": "2026-10-20T06:00:24.854Z"
     }
   ],
   "banRequests": [
     {
-      "id": "breq_3cfmsrua",
+      "id": "breq_dk6408nw",
       "managerId": "usr_mgr1",
       "managerName": "Manager 1",
       "studentId": "usr_stua",
@@ -944,14 +1550,27 @@
       "studentEmail": "stua@saranathan.ac.in",
       "reason": "Student violated lab rules again; requesting Admin review due to active restriction.",
       "status": "approved",
-      "createdAtUtc": "2026-10-20T05:14:48.047Z",
-      "createdAtIst": "20 Oct 2026, 10:44 am IST",
+      "createdAtUtc": "2026-10-20T06:00:24.869Z",
+      "createdAtIst": "20 Oct 2026, 11:30 am IST",
       "resolvedBy": "usr_admin",
-      "resolvedAt": "2026-10-20T05:14:48.049Z",
+      "resolvedAt": "2026-10-20T06:00:24.876Z",
       "resolutionNotes": "Admin approved after examining lab logs."
     }
   ],
   "notices": [
+    {
+      "id": "notc_persist_1792476025277",
+      "title": "Midterm Examination Schedule",
+      "message": "Examinations begin next Monday.",
+      "formattedLetterhead": "Dear Students, Examinations begin next Monday.",
+      "authorId": "usr_admin",
+      "authorName": "Admin",
+      "authorRole": "admin",
+      "publishedAtIst": "20 Oct 2026, 11:30 AM IST",
+      "publicationStatus": "published",
+      "createdAt": "2026-10-20T06:00:25.277Z",
+      "updatedAt": "2026-10-20T06:00:25.277Z"
+    },
     {
       "title": "HAPPY SARAWATHI POOJA",
       "message": "UYTU7RITYUYTUTKFFFGJYFYTYUYFYTG",
@@ -1442,6 +2061,701 @@
     }
   ],
   "auditEvents": [
+    {
+      "actorId": "anonymous",
+      "actorName": "Student",
+      "actorRole": "student",
+      "actionType": "BUG_REPORTED",
+      "targetResourceType": "bug_report",
+      "targetResourceId": "BUG-MVG9Y0VR",
+      "metadata": {
+        "title": "Mobile layout alignment issue",
+        "description": "The navbar hamburger menu closes unexpectedly on Android Chrome.",
+        "category": "Mobile UI",
+        "severity": "Low",
+        "affectedPage": "Dashboard",
+        "reporterEmail": "",
+        "reporterRollNumber": ""
+      },
+      "id": "aud_fvujixfd",
+      "createdAt": "2026-10-20T06:00:25.336Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_qp1fjho3",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_eb5y12gc",
+      "createdAt": "2026-10-20T06:00:25.020Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_v81jtm9t",
+      "createdAt": "2026-10-20T06:00:24.884Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_dk6408nw",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_v8lnrytv",
+      "createdAt": "2026-10-20T06:00:24.872Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T06:00:24.854Z"
+      },
+      "id": "aud_69j890nz",
+      "createdAt": "2026-10-20T06:00:24.863Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_o6mmlm0c",
+      "createdAt": "2026-10-20T06:00:24.849Z"
+    },
+    {
+      "actorId": "sub_1792476024548",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792476024548",
+      "metadata": {
+        "rollNumber": "024548",
+        "email": "fresh_student_1792476024548@saranathan.ac.in"
+      },
+      "id": "aud_46wd8rcy",
+      "createdAt": "2026-10-20T06:00:24.555Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792476024538",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792476024538@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_hwi8hl1h",
+      "createdAt": "2026-10-20T06:00:24.542Z"
+    },
+    {
+      "actorId": "usr_ql6iidah",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_ql6iidah",
+      "metadata": {
+        "email": "oauth_student_1792476024528@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_8f346uy1",
+      "createdAt": "2026-10-20T06:00:24.533Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_09mdldem",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_5f81y0o2",
+      "createdAt": "2026-10-20T05:56:48.010Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_eivo0y9k",
+      "createdAt": "2026-10-20T05:56:47.944Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_9kt0x55j",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_dz7t8n8p",
+      "createdAt": "2026-10-20T05:56:47.938Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:56:47.930Z"
+      },
+      "id": "aud_h25h1ym2",
+      "createdAt": "2026-10-20T05:56:47.934Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_ex23geew",
+      "createdAt": "2026-10-20T05:56:47.927Z"
+    },
+    {
+      "actorId": "sub_1792475807761",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792475807761",
+      "metadata": {
+        "rollNumber": "807761",
+        "email": "fresh_student_1792475807761@saranathan.ac.in"
+      },
+      "id": "aud_4ez4rrcf",
+      "createdAt": "2026-10-20T05:56:47.763Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792475807758",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792475807758@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_35a3e27m",
+      "createdAt": "2026-10-20T05:56:47.759Z"
+    },
+    {
+      "actorId": "usr_xab9rah7",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_xab9rah7",
+      "metadata": {
+        "email": "oauth_student_1792475807755@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_zgi5hjs0",
+      "createdAt": "2026-10-20T05:56:47.756Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_iswy68b5",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_4vjnopar",
+      "createdAt": "2026-10-20T05:48:25.048Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_4hjak42p",
+      "createdAt": "2026-10-20T05:48:24.977Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_c4szrxaq",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_1emim6ry",
+      "createdAt": "2026-10-20T05:48:24.970Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:48:24.963Z"
+      },
+      "id": "aud_a61n9xjp",
+      "createdAt": "2026-10-20T05:48:24.967Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_6qbjbm2g",
+      "createdAt": "2026-10-20T05:48:24.962Z"
+    },
+    {
+      "actorId": "sub_1792475304762",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792475304762",
+      "metadata": {
+        "rollNumber": "304762",
+        "email": "fresh_student_1792475304762@saranathan.ac.in"
+      },
+      "id": "aud_wkvz2fq4",
+      "createdAt": "2026-10-20T05:48:24.767Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792475304752",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792475304752@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_o092u041",
+      "createdAt": "2026-10-20T05:48:24.755Z"
+    },
+    {
+      "actorId": "usr_bgw9d39k",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_bgw9d39k",
+      "metadata": {
+        "email": "oauth_student_1792475304744@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_bqnh0fyn",
+      "createdAt": "2026-10-20T05:48:24.747Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_0ah6ohmn",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_y9sots1n",
+      "createdAt": "2026-10-20T05:47:19.657Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_rmkw3jvf",
+      "createdAt": "2026-10-20T05:47:19.601Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_mdduz6ua",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_ko2fbj6i",
+      "createdAt": "2026-10-20T05:47:19.595Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:47:19.588Z"
+      },
+      "id": "aud_gr3oco5l",
+      "createdAt": "2026-10-20T05:47:19.592Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_wc3ass7s",
+      "createdAt": "2026-10-20T05:47:19.586Z"
+    },
+    {
+      "actorId": "sub_1792475239429",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792475239429",
+      "metadata": {
+        "rollNumber": "239429",
+        "email": "fresh_student_1792475239429@saranathan.ac.in"
+      },
+      "id": "aud_dzaw3clx",
+      "createdAt": "2026-10-20T05:47:19.432Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792475239426",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792475239426@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_zz2myen0",
+      "createdAt": "2026-10-20T05:47:19.427Z"
+    },
+    {
+      "actorId": "usr_xqtipvf2",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_xqtipvf2",
+      "metadata": {
+        "email": "oauth_student_1792475239423@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_m4qwq1q6",
+      "createdAt": "2026-10-20T05:47:19.425Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_zvr0wwmr",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_4qskrsei",
+      "createdAt": "2026-10-20T05:46:17.341Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_ofp59bo0",
+      "createdAt": "2026-10-20T05:46:17.266Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_esqx0iby",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_kn4clylr",
+      "createdAt": "2026-10-20T05:46:17.261Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:46:17.254Z"
+      },
+      "id": "aud_4z4qb5bb",
+      "createdAt": "2026-10-20T05:46:17.258Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_c81h63d9",
+      "createdAt": "2026-10-20T05:46:17.252Z"
+    },
+    {
+      "actorId": "sub_1792475177096",
+      "actorName": "Vignesh K",
+      "actorRole": "student",
+      "actionType": "PROFILE_COMPLETED",
+      "targetResourceType": "user",
+      "targetResourceId": "sub_1792475177096",
+      "metadata": {
+        "rollNumber": "177096",
+        "email": "fresh_student_1792475177096@saranathan.ac.in"
+      },
+      "id": "aud_445l4tll",
+      "createdAt": "2026-10-20T05:46:17.098Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792475177092",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792475177092@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_rnjv5llw",
+      "createdAt": "2026-10-20T05:46:17.093Z"
+    },
+    {
+      "actorId": "usr_dz57cqdl",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_dz57cqdl",
+      "metadata": {
+        "email": "oauth_student_1792475177089@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_0ddw6j3i",
+      "createdAt": "2026-10-20T05:46:17.091Z"
+    },
+    {
+      "actorId": "usr_mgr",
+      "actorName": "EG Faculty",
+      "actorRole": "manager",
+      "actionType": "RESOURCE_UPLOADED",
+      "targetResourceType": "resource",
+      "targetResourceId": "res_b7vnwt2h",
+      "metadata": {
+        "filename": "eg_unit1.pdf",
+        "googleDriveFileId": "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+      },
+      "id": "aud_e37jiuyb",
+      "createdAt": "2026-10-20T05:45:01.727Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Approved Manager Ban Request: Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_hx4u7vlm",
+      "createdAt": "2026-10-20T05:45:01.663Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "BAN_REQUEST_SUBMITTED",
+      "targetResourceType": "ban_request",
+      "targetResourceId": "breq_lktd3483",
+      "metadata": {
+        "studentId": "usr_stua",
+        "reason": "Student violated lab rules again; requesting Admin review due to active restriction."
+      },
+      "id": "aud_ro6yt28m",
+      "createdAt": "2026-10-20T05:45:01.658Z"
+    },
+    {
+      "actorId": "usr_admin",
+      "actorName": "Admin",
+      "actorRole": "admin",
+      "actionType": "USER_UNBANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "sevenDayRestrictionCreated": true,
+        "restrictionEndUtc": "2026-10-27T05:45:01.651Z"
+      },
+      "id": "aud_f32qp1jh",
+      "createdAt": "2026-10-20T05:45:01.656Z"
+    },
+    {
+      "actorId": "usr_mgr1",
+      "actorName": "Manager 1",
+      "actorRole": "manager",
+      "actionType": "USER_BANNED",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_stua",
+      "metadata": {
+        "targetEmail": "stua@saranathan.ac.in",
+        "targetRole": "student",
+        "reason": "Disruptive behavior during Python lab"
+      },
+      "id": "aud_87k028xh",
+      "createdAt": "2026-10-20T05:45:01.650Z"
+    },
+    {
+      "actorId": "usr_mock_456",
+      "actorName": "verified_1792475091164",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_mock_456",
+      "metadata": {
+        "email": "verified_1792475091164@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_8mcvjbc4",
+      "createdAt": "2026-10-20T05:44:51.165Z"
+    },
+    {
+      "actorId": "usr_twx8ozyc",
+      "actorName": "Raghavan",
+      "actorRole": "student",
+      "actionType": "STUDENT_REGISTERED_OAUTH",
+      "targetResourceType": "user",
+      "targetResourceId": "usr_twx8ozyc",
+      "metadata": {
+        "email": "oauth_student_1792475091161@saranathan.ac.in",
+        "role": "student"
+      },
+      "id": "aud_jg6doskl",
+      "createdAt": "2026-10-20T05:44:51.162Z"
+    },
     {
       "actorId": "usr_mgr",
       "actorName": "EG Faculty",
@@ -2312,5 +3626,5 @@
     }
   ],
   "outbox": [],
-  "persistedAt": "2026-10-20T05:14:48.119Z"
+  "persistedAt": "2026-10-20T06:00:25.336Z"
 }

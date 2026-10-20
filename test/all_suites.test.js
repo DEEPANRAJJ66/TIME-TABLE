@@ -12,6 +12,7 @@ const suites = [
   { name: 'Section 15 & 39: Coursework Assignments & Submissions', file: 'assignments_and_submissions.test.js' },
   { name: 'Section 9: Moderation, Admin Unbans & 7-Day Restriction', file: 'moderation_and_restrictions.test.js' },
   { name: 'Section 12 & 38: Google Drive Storage & Streaming Proxy', file: 'google_drive_storage.test.js' },
+  { name: 'API Client Resilience & Anti-Spoofing Security', file: 'api_client_and_resilience.test.js' },
   { name: 'Timetable & Day Order Engine (49 Preservation Tests)', file: 'engine.test.js' }
 ];
 
@@ -29,7 +30,7 @@ for (const suite of suites) {
 
   const result = spawnSync('node', [filePath], {
     stdio: 'inherit',
-    env: process.env
+    env: { ...process.env, NODE_ENV: 'test' }
   });
 
   if (result.status === 0) {

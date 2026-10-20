@@ -54,13 +54,15 @@ export function closeModal(id) {
 }
 
 // Attach close listener to all data-close-modal elements
-document.addEventListener('click', (e) => {
-  const target = e.target.closest('[data-close-modal]');
-  if (target) {
-    const modalId = target.getAttribute('data-close-modal');
-    closeModal(modalId);
-  }
-});
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('[data-close-modal]');
+    if (target) {
+      const modalId = target.getAttribute('data-close-modal');
+      closeModal(modalId);
+    }
+  });
+}
 
 // IST Clock Display
 function startIstClock() {
@@ -89,12 +91,13 @@ function startIstClock() {
 // ----------------------------------------------------
 
 export class ApiError extends Error {
-  constructor(message, status = 500, code = 'API_ERROR', details = null) {
+  constructor(message, status = 500, code = 'API_ERROR', details = null, endpoint = '') {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.details = details;
+    this.endpoint = endpoint;
   }
 }
 
@@ -103,7 +106,7 @@ export class ApiError extends Error {
  * - Checks HTTP status before treating response as successful
  * - Safely handles JSON, plain-text, and HTML error pages without crashing (avoids SyntaxError: Unexpected token 'T')
  * - Automatically injects Bearer auth and X-User-Id
- * - Distinguishes 401, 403, 404, 408, 429, 500, 502/503
+ * - Distinguishes 400, 401, 403, 404, 408, 429, 500, 502/503
  * - Supports request timeouts
  */
 export async function apiRequest(endpoint, options = {}) {
@@ -136,31 +139,74 @@ export async function apiRequest(endpoint, options = {}) {
   try {
     const fetchOptions = {
       ...options,
-      headers,
+      headers: {
+        Accept: 'application/json',
+        ...headers
+      },
       signal: options.signal || controller.signal
     };
 
-    const res = await fetch(url, fetchOptions);
+    let res;
+    try {
+      res = await fetch(url, fetchOptions);
+    } catch (networkErr) {
+      if (networkErr.name === 'AbortError') {
+        throw new ApiError(`Request to ${endpoint} timed out. Please check your connection.`, 408, 'TIMEOUT', null, endpoint);
+      }
+      throw new ApiError(`Network request failed: ${networkErr.message}`, 0, 'NETWORK_ERROR', null, endpoint);
+    }
 
+    const contentType = (res.headers && res.headers.get('content-type')) || '';
+    let parsedData = null;
+    let rawText = '';
+
+    // Safely extract text first to avoid unhandled stream reading issues
     try {
       rawText = await res.text();
-      if (rawText && rawText.trim()) {
+    } catch (readErr) {
+      console.warn(`Could not read response body from ${endpoint}:`, readErr);
+    }
+
+    // Try parsing JSON if content-type indicates JSON or if body resembles JSON
+    if (rawText && rawText.trim()) {
+      const trimmed = rawText.trim();
+      const isJsonContentType = contentType.toLowerCase().includes('application/json');
+      const looksLikeJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+
+      if (isJsonContentType || looksLikeJson) {
         try {
-          parsedData = JSON.parse(rawText);
+          parsedData = JSON.parse(trimmed);
         } catch (_) {
-          // Non-JSON response (e.g. plain text or HTML error page from serverless host)
+          // If response status was OK but JSON was corrupted
+          if (res.ok) {
+            throw new ApiError(
+              `Expected a valid JSON API response but received malformed data (HTTP ${res.status})`,
+              res.status,
+              'INVALID_JSON',
+              null,
+              endpoint
+            );
+          }
         }
       }
-    } catch (_) {}
+    }
 
+    // Check HTTP status before treating as successful
     if (!res.ok) {
       let message = '';
       let code = 'ERROR';
+      if (res.status === 400) code = 'BAD_REQUEST';
+      else if (res.status === 401) code = 'UNAUTHORIZED';
+      else if (res.status === 403) code = 'FORBIDDEN';
+      else if (res.status === 404) code = 'NOT_FOUND';
+      else if (res.status === 408) code = 'TIMEOUT';
+      else if (res.status === 429) code = 'RATE_LIMITED';
+      else if (res.status >= 500) code = 'INTERNAL_ERROR';
 
-      if (parsedData && (parsedData.error || parsedData.message)) {
+      if (parsedData && typeof parsedData === 'object' && (parsedData.error || parsedData.message)) {
         message = parsedData.error || parsedData.message;
         code = parsedData.code || code;
-      } else if (rawText && rawText.length < 150 && !rawText.includes('<!DOCTYPE') && !rawText.includes('<html')) {
+      } else if (rawText && rawText.length < 150 && !rawText.includes('<!DOCTYPE') && !rawText.includes('<html') && !rawText.toLowerCase().includes('the page could not be found')) {
         message = rawText.trim();
       } else {
         switch (res.status) {
@@ -180,9 +226,17 @@ export async function apiRequest(endpoint, options = {}) {
             message = `Service endpoint not found (${endpoint}).`;
             code = 'NOT_FOUND';
             break;
+          case 408:
+            message = 'Request timed out. Please try again.';
+            code = 'TIMEOUT';
+            break;
           case 429:
             message = 'Too many requests. Please wait a moment before trying again.';
             code = 'RATE_LIMITED';
+            break;
+          case 500:
+            message = 'Server encountered an unexpected error. Please retry shortly.';
+            code = 'INTERNAL_ERROR';
             break;
           case 502:
           case 503:
@@ -191,26 +245,32 @@ export async function apiRequest(endpoint, options = {}) {
             code = 'GATEWAY_ERROR';
             break;
           default:
-            message = `Server error (${res.status}): ${res.statusText || 'Unexpected response'}`;
+            message = `Server error (HTTP ${res.status}): ${res.statusText || 'Unexpected response'}`;
             code = 'SERVER_ERROR';
         }
       }
 
-      throw new ApiError(message, res.status, code, parsedData);
+      throw new ApiError(message, res.status, code, parsedData, endpoint);
     }
 
-    // 204 No Content
+    // HTTP 204 No Content
     if (res.status === 204) return { success: true };
 
-    return parsedData || { success: true, text: rawText };
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      throw new ApiError(`Request to ${endpoint} timed out. Please check your connection.`, 408, 'TIMEOUT');
+    if (parsedData !== null) {
+      return parsedData;
     }
+
+    // If body was empty but OK
+    if (!rawText || !rawText.trim()) {
+      return { success: true };
+    }
+
+    return { success: true, text: rawText };
+  } catch (err) {
     if (err instanceof ApiError) {
       throw err;
     }
-    throw new ApiError(err.message || 'Network error occurred.', 0, 'NETWORK_ERROR');
+    throw new ApiError(err.message || 'An unexpected error occurred.', 0, 'UNKNOWN_ERROR', null, endpoint);
   } finally {
     clearTimeout(timeoutId);
   }
@@ -1709,9 +1769,10 @@ function renderProfileView(container) {
 // ----------------------------------------------------
 // EVENT HANDLERS & MODAL ACTIONS
 // ----------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-  startIstClock();
-  initAuth();
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    startIstClock();
+    initAuth();
 
   // Mobile menu toggle
   document.getElementById('mobileMenuToggle')?.addEventListener('click', () => {
@@ -1998,3 +2059,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+}

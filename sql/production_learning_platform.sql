@@ -12,7 +12,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. PROFILES (Users, Auth association, Roles, Account Status)
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     email TEXT NOT NULL UNIQUE,
     first_name TEXT NOT NULL,
     secondary_name TEXT,
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS public.subjects (
 CREATE TABLE IF NOT EXISTS public.subject_assignments (
     id TEXT PRIMARY KEY,
     subject_id TEXT NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
-    manager_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    assigned_by UUID REFERENCES public.profiles(id),
+    manager_id TEXT NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    assigned_by TEXT REFERENCES public.profiles(id),
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     UNIQUE(subject_id, manager_id)
 );
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS public.resources (
     subject_id TEXT NOT NULL REFERENCES public.subjects(id) ON DELETE RESTRICT,
     unit_number INTEGER CHECK (unit_number BETWEEN 1 AND 5),
     category TEXT NOT NULL DEFAULT 'cat_notes' CHECK (category IN ('cat_notes', 'cat_assignments', 'cat_videos', 'cat_lab', 'cat_reference')),
-    uploader_id UUID NOT NULL REFERENCES public.profiles(id),
+    uploader_id TEXT NOT NULL REFERENCES public.profiles(id),
     uploader_name TEXT NOT NULL,
     uploader_email TEXT NOT NULL,
     publication_status TEXT NOT NULL DEFAULT 'draft' CHECK (publication_status IN ('draft', 'published', 'archived')),
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS public.assignments (
     instructions TEXT NOT NULL,
     subject_id TEXT NOT NULL REFERENCES public.subjects(id) ON DELETE RESTRICT,
     unit_number INTEGER CHECK (unit_number BETWEEN 1 AND 5),
-    creator_id UUID NOT NULL REFERENCES public.profiles(id),
+    creator_id TEXT NOT NULL REFERENCES public.profiles(id),
     creator_name TEXT NOT NULL,
     due_date_utc TIMESTAMPTZ NOT NULL,
     due_date_ist_display TEXT NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     id TEXT PRIMARY KEY,
     receipt_id TEXT NOT NULL UNIQUE,
     assignment_id TEXT NOT NULL REFERENCES public.assignments(id) ON DELETE CASCADE,
-    student_id UUID NOT NULL REFERENCES public.profiles(id),
+    student_id TEXT NOT NULL REFERENCES public.profiles(id),
     student_name TEXT NOT NULL,
     student_email TEXT NOT NULL,
     student_roll_number TEXT NOT NULL,
@@ -134,15 +134,15 @@ CREATE TABLE IF NOT EXISTS public.submissions (
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.moderation_records (
     id TEXT PRIMARY KEY,
-    target_user_id UUID NOT NULL REFERENCES public.profiles(id),
+    target_user_id TEXT NOT NULL REFERENCES public.profiles(id),
     target_email TEXT NOT NULL,
     target_role TEXT NOT NULL,
-    acting_user_id UUID NOT NULL REFERENCES public.profiles(id),
+    acting_user_id TEXT NOT NULL REFERENCES public.profiles(id),
     acting_user_role TEXT NOT NULL,
     action TEXT NOT NULL CHECK (action IN ('ban', 'unban')),
     reason TEXT NOT NULL,
     is_active BOOLEAN DEFAULT true NOT NULL,
-    unban_actor_id UUID REFERENCES public.profiles(id),
+    unban_actor_id TEXT REFERENCES public.profiles(id),
     unban_timestamp TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
@@ -152,8 +152,8 @@ CREATE TABLE IF NOT EXISTS public.moderation_records (
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.ban_restrictions (
     id TEXT PRIMARY KEY,
-    manager_id UUID NOT NULL REFERENCES public.profiles(id),
-    student_id UUID NOT NULL REFERENCES public.profiles(id),
+    manager_id TEXT NOT NULL REFERENCES public.profiles(id),
+    student_id TEXT NOT NULL REFERENCES public.profiles(id),
     restriction_start_utc TIMESTAMPTZ NOT NULL,
     restriction_end_utc TIMESTAMPTZ NOT NULL,
     reason TEXT NOT NULL,
@@ -166,13 +166,13 @@ CREATE TABLE IF NOT EXISTS public.ban_restrictions (
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.ban_requests (
     id TEXT PRIMARY KEY,
-    manager_id UUID NOT NULL REFERENCES public.profiles(id),
+    manager_id TEXT NOT NULL REFERENCES public.profiles(id),
     manager_name TEXT NOT NULL,
-    student_id UUID NOT NULL REFERENCES public.profiles(id),
+    student_id TEXT NOT NULL REFERENCES public.profiles(id),
     student_name TEXT NOT NULL,
     reason TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-    resolved_by UUID REFERENCES public.profiles(id),
+    resolved_by TEXT REFERENCES public.profiles(id),
     resolved_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS public.notices (
     id TEXT PRIMARY KEY,
     date_ist TEXT NOT NULL,
     message TEXT NOT NULL,
-    author_id UUID NOT NULL REFERENCES public.profiles(id),
+    author_id TEXT NOT NULL REFERENCES public.profiles(id),
     author_name TEXT NOT NULL,
     author_role TEXT NOT NULL,
     formatted_notice_text TEXT NOT NULL,
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS public.notices (
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.notifications (
     id TEXT PRIMARY KEY,
-    recipient_user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    recipient_user_id TEXT NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     event_type TEXT NOT NULL,
     title TEXT NOT NULL,
     message TEXT NOT NULL,
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 -- ------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.audit_events (
     id TEXT PRIMARY KEY,
-    actor_id UUID REFERENCES public.profiles(id),
+    actor_id TEXT REFERENCES public.profiles(id),
     actor_name TEXT NOT NULL,
     actor_role TEXT NOT NULL,
     action_type TEXT NOT NULL,

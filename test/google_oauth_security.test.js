@@ -424,20 +424,38 @@ const studentModRes = await dispatch({
 });
 assert(studentModRes.status === 403, 'GET /api/moderation/records by Student rejected with HTTP 403 Forbidden');
 
-// Test 25: Moderation records: Admin role authorized (HTTP 200)
+// Test 25: Moderation records: Admin role authorized with Bearer token (HTTP 200)
 const adminUser = await store.getUserByEmail('admin@saranathan.ac.in');
 assert(adminUser && adminUser.role === 'admin', 'Default Admin user exists in persistent store');
+
+const adminPayload = {
+  sub: adminUser.id,
+  email: adminUser.email,
+  exp: Math.floor(Date.now() / 1000) + 3600
+};
+const adminToken = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify(adminPayload)).toString('base64')}.mocksignature`;
+
 const adminModRes = await dispatch({
   method: 'GET',
   url: '/api/moderation/records',
   headers: {
-    'x-user-id': adminUser.id
+    'authorization': `Bearer ${adminToken}`
   }
 });
 assert(adminModRes.status === 200, 'GET /api/moderation/records by Admin succeeds with HTTP 200');
 assert(Array.isArray(adminModRes.body.records), 'Moderation response contains records array');
 assert(Array.isArray(adminModRes.body.requests), 'Moderation response contains requests array');
 assert(Array.isArray(adminModRes.body.restrictions), 'Moderation response contains restrictions array');
+
+// Test 25b: Strict Security - Spoofed X-User-Id header without Bearer token is rejected with HTTP 401
+const spoofedModRes = await dispatch({
+  method: 'GET',
+  url: '/api/moderation/records',
+  headers: {
+    'x-user-id': adminUser.id
+  }
+});
+assert(spoofedModRes.status === 401, 'Spoofed X-User-Id without Bearer token is strictly rejected with HTTP 401 Unauthorized');
 
 // Test 26: Safe response handling: Non-JSON HTML 404 does not crash JSON parser
 const htmlResponseText = '<!DOCTYPE html><html><body>404 NOT_FOUND</body></html>';
