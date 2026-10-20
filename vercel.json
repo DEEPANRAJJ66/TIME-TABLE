@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/auth/callback",
-      "destination": "/learning.html"
+      "destination": "/learning"
     },
     {
       "source": "/learning",
