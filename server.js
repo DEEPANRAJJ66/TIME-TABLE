@@ -70,8 +70,8 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   let pathname = parsedUrl.pathname;
 
-  // Delegate API requests to the API handler
-  if (pathname.startsWith('/api/')) {
+  // Delegate API requests and OAuth callback to the API handler
+  if (pathname.startsWith('/api/') || pathname === '/oauth2callback') {
     return handleApiRequest(req, res, store, moderationService);
   }
 

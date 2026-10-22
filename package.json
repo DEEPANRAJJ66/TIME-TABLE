@@ -13,7 +13,8 @@
     "test:assignments": "node test/assignments_and_submissions.test.js",
     "test:drive": "node test/google_drive_storage.test.js",
     "test:moderation": "node test/moderation_and_restrictions.test.js",
-    "test:timetable": "node test/engine.test.js"
+    "test:timetable": "node test/engine.test.js",
+    "auth:drive": "node scripts/auth_drive.js"
   },
   "keywords": [
     "saranathan",

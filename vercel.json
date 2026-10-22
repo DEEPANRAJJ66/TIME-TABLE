@@ -11,6 +11,10 @@
       "destination": "/learning.html"
     },
     {
+      "source": "/oauth2callback",
+      "destination": "/api/[...slug]?slug=oauth2callback"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/[...slug]?slug=$1"
     }
