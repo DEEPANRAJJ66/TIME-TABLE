@@ -7,6 +7,7 @@ import { getSharedSupabaseClient } from './supabaseClient.js';
 // State Container
 const state = {
   currentUser: null,
+  session: null,
   activeTab: 'overview',
   subjects: [],
   resources: [],
@@ -118,8 +119,20 @@ export async function apiRequest(endpoint, options = {}) {
   const headers = Object.assign({}, options.headers || {});
 
   // Inject Bearer token if session exists and not explicitly overridden
-  if (!headers['Authorization'] && state.session?.access_token) {
-    headers['Authorization'] = `Bearer ${state.session.access_token}`;
+  if (!headers['Authorization'] && !headers['authorization']) {
+    let token = state.session?.access_token;
+    if (!token && state.supabase) {
+      try {
+        const sessRes = await state.supabase.auth.getSession();
+        if (sessRes?.data?.session?.access_token) {
+          state.session = sessRes.data.session;
+          token = state.session.access_token;
+        }
+      } catch (_) {}
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   // Inject current user ID for backend authorization mapping
@@ -418,6 +431,7 @@ async function initAuth() {
 
 async function handleVerifiedSession(session) {
   if (!session || !session.user) return;
+  state.session = session;
   const user = session.user;
   const email = user.email;
   const id = user.id;
@@ -430,6 +444,7 @@ function handleSignOutCleanup() {
   localStorage.removeItem('saranathan_user_id');
   localStorage.removeItem('saranathan_user_email');
   state.currentUser = null;
+  state.session = null;
   const mainApp = document.getElementById('mainApp');
   if (mainApp) mainApp.style.display = 'none';
   const authScreen = document.getElementById('authScreen');
@@ -1859,25 +1874,40 @@ if (typeof document !== 'undefined') {
     }
 
     const file = fileInput.files[0];
+    const allowedExts = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.zip'];
+    const fileExt = '.' + (file.name.split('.').pop() || '').toLowerCase();
+    if (!allowedExts.includes(fileExt)) {
+      return showToast('File type not supported. Allowed: PDF, PNG, JPG/JPEG, DOC/DOCX, ZIP.', 'error');
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      return showToast('File exceeds the 50 MB limit.', 'error');
+    }
+
     const uploadBtn = document.getElementById('startUploadBtn');
     const progContainer = document.getElementById('uploadProgressContainer');
     if (progContainer) progContainer.style.display = 'block';
 
     await withButtonLoading(uploadBtn, 'Uploading to Drive...', async () => {
       try {
-        const buffer = await file.arrayBuffer();
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        formData.append('subjectId', subjectId);
+        formData.append('sectionName', sectionName || 'Unit 1');
+        formData.append('title', title);
+        formData.append('resourceType', resourceType);
+        formData.append('category', resourceType);
 
         await apiRequest('/api/resources/upload-direct', {
           method: 'POST',
           headers: {
-            'Content-Type': file.type || 'application/octet-stream',
             'X-Subject-Id': subjectId,
             'X-Section-Name': encodeURIComponent(sectionName || 'Unit 1'),
             'X-Resource-Title': encodeURIComponent(title),
             'X-Resource-Type': resourceType,
             'X-Filename': encodeURIComponent(file.name)
           },
-          body: buffer
+          body: formData
         });
 
         showToast('File successfully uploaded to designated Google Drive folder!', 'success');
@@ -2037,9 +2067,9 @@ if (typeof document !== 'undefined') {
       return showToast('Title and description are required.', 'error');
     }
 
-    await withButtonLoading(btn, 'Dispatching to Telegram...', async () => {
+    await withButtonLoading(btn, 'Dispatching Bug Report...', async () => {
       try {
-        await apiRequest('/api/telegram/bug-report', {
+        const reportRes = await apiRequest('/api/telegram/bug-report', {
           method: 'POST',
           body: JSON.stringify({
             title,
@@ -2049,12 +2079,16 @@ if (typeof document !== 'undefined') {
           })
         });
 
-        showToast('Bug report dispatched directly to administration Telegram channel!', 'success');
+        if (reportRes && reportRes.telegramDelivered) {
+          showToast('Bug report dispatched directly to administration Telegram channel!', 'success');
+        } else {
+          showToast(reportRes?.message || 'Bug report recorded in audit ledger for administrative review.', 'info');
+        }
         closeModal('bugModal');
         document.getElementById('bugTitleInput').value = '';
         document.getElementById('bugDescInput').value = '';
       } catch (err) {
-        showToast(err.message || 'Bug report dispatch failed', 'error');
+        showToast(err.message || 'Bug report submission failed', 'error');
       }
     });
   });
